@@ -297,3 +297,25 @@ textarea{min-height:90px}
     flex-direction:column;
   }
 }
+
+
+/* Profile Masjid navigation
+   Additive styling only. Keeps existing tab button behavior unchanged. */
+.menu .menu-link{
+  display:block;
+  border:0;
+  text-align:left;
+  padding:12px;
+  border-radius:10px;
+  background:transparent;
+  color:#dce8e2;
+  cursor:pointer;
+  text-decoration:none;
+  font:inherit;
+}
+.menu .menu-link:hover,
+.menu .menu-link:focus{
+  background:#ffffff18;
+  color:#fff;
+  outline:none;
+}

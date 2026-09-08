@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/profile-nav-fix.css">
+  <link rel="stylesheet" href="assets/css/share-hotfix.css">
 </head>
 <body>
 
@@ -21,7 +23,15 @@
     <button class="menu-btn" id="menuBtn" aria-label="Buka menu">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="#beranda">Beranda</a>
-      <a href="#profile">Profile</a>
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-toggle" aria-expanded="false">Profile</button>
+        <div class="nav-dropdown-menu">
+          <a href="profile/sejarah.html">Sejarah & Perkembangan</a>
+          <a href="profile/visi-misi.html">Visi & Misi</a>
+          <a href="profile/struktur-dkm.html">Struktur DKM</a>
+          <a href="profile/program-fasilitas.html">Program & Fasilitas</a>
+        </div>
+      </div>
       <a href="#kajian">Kajian</a>
       <a href="#media">Media</a>
       <a href="#keuangan">Keuangan</a>
@@ -126,5 +136,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/share-hotfix.js"></script>
 </body>
 </html>

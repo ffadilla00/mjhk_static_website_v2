@@ -1,0 +1,156 @@
+/* MJHK Share Hotfix
+   Additive-only. Does not replace style.css or app.js. */
+
+.mjhk-share-actions,
+.card-actions.mjhk-share-actions,
+.finance-actions.mjhk-share-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:14px;
+}
+
+.mjhk-share-btn{
+  border:1px solid #dfe8e2;
+  background:#f5f9f6;
+  color:var(--green2,#073b2d);
+  border-radius:999px;
+  padding:9px 12px;
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  position:relative;
+  z-index:2;
+}
+
+.mjhk-share-btn:hover{
+  background:#e9f3ed;
+}
+
+.mjhk-share-btn svg{
+  width:16px;
+  height:16px;
+  fill:currentColor;
+  flex:0 0 16px;
+}
+
+.mjhk-share-sheet{
+  position:fixed;
+  inset:0;
+  z-index:150;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+.mjhk-share-sheet.open{
+  display:flex;
+}
+
+.mjhk-share-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.48);
+}
+
+.mjhk-share-card{
+  position:relative;
+  width:min(520px,calc(100% - 24px));
+  margin:0 12px 18px;
+  padding:22px;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 24px 70px rgba(0,0,0,.28);
+  z-index:1;
+}
+
+.mjhk-share-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.mjhk-share-label{
+  color:var(--gold,#d7a72a);
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+.mjhk-share-head h3{
+  margin:4px 0 0;
+  color:var(--green2,#073b2d);
+  font-size:24px;
+}
+
+.mjhk-share-close{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:#f1f4f2;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.mjhk-share-copy{
+  color:var(--muted,#65716c);
+  line-height:1.6;
+  white-space:pre-line;
+  margin:16px 0;
+}
+
+.mjhk-share-actions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.mjhk-share-option{
+  border:1px solid #dfe8e2;
+  background:#f7faf8;
+  color:var(--green2,#073b2d);
+  padding:12px 10px;
+  border-radius:12px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.mjhk-share-option.whatsapp{
+  background:#eaf8ef;
+}
+
+.mjhk-share-status{
+  min-height:18px;
+  margin:10px 0 0;
+  font-size:12px;
+  color:var(--green,#0b4f3a);
+}
+
+.mjhk-shared-target{
+  animation:mjhk-shared-focus 2.2s ease;
+}
+
+@keyframes mjhk-shared-focus{
+  0%,100%{box-shadow:var(--shadow,0 14px 40px rgba(0,0,0,.12))}
+  35%{box-shadow:0 0 0 4px rgba(215,167,42,.42),0 16px 44px rgba(0,0,0,.16)}
+}
+
+@media(max-width:640px){
+  .mjhk-share-actions{
+    grid-template-columns:1fr;
+  }
+
+  .mjhk-share-card{
+    margin-bottom:10px;
+  }
+}

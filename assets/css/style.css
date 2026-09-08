@@ -183,3 +183,140 @@ section{padding:80px 0}
   .finance-caption,.footer-inner{align-items:flex-start;flex-direction:column}
   .brand span{display:none}
 }
+
+
+/* Profile improvement */
+.profile-wrap{
+  grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);
+  gap:48px;
+}
+.profile-photo{
+  aspect-ratio:4/3;
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  background:#e9eee9;
+}
+.profile-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.profile-accordion{display:grid;gap:12px;margin-top:22px}
+.profile-item{
+  padding:0;
+  border-radius:14px;
+  background:#f5f9f6;
+  border:1px solid #e1ece5;
+  overflow:hidden;
+}
+.profile-item summary{
+  list-style:none;
+  cursor:pointer;
+  padding:15px 48px 15px 16px;
+  font-weight:800;
+  color:#234437;
+  position:relative;
+}
+.profile-item summary::-webkit-details-marker{display:none}
+.profile-item summary:after{
+  content:"+";
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:22px;
+  color:var(--green);
+}
+.profile-item[open] summary:after{content:"−"}
+.profile-detail{
+  padding:0 16px 16px;
+  border-top:1px solid #e1ece5;
+}
+.profile-detail p{
+  margin:14px 0 0;
+  font-size:14px;
+  line-height:1.7;
+}
+
+.card-actions,.finance-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:16px;
+}
+.share-btn{
+  border:1px solid #dfe8e2;
+  background:#f5f9f6;
+  color:var(--green2);
+  border-radius:999px;
+  padding:9px 12px;
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.share-btn:hover{background:#e9f3ed}
+.share-btn svg{width:16px;height:16px;fill:currentColor}
+
+.share-sheet{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.share-sheet.open{display:flex}
+.share-sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.48)}
+.share-sheet-card{
+  position:relative;
+  width:min(520px,calc(100% - 24px));
+  margin:0 12px 18px;
+  padding:22px;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 24px 70px rgba(0,0,0,.28);
+  z-index:1;
+}
+.share-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.share-sheet-head h3{margin:4px 0 0;color:var(--green2);font-size:24px}
+.share-close{
+  width:38px;height:38px;border:0;border-radius:50%;
+  background:#f1f4f2;font-size:24px;cursor:pointer
+}
+.share-copy{color:var(--muted);line-height:1.6;white-space:pre-line;margin:16px 0}
+.share-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.share-option{
+  border:1px solid #dfe8e2;
+  background:#f7faf8;
+  color:var(--green2);
+  padding:12px 10px;
+  border-radius:12px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+.share-option.whatsapp{background:#eaf8ef}
+.share-status{min-height:18px;margin:10px 0 0;font-size:12px;color:var(--green)}
+
+.shared-target{animation:shared-focus 2.2s ease}
+@keyframes shared-focus{
+  0%,100%{box-shadow:var(--shadow)}
+  35%{box-shadow:0 0 0 4px rgba(215,167,42,.42),0 16px 44px rgba(0,0,0,.16)}
+}
+
+@media (max-width:900px){
+  .profile-wrap{gap:28px}
+  .profile-photo{aspect-ratio:16/10}
+}
+@media (max-width:640px){
+  .profile-photo{aspect-ratio:4/3}
+  .share-actions{grid-template-columns:1fr}
+  .share-sheet-card{margin-bottom:10px}
+}

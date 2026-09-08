@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile Masjid | Admin MJHK</title>
+<link rel="stylesheet" href="profile-admin.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><img src="../assets/images/logo-mjhk.png"><div><strong>Admin MJHK</strong><span>Profile CMS</span></div></div>
+    <nav class="menu">
+      <a href="index.html">Dashboard</a>
+      <a href="index.html#kajian">Kajian & Kegiatan</a>
+      <a href="index.html#media">Media YouTube</a>
+      <a href="index.html#keuangan">Keuangan</a>
+      <a href="profile.html" class="active">Profile Masjid</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div><h1>Profile Masjid</h1><p id="adminIdentity">Memuat sesi...</p></div>
+      <div><a class="btn light" href="../index.html">Lihat Website</a><button class="btn light" id="logoutBtn">Logout</button></div>
+    </div>
+
+    <div class="tabs" id="profileTabs"></div>
+
+    <section class="panel">
+      <form id="profileForm">
+        <input type="hidden" id="pageId">
+        <div class="form-grid">
+          <div class="field"><label>Judul Halaman</label><input id="judul" required></div>
+          <div class="field"><label>Status</label><select id="status"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
+          <div class="field full"><label>Ringkasan</label><textarea id="ringkasan" rows="3"></textarea></div>
+          <div class="field full">
+            <label>Konten Markdown</label>
+            <div class="toolbar">
+              <button type="button" data-md="bold"><b>B</b></button>
+              <button type="button" data-md="italic"><i>I</i></button>
+              <button type="button" data-md="h2">H2</button>
+              <button type="button" data-md="ul">• List</button>
+              <button type="button" data-md="ol">1. List</button>
+              <button type="button" data-md="quote">Quote</button>
+              <button type="button" data-md="table">Table</button>
+              <button type="button" data-md="link">Link</button>
+              <button type="button" id="uploadImageBtn">Upload Image</button>
+              <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" hidden>
+            </div>
+            <div class="editor-grid">
+              <textarea id="contentMarkdown" spellcheck="true"></textarea>
+              <div class="preview-wrap"><div class="preview-title">Preview</div><article id="preview" class="markdown-body"></article></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <span id="saveState"></span>
+          <button class="btn green" id="saveBtn">Simpan</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="../assets/js/supabase-client.js"></script>
+<script src="profile-admin.js"></script>
+</body>
+</html>
