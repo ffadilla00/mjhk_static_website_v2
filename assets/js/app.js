@@ -20,10 +20,21 @@ function yid(u){
   const m=(u||"").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);
   return m?m[1]:u;
 }
+function esc(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function setState(target,message,type=""){
+  if(target)target.innerHTML=`<p class="section-state ${type}">${esc(message)}</p>`;
+}
+function parseDate(value){
+  if(!value)return null;
+  const date=new Date(`${String(value).slice(0,10)}T00:00:00`);
+  return Number.isNaN(date.getTime())?null:date;
+}
 function fmtDate(s){
   if(!s)return"";
   const M=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-  const[y,m,d]=s.split("-").map(Number);return `${d} ${M[m-1]} ${y}`;
+  const date=parseDate(s);return date?`${date.getDate()} ${M[date.getMonth()]} ${date.getFullYear()}`:"";
 }
 function fmtPeriod(a,b){
   if(!a||!b)return"";
@@ -35,32 +46,43 @@ function fmtPeriod(a,b){
 }
 
 async function renderKajian(){
-  const {data,error}=await db.from("kajian").select("*").eq("status","publish").order("tanggal",{ascending:true});
-  if(error){console.error("Kajian:",error);return}
   const grid=$("#kajianGrid"); if(!grid)return;
-  grid.innerHTML=(data||[]).map(x=>`<article class="card kajian-card">
-    ${x.poster_url?`<img src="${x.poster_url}" alt="${x.judul||"Kajian"}" style="width:100%;aspect-ratio:16/9;object-fit:cover">`:`<div class="thumb"><strong>${x.jenis||"Kajian"}</strong></div>`}
-    <div class="card-pad"><h3>${x.judul||""}</h3><p>${x.tema||""}</p><div class="meta"><span>${x.penceramah||""}</span><span>${fmtDate(x.tanggal)}</span><span>${x.waktu||""}</span></div></div>
+  if(!db){setState(grid,"Agenda kajian belum dapat dimuat.","is-error");return}
+  const {data,error}=await db.from("kajian").select("*").eq("status","publish").order("tanggal",{ascending:true});
+  if(error){console.error("Kajian:",error);setState(grid,"Agenda kajian belum dapat dimuat. Silakan coba lagi nanti.","is-error");return}
+  const today=new Date();today.setHours(0,0,0,0);
+  const rows=(data||[]).filter(x=>{const date=parseDate(x.tanggal);return date&&date>=today});
+  if(!rows.length){setState(grid,"Belum ada agenda kajian yang dipublikasikan.","is-empty");return}
+  grid.innerHTML=rows.map(x=>`<article class="card kajian-card">
+    ${x.poster_url?`<img src="${esc(x.poster_url)}" alt="${esc(x.judul||"Kajian")}">`:`<div class="thumb"><strong>${esc(x.jenis||"Kajian")}</strong></div>`}
+    <div class="card-pad"><h3>${esc(x.judul||"Kajian")}</h3>${x.tema?`<p>${esc(x.tema)}</p>`:""}<div class="meta"><span>${esc(x.penceramah||"")}</span><span>${esc(fmtDate(x.tanggal))}</span><span>${esc(x.waktu||"")}</span></div></div>
   </article>`).join("");
 }
 
 async function renderMedia(){
-  const {data,error}=await db.from("media").select("*").eq("status","publish").order("tanggal",{ascending:false});
-  if(error){console.error("Media:",error);return}
-  const rows=data||[],player=$("#mainPlayer"),title=$("#videoTitle"),grid=$("#videoGrid");
-  if(rows.length&&player&&title){const id=rows[0].youtube_id||yid(rows[0].youtube_url);player.src=`https://www.youtube.com/embed/${id}?rel=0`;title.textContent=rows[0].judul||"Video Kajian Terbaru"}
+  const player=$("#mainPlayer"),title=$("#videoTitle"),grid=$("#videoGrid");
   if(!grid)return;
-  grid.innerHTML=rows.map(x=>{const id=x.youtube_id||yid(x.youtube_url);return `<div class="video-mini" data-video="${id}" data-title="${x.judul||""}"><img src="https://img.youtube.com/vi/${id}/hqdefault.jpg"><div><strong>${x.judul||""}</strong><span>${x.kategori||"Media MJHK"}</span></div></div>`}).join("");
-  $$(".video-mini").forEach(c=>c.addEventListener("click",()=>{if(!player||!title)return;player.src=`https://www.youtube.com/embed/${c.dataset.video}?rel=0`;title.textContent=c.dataset.title||"Video Kajian";$("#media")?.scrollIntoView({behavior:"smooth"})}));
+  setState(grid,"Memuat video...");
+  if(!db){setState(grid,"Video belum dapat dimuat. Silakan coba lagi nanti.","is-error");return}
+  const {data,error}=await db.from("media").select("*").eq("status","publish").order("tanggal",{ascending:false});
+  if(error){console.error("Media:",error);setState(grid,"Video belum dapat dimuat. Silakan coba lagi nanti.","is-error");return}
+  const rows=(data||[]).filter(x=>x.youtube_id||x.youtube_url);
+  if(!rows.length){setState(grid,"Belum ada video yang dipublikasikan.","is-empty");return}
+  if(player&&title){const id=rows[0].youtube_id||yid(rows[0].youtube_url);player.src=`https://www.youtube.com/embed/${encodeURIComponent(id)}?rel=0`;title.textContent=rows[0].judul||"Video Terbaru";$("#videoFeature").hidden=false}
+  grid.innerHTML=rows.map(x=>{const id=x.youtube_id||yid(x.youtube_url);return `<button type="button" class="video-mini" data-video="${esc(id)}" data-title="${esc(x.judul||"Video")}"><img src="https://img.youtube.com/vi/${esc(id)}/hqdefault.jpg" alt=""><div><strong>${esc(x.judul||"Video")}</strong><span>${esc(x.kategori||"Media")} · ${esc(fmtDate(x.tanggal||x.tanggal_publish))}</span></div></button>`}).join("");
+  $$(".video-mini").forEach(c=>c.addEventListener("click",()=>{if(!player||!title)return;player.src=`https://www.youtube.com/embed/${encodeURIComponent(c.dataset.video)}?rel=0`;title.textContent=c.dataset.title||"Video";$("#media").scrollIntoView({behavior:"smooth"})}));
 }
 
 async function renderKeuangan(){
+  const latest=$("#financeLatest"),history=$("#financeHistory");
+  if(!latest||!history)return;
+  if(!db){setState(latest,"Laporan keuangan belum dapat dimuat. Silakan coba lagi nanti.","is-error");return}
   const {data,error}=await db.from("keuangan").select("*").eq("status","publish").order("periode_akhir",{ascending:false}).order("tanggal_publish",{ascending:false});
-  if(error){console.error("Keuangan:",error);return}
-  const rows=data||[],latest=$("#financeLatest"),history=$("#financeHistory");
-  if(!rows.length||!latest||!history)return;
-  latest.innerHTML=`<div class="finance-feature"><img data-lightbox src="${rows[0].image_url}"><div class="finance-caption"><div><span class="badge">Laporan Terbaru</span><br><strong>${fmtPeriod(rows[0].periode_awal,rows[0].periode_akhir)}</strong></div><span>JPG 16:9</span></div></div>`;
-  history.innerHTML=rows.slice(1).map(x=>`<div class="history-card"><img data-lightbox src="${x.image_url}"><div><strong>${fmtPeriod(x.periode_awal,x.periode_akhir)}</strong><span>Laporan pekanan</span></div></div>`).join("");
+  if(error){console.error("Keuangan:",error);setState(latest,"Laporan keuangan belum dapat dimuat. Silakan coba lagi nanti.","is-error");return}
+  const rows=data||[];
+  if(!rows.length){setState(latest,"Belum ada laporan keuangan yang dipublikasikan.","is-empty");return}
+  latest.innerHTML=`<div class="finance-feature"><img data-lightbox src="${esc(rows[0].image_url)}" alt="Laporan keuangan ${esc(fmtPeriod(rows[0].periode_awal,rows[0].periode_akhir))}"><div class="finance-caption"><div><span class="badge">Laporan Terbaru</span><br><strong>${esc(fmtPeriod(rows[0].periode_awal,rows[0].periode_akhir))}</strong></div><span>Dokumen</span></div></div>`;
+  history.innerHTML=rows.slice(1).map(x=>`<div class="history-card"><img data-lightbox src="${esc(x.image_url)}" alt="Laporan keuangan ${esc(fmtPeriod(x.periode_awal,x.periode_akhir))}"><div><strong>${esc(fmtPeriod(x.periode_awal,x.periode_akhir))}</strong><span>Laporan keuangan</span></div></div>`).join("");
   bindLightbox();
 }
 
