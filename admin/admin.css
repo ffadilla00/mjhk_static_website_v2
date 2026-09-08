@@ -236,6 +236,12 @@ textarea{min-height:90px}
   object-fit:contain;
   border-radius:6px;
 }
+.upload-meta{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
 .file-help{color:var(--muted);font-size:12px}
 .toast-region{
   position:fixed;

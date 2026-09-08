@@ -33,7 +33,7 @@
 <div class="field"><label>Tanggal</label><input type="date" id="tanggal"></div>
 <div class="field"><label>Waktu</label><input id="waktu"></div>
 <div class="field"><label>Status</label><select id="kajianStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
-<div class="field full"><label>Poster</label><input type="file" id="posterFile" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="posterPreviewWrap"><img id="posterPreview" alt="Preview poster"></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
+<div class="field full"><label>Poster</label><input type="file" id="posterFile" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="posterPreviewWrap"><img id="posterPreview" alt="Preview poster"><div class="upload-meta" id="posterPreviewMeta"></div></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
 </div>
 <div class="form-actions"><button type="button" class="btn light" onclick="closeF('kajian')">Batal</button><button class="btn green">Simpan</button></div>
 </form></div>
@@ -62,7 +62,7 @@
 <div class="field full"><label>Preview Periode</label><div class="period-preview" id="periodPreview">Pilih periode awal dan periode akhir.</div></div>
 <div class="field"><label>Tanggal Publikasi</label><input type="date" id="publishDate" required></div>
 <div class="field"><label>Status</label><select id="keuanganStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
-<div class="field full"><label>Upload Laporan</label><input type="file" id="keuanganImage" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="keuanganPreviewWrap"><img id="keuanganPreview" alt="Preview laporan keuangan"></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
+<div class="field full"><label>Upload Laporan</label><input type="file" id="keuanganImage" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="keuanganPreviewWrap"><img id="keuanganPreview" alt="Preview laporan keuangan"><div class="upload-meta" id="keuanganPreviewMeta"></div></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
 </div>
 <div class="form-actions"><button type="button" class="btn light" onclick="closeF('keuangan')">Batal</button><button class="btn green">Simpan</button></div>
 </form></div>
