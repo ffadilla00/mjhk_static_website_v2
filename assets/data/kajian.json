@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "jenis": "Kajian Ba'da Subuh",
+    "judul": "Kajian Ahad",
+    "tema": "Tema kajian akan diperbarui melalui dashboard admin",
+    "penceramah": "Ustadz",
+    "hari": "Ahad",
+    "tanggal": "2026-09-13",
+    "waktu": "Ba'da Subuh",
+    "status": "publish"
+  },
+  {
+    "id": 2,
+    "jenis": "Kajian Ba'da Maghrib",
+    "judul": "Kajian Sabtu",
+    "tema": "Tema kajian akan diperbarui melalui dashboard admin",
+    "penceramah": "Ustadz",
+    "hari": "Sabtu",
+    "tanggal": "2026-09-12",
+    "waktu": "Ba'da Maghrib",
+    "status": "publish"
+  }
+]

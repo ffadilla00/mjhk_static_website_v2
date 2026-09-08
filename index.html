@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Website resmi Masjid Jami' Harapan Kita">
+  <title>Masjid Jami' Harapan Kita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="#beranda" class="brand">
+      <img src="assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Masjid Jami' Harapan Kita</strong><span>Media Informasi Masjid</span></div>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-label="Buka menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="#beranda">Beranda</a>
+      <a href="#profile">Profile</a>
+      <a href="#kajian">Kajian</a>
+      <a href="#media">Media</a>
+      <a href="#keuangan">Keuangan</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="beranda">
+  <div class="container hero-content">
+    <span class="eyebrow">Masjid Jami' Harapan Kita</span>
+    <h1>Menghadirkan Kemakmuran, Membangun Kebersamaan</h1>
+    <p>Pusat informasi kegiatan, kajian, media, dan transparansi keuangan Masjid Jami' Harapan Kita.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="#kajian">Lihat Kajian</a>
+      <a class="btn ghost" href="#keuangan">Laporan Keuangan</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div><span class="badge">Informasi Utama</span><h2>Masjid dalam satu halaman</h2></div>
+      <p>Prototype awal ini menggabungkan informasi masjid, kajian, video YouTube, dan riwayat laporan keuangan pekanan.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card card-pad"><div class="iconbox">📖</div><h3>Kajian</h3><p>Jadwal dan informasi kajian rutin maupun kegiatan khusus masjid.</p></div>
+      <div class="card card-pad"><div class="iconbox">▶️</div><h3>Media Masjid</h3><p>Video kajian dan kegiatan dapat diputar langsung melalui YouTube.</p></div>
+      <div class="card card-pad"><div class="iconbox">📊</div><h3>Keuangan</h3><p>Laporan pekanan ditampilkan sebagai arsip gambar yang mudah dilihat jamaah.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-alt" id="profile">
+  <div class="container profile-wrap">
+    <div class="profile-photo"><img src="assets/images/hero-masjid.jpg" alt="Masjid Jami' Harapan Kita"></div>
+    <div class="profile-copy">
+      <span class="badge">Profile</span>
+      <h2>Masjid Jami' Harapan Kita</h2>
+      <p>Bagian profile sementara menggunakan konten dasar. Nanti dapat dilengkapi dengan sejarah masjid, visi dan misi, struktur DKM, program, serta fasilitas.</p>
+      <div class="profile-list">
+        <div class="profile-item">Sejarah dan perkembangan masjid</div>
+        <div class="profile-item">Visi dan misi</div>
+        <div class="profile-item">Struktur kepengurusan DKM</div>
+        <div class="profile-item">Program dan fasilitas jamaah</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kajian">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="badge">Kajian</span><h2>Agenda Kajian</h2></div>
+      <p>Konten kajian pada prototype ini masih berupa contoh struktur. Data aktual dapat ditambahkan tanpa mengubah desain.</p>
+    </div>
+    <div class="grid-3" id="kajianGrid"></div>
+  </div>
+</section>
+
+<section class="section-alt" id="media">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="badge">Media Masjid</span><h2 id="videoTitle">Video Kajian Terbaru</h2></div>
+      <p>Pilih video di bawah. Pemutar akan menggunakan embed YouTube sehingga file video tidak disimpan di server website.</p>
+    </div>
+    <div class="video-feature">
+      <iframe id="mainPlayer" src="https://www.youtube.com/embed/wk9TnzBH6eM?rel=0" title="Video MJHK" allowfullscreen></iframe>
+    </div>
+    <div class="video-grid" id="videoGrid"></div>
+  </div>
+</section>
+
+<section id="keuangan">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="badge">Transparansi Keuangan</span><h2>Laporan Keuangan Pekanan</h2></div>
+      <p>Laporan terbaru tampil lebih besar. Arsip pekan sebelumnya tersimpan di bawah dan dapat dibuka dalam ukuran penuh.</p>
+    </div>
+
+    <div id="financeLatest"></div>
+<div class="section-head" style="margin-top:48px;margin-bottom:18px">
+      <div><span class="badge">Arsip</span><h2 style="font-size:34px">Riwayat Laporan</h2></div>
+    </div>
+
+    <div class="history-grid" id="financeHistory"></div>
+</div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand"><img src="assets/images/logo-mjhk.png" alt=""><div><strong>Masjid Jami' Harapan Kita</strong><p>Jl. Menur III No. 9A, Tangerang</p></div></div>
+    <p>© 2026 Masjid Jami' Harapan Kita. <a href="admin/" style="color:#f3cf68">Admin</a></p>
+  </div>
+</footer>
+
+<div class="modal" id="imageModal">
+  <button class="modal-close" id="closeModal">×</button>
+  <img id="modalImg" alt="Laporan keuangan">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

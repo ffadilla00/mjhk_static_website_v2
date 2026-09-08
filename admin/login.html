@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login Admin MJHK</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f4;min-height:100vh;display:grid;place-items:center}
+.card{width:min(420px,calc(100% - 32px));background:#fff;padding:28px;border-radius:20px;border:1px solid #e0e6e2}
+h1{color:#073b2d;margin-top:0}
+.field{display:grid;gap:6px;margin-top:14px}
+input{padding:12px;border:1px solid #d7ded9;border-radius:10px}
+button{margin-top:18px;width:100%;padding:12px;border:0;border-radius:10px;background:#d7a72a;font-weight:700;cursor:pointer}
+.msg{display:none;margin-top:12px;padding:10px;border-radius:10px;background:#fff0ef;color:#9b2c24}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Login Admin MJHK</h1>
+<form id="loginForm">
+<div class="field"><label>Email</label><input type="email" id="email" required></div>
+<div class="field"><label>Password</label><input type="password" id="password" required></div>
+<button id="loginBtn">Masuk</button>
+<div class="msg" id="msg"></div>
+</form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-client.js"></script>
+<script>
+const db=window.mjhkSupabase;
+(async()=>{const {data}=await db.auth.getSession();if(data.session)location.href="index.html"})();
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();
+const btn=document.getElementById("loginBtn"),msg=document.getElementById("msg");
+btn.disabled=true;btn.textContent="Memproses...";
+const {error}=await db.auth.signInWithPassword({
+email:document.getElementById("email").value.trim(),
+password:document.getElementById("password").value
+});
+if(error){msg.style.display="block";msg.textContent=error.message;btn.disabled=false;btn.textContent="Masuk";return}
+location.href="index.html";
+});
+</script>
+</body>
+</html>

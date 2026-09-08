@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "judul": "Video Kajian 1",
+    "youtube_url": "https://youtu.be/wk9TnzBH6eM",
+    "youtube_id": "wk9TnzBH6eM",
+    "kategori": "Kajian",
+    "tanggal": "2026-08-01",
+    "status": "publish"
+  },
+  {
+    "id": 2,
+    "judul": "Video Kajian 2",
+    "youtube_url": "https://youtu.be/RdXhCW8jf2I",
+    "youtube_id": "RdXhCW8jf2I",
+    "kategori": "Kajian",
+    "tanggal": "2026-08-08",
+    "status": "publish"
+  },
+  {
+    "id": 3,
+    "judul": "Video Kajian 3",
+    "youtube_url": "https://youtu.be/zYeDzk2s6WY",
+    "youtube_id": "zYeDzk2s6WY",
+    "kategori": "Kajian",
+    "tanggal": "2026-08-15",
+    "status": "publish"
+  },
+  {
+    "id": 4,
+    "judul": "Video Kajian 4",
+    "youtube_url": "https://youtu.be/Nlyxk1is4A4",
+    "youtube_id": "Nlyxk1is4A4",
+    "kategori": "Kajian",
+    "tanggal": "2026-08-22",
+    "status": "publish"
+  }
+]

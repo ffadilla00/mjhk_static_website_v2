@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin MJHK</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="brand"><img src="../assets/images/logo-mjhk.png"><div><strong>Admin MJHK</strong><span>Supabase Dashboard</span></div></div>
+<div class="menu">
+<button class="active" data-tab="dashboard">Dashboard</button>
+<button data-tab="kajian">Kajian & Kegiatan</button>
+<button data-tab="media">Media YouTube</button>
+<button data-tab="keuangan">Keuangan</button>
+</div>
+</aside>
+<main class="main">
+<div class="top"><div><h1 id="pageTitle">Dashboard</h1><p id="adminIdentity">Memuat sesi...</p></div><div><a href="../index.html" class="btn light">Lihat Website</a> <button class="btn light" id="logoutBtn">Logout</button></div></div>
+<section class="view" id="view-dashboard">
+<div class="stats"><div class="stat"><span>Agenda Kajian</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div></div>
+</section>
+<section class="view hidden" id="view-kajian">
+<div class="panel-head"><h2>Kajian & Kegiatan</h2><button class="btn primary" id="addKajian">+ Tambah Agenda</button></div>
+<div class="panel hidden" id="kajianFormWrap"><form id="kajianForm"><input type="hidden" id="kajianId"><input type="hidden" id="posterLama">
+<div class="form-grid">
+<div class="field"><label>Jenis</label><input id="jenis" required></div>
+<div class="field"><label>Judul</label><input id="judul" required></div>
+<div class="field full"><label>Tema</label><textarea id="tema"></textarea></div>
+<div class="field"><label>Penceramah</label><input id="penceramah"></div>
+<div class="field"><label>Tanggal</label><input type="date" id="tanggal"></div>
+<div class="field"><label>Waktu</label><input id="waktu"></div>
+<div class="field"><label>Status</label><select id="kajianStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
+<div class="field full"><label>Poster</label><input type="file" id="posterFile" accept="image/jpeg,image/png"></div>
+</div>
+<div class="form-actions"><button type="button" class="btn light" onclick="closeF('kajian')">Batal</button><button class="btn green">Simpan</button></div>
+</form></div>
+<div class="panel table-wrap"><table><thead><tr><th>Jenis</th><th>Agenda</th><th>Penceramah</th><th>Jadwal</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="kajianRows"></tbody></table></div>
+</section>
+<section class="view hidden" id="view-media">
+<div class="panel-head"><h2>Media YouTube</h2><button class="btn primary" id="addMedia">+ Tambah Video</button></div>
+<div class="panel hidden" id="mediaFormWrap"><form id="mediaForm"><input type="hidden" id="mediaId">
+<div class="form-grid">
+<div class="field"><label>Judul</label><input id="mediaJudul" required></div>
+<div class="field"><label>Kategori</label><input id="mediaKategori"></div>
+<div class="field full"><label>URL YouTube</label><input id="youtubeUrl" required></div>
+<div class="field"><label>Tanggal</label><input type="date" id="mediaTanggal"></div>
+<div class="field"><label>Status</label><select id="mediaStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
+</div>
+<div class="form-actions"><button type="button" class="btn light" onclick="closeF('media')">Batal</button><button class="btn green">Simpan</button></div>
+</form></div>
+<div class="panel table-wrap"><table><thead><tr><th>Judul</th><th>Kategori</th><th>URL</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="mediaRows"></tbody></table></div>
+</section>
+<section class="view hidden" id="view-keuangan">
+<div class="panel-head"><h2>Laporan Keuangan</h2><button class="btn primary" id="addKeuangan">+ Upload Laporan</button></div>
+<div class="panel hidden" id="keuanganFormWrap"><form id="keuanganForm"><input type="hidden" id="keuanganId"><input type="hidden" id="keuanganImageLama">
+<div class="form-grid">
+<div class="field"><label>Periode Awal</label><input type="date" id="periodeAwal" required></div>
+<div class="field"><label>Periode Akhir</label><input type="date" id="periodeAkhir" required></div>
+<div class="field full"><label>Preview Periode</label><div class="period-preview" id="periodPreview">Pilih periode awal dan periode akhir.</div></div>
+<div class="field"><label>Tanggal Publikasi</label><input type="date" id="publishDate" required></div>
+<div class="field"><label>Status</label><select id="keuanganStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
+<div class="field full"><label>Upload Laporan</label><input type="file" id="keuanganImage" accept="image/jpeg,image/png"></div>
+</div>
+<div class="form-actions"><button type="button" class="btn light" onclick="closeF('keuangan')">Batal</button><button class="btn green">Simpan</button></div>
+</form></div>
+<div class="panel table-wrap"><table><thead><tr><th>Periode</th><th>Awal</th><th>Akhir</th><th>Publikasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="keuanganRows"></tbody></table></div>
+</section>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-client.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
