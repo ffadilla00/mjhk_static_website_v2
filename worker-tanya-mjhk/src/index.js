@@ -1,12 +1,29 @@
 const DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_QUESTION = 300;
 const MAX_AI_CONTEXT = 9000;
+const MAX_BODY_BYTES = 2048;
+
+class PayloadTooLargeError extends Error {}
+class RateLimitError extends Error {}
+
+function securityHeaders() {
+  return {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "X-Robots-Tag": "noindex, nofollow, noarchive"
+  };
+}
 
 function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
+      ...securityHeaders(),
       ...extraHeaders
     }
   });
@@ -19,19 +36,7 @@ function allowedOrigin(request, env) {
     .map(x => x.trim())
     .filter(Boolean);
 
-  if (configured.includes(origin)) return origin;
-
-  try {
-    const u = new URL(origin);
-    if (
-      (u.hostname === "127.0.0.1" || u.hostname === "localhost") &&
-      (u.port === "5500" || u.port === "5501")
-    ) {
-      return origin;
-    }
-  } catch {}
-
-  return "";
+  return configured.includes(origin) ? origin : "";
 }
 
 function corsHeaders(origin) {
@@ -40,13 +45,93 @@ function corsHeaders(origin) {
         "Access-Control-Allow-Origin": origin,
         "Vary": "Origin",
         "Access-Control-Allow-Methods": "POST,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Max-Age": "86400"
       }
     : {};
 }
 
 function clean(value) {
-  return String(value ?? "").replace(/\s+/g, " ").trim();
+  return String(value ?? "")
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isJsonContentType(request) {
+  const value = (request.headers.get("Content-Type") || "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+
+  return value === "application/json";
+}
+
+async function readJsonBodyLimited(request) {
+  const declared = Number(request.headers.get("Content-Length") || "0");
+
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    throw new PayloadTooLargeError("Request body terlalu besar.");
+  }
+
+  if (!request.body) {
+    return {};
+  }
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      total += value.byteLength;
+
+      if (total > MAX_BODY_BYTES) {
+        await reader.cancel();
+        throw new PayloadTooLargeError("Request body terlalu besar.");
+      }
+
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  const bodyText = new TextDecoder().decode(bytes);
+
+  try {
+    return JSON.parse(bodyText);
+  } catch {
+    throw new SyntaxError("Body JSON tidak valid.");
+  }
+}
+
+function clientRateKey(request, origin) {
+  const ip = request.headers.get("CF-Connecting-IP") || "local-dev";
+  return `${origin || "no-origin"}|${ip}`;
+}
+
+async function enforceRateLimit(binding, key) {
+  if (!binding || typeof binding.limit !== "function") {
+    throw new Error("Rate limiter binding belum tersedia.");
+  }
+
+  const { success } = await binding.limit({ key });
+
+  if (!success) {
+    throw new RateLimitError("Rate limit exceeded.");
+  }
 }
 
 function markdownToText(value) {
@@ -508,7 +593,9 @@ function sanitizeAIAnswer(value) {
   return unique.join(" ").slice(0, 700).trim();
 }
 
-async function generateProfileFallback(env, question, target) {
+async function generateProfileFallback(env, question, target, rateKey) {
+  await enforceRateLimit(env.AI_RATE_LIMITER, `ai:${rateKey}`);
+
   const context = JSON.stringify({
     judul: target?.judul || "",
     ringkasan: target?.ringkasan || "",
@@ -542,7 +629,7 @@ async function generateProfileFallback(env, question, target) {
   return sanitizeAIAnswer(raw);
 }
 
-async function answerByIntent(env, question, intents, chunks) {
+async function answerByIntent(env, question, intents, chunks, rateKey) {
   if (intents.length !== 1) {
     return {
       answer:
@@ -586,7 +673,7 @@ async function answerByIntent(env, question, intents, chunks) {
     }
 
     return {
-      answer: await generateProfileFallback(env, question, direct.target),
+      answer: await generateProfileFallback(env, question, direct.target, rateKey),
       link: sourceLink(intent, chunks)
     };
   }
@@ -599,18 +686,36 @@ async function answerByIntent(env, question, intents, chunks) {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    const originHeader = request.headers.get("Origin") || "";
     const origin = allowedOrigin(request, env);
     const cors = corsHeaders(origin);
 
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: cors });
+      if (!originHeader || !origin) {
+        return json({ error: "Origin tidak diizinkan." }, 403);
+      }
+
+      return new Response(null, {
+        status: 204,
+        headers: {
+          ...securityHeaders(),
+          ...cors
+        }
+      });
     }
 
-    const url = new URL(request.url);
-
-    if (url.pathname === "/health") {
+    if (request.method === "GET" && url.pathname === "/") {
       return json(
-        { ok: true, service: "tanya-mjhk", version: "1.1" },
+        { ok: true, service: "tanya-mjhk", status: "active" },
+        200,
+        cors
+      );
+    }
+
+    if (request.method === "GET" && url.pathname === "/health") {
+      return json(
+        { ok: true, service: "tanya-mjhk", version: "1.2" },
         200,
         cors
       );
@@ -620,19 +725,69 @@ export default {
       return json({ error: "Not found" }, 404, cors);
     }
 
-    if (request.headers.get("Origin") && !origin) {
-      return json({ error: "Origin tidak diizinkan." }, 403, cors);
+    if (originHeader && !origin) {
+      return json({ error: "Origin tidak diizinkan." }, 403);
+    }
+
+    if (!isJsonContentType(request)) {
+      return json(
+        { error: "Content-Type harus application/json." },
+        415,
+        cors
+      );
+    }
+
+    const rateKey = clientRateKey(request, origin);
+
+    try {
+      await enforceRateLimit(env.ASK_RATE_LIMITER, `ask:${rateKey}`);
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        return json(
+          { error: "Terlalu banyak pertanyaan. Silakan coba lagi sebentar." },
+          429,
+          { ...cors, "Retry-After": "60" }
+        );
+      }
+
+      console.error("ASK rate limiter error:", error?.message || error);
+      return json(
+        { error: "Layanan Tanya MJHK belum dapat digunakan saat ini." },
+        503,
+        cors
+      );
     }
 
     let body;
 
     try {
-      body = await request.json();
-    } catch {
+      body = await readJsonBodyLimited(request);
+    } catch (error) {
+      if (error instanceof PayloadTooLargeError) {
+        return json(
+          { error: `Request body maksimal ${MAX_BODY_BYTES} byte.` },
+          413,
+          cors
+        );
+      }
+
       return json({ error: "Body JSON tidak valid." }, 400, cors);
     }
 
-    const question = clean(body?.question);
+    if (
+      !body ||
+      typeof body !== "object" ||
+      Array.isArray(body) ||
+      typeof body.question !== "string"
+    ) {
+      return json(
+        { error: "Field question wajib berupa teks." },
+        400,
+        cors
+      );
+    }
+
+    const question = clean(body.question);
 
     if (!question) {
       return json({ error: "Pertanyaan kosong." }, 400, cors);
@@ -672,11 +827,33 @@ export default {
 
     try {
       const chunks = await retrieveContext(env, intents);
-      const result = await answerByIntent(env, question, intents, chunks);
+      const result = await answerByIntent(
+        env,
+        question,
+        intents,
+        chunks,
+        rateKey
+      );
 
       return json(result, 200, cors);
     } catch (error) {
-      console.error(error);
+      if (error instanceof RateLimitError) {
+        return json(
+          {
+            error:
+              "Batas penggunaan AI sementara tercapai. Silakan coba lagi dalam satu menit."
+          },
+          429,
+          { ...cors, "Retry-After": "60" }
+        );
+      }
+
+      console.error(
+        "Tanya MJHK request failed:",
+        error?.name || "Error",
+        error?.message || "Unknown error"
+      );
+
       return json(
         { error: "Informasi MJHK belum dapat diproses saat ini." },
         500,
