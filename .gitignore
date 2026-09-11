@@ -1,0 +1,11 @@
+# Node
+node_modules/
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Cloudflare local state
+.wrangler/
