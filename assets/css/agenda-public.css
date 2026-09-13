@@ -1,0 +1,129 @@
+/* =========================================================
+   MJHK Phase 7C - Public Agenda
+   Additive-only. Tidak mengganti style.css / share-hotfix.css.
+   ========================================================= */
+
+.agenda-filter-bar{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+  margin:-6px 0 24px;
+}
+
+.agenda-filter-btn{
+  border:1px solid #dfe8e2;
+  background:#fff;
+  color:var(--green2,#073b2d);
+  border-radius:999px;
+  padding:9px 15px;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.agenda-filter-btn:hover{
+  background:#f2f7f4;
+}
+
+.agenda-filter-btn.active{
+  background:var(--green,#0b4f3a);
+  border-color:var(--green,#0b4f3a);
+  color:#fff;
+}
+
+.agenda-public-card{
+  position:relative;
+}
+
+.agenda-public-card .card-pad{
+  display:flex;
+  flex-direction:column;
+  min-height:255px;
+}
+
+.agenda-card-badges{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+.agenda-category-pill,
+.agenda-type-pill{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:6px 9px;
+  font-size:11px;
+  font-weight:900;
+  line-height:1;
+}
+
+.agenda-category-pill.category-kajian{
+  background:#e3f4e9;
+  color:#17633f;
+}
+
+.agenda-category-pill.category-kegiatan{
+  background:#fff2cf;
+  color:#7b5c00;
+}
+
+.agenda-category-pill.category-dakwah{
+  background:#e7eef8;
+  color:#315a86;
+}
+
+.agenda-type-pill.type-kajian{
+  background:#eef5f1;
+  color:#0b4f3a;
+}
+
+.agenda-type-pill.type-seminar{
+  background:#f3ebfa;
+  color:#6c3c86;
+}
+
+.agenda-type-pill.type-pelatihan{
+  background:#fdeee5;
+  color:#98532c;
+}
+
+.agenda-public-card .meta{
+  margin-top:auto;
+  padding-top:16px;
+}
+
+.agenda-public-card .meta span:empty{
+  display:none;
+}
+
+.agenda-public-card .meta .agenda-location{
+  background:#eef3f7;
+  color:#3e596b;
+}
+
+.agenda-public-card .mjhk-share-actions,
+.agenda-public-card .card-actions{
+  margin-top:14px;
+}
+
+@media(max-width:640px){
+  .agenda-filter-bar{
+    gap:7px;
+    margin-bottom:18px;
+  }
+
+  .agenda-filter-btn{
+    padding:8px 12px;
+    font-size:12px;
+  }
+
+  .agenda-public-card .card-pad{
+    min-height:0;
+  }
+}

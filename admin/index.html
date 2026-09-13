@@ -9,10 +9,10 @@
 <body>
 <div class="layout">
 <aside class="sidebar">
-<div class="brand"><img src="../assets/images/logo-mjhk.png"><div><strong>Admin MJHK</strong><span>Supabase Dashboard</span></div></div>
+<div class="brand"><img src="../assets/images/logo-mjhk.png" alt="Logo MJHK"><div><strong>Admin MJHK</strong><span>Supabase Dashboard</span></div></div>
 <div class="menu">
 <button class="active" data-tab="dashboard">Dashboard</button>
-<button data-tab="kajian">Kajian & Kegiatan</button>
+<button data-tab="kajian">Kegiatan, Kajian & Dakwah</button>
 <button data-tab="media">Media YouTube</button>
 <button data-tab="keuangan">Keuangan</button>
 <a href="profile.html" class="menu-link">Profile Masjid</a>
@@ -21,24 +21,108 @@
 <main class="main">
 <div class="top"><div><h1 id="pageTitle">Dashboard</h1><p id="adminIdentity">Memuat sesi...</p></div><div><a href="../index.html" class="btn light">Lihat Website</a> <button class="btn light" id="logoutBtn">Logout</button></div></div>
 <section class="view" id="view-dashboard">
-<div class="stats"><div class="stat"><span>Agenda Kajian</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div></div>
+<div class="stats"><div class="stat"><span>Agenda Kegiatan, Kajian & Dakwah</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div></div>
 </section>
 <section class="view hidden" id="view-kajian">
-<div class="panel-head"><h2>Kajian & Kegiatan</h2><button class="btn primary" id="addKajian">+ Tambah Agenda</button></div>
-<div class="panel hidden" id="kajianFormWrap"><form id="kajianForm"><input type="hidden" id="kajianId"><input type="hidden" id="posterLama">
+<div class="panel-head"><div><h2>Kegiatan, Kajian & Dakwah</h2><p class="section-help">Kelola agenda resmi MJHK dalam satu modul tanpa mengubah arsip kajian lama.</p></div><button class="btn primary" id="addKajian">+ Tambah Agenda</button></div>
+
+<div class="panel hidden" id="kajianFormWrap">
+<form id="kajianForm">
+<input type="hidden" id="kajianId">
+<input type="hidden" id="posterLama">
+
 <div class="form-grid">
-<div class="field"><label>Jenis</label><input id="jenis" required></div>
-<div class="field"><label>Judul</label><input id="judul" required></div>
-<div class="field full"><label>Tema</label><textarea id="tema"></textarea></div>
-<div class="field"><label>Penceramah</label><input id="penceramah"></div>
-<div class="field"><label>Tanggal</label><input type="date" id="tanggal"></div>
-<div class="field"><label>Waktu</label><input id="waktu"></div>
-<div class="field"><label>Status</label><select id="kajianStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
-<div class="field full"><label>Poster</label><input type="file" id="posterFile" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="posterPreviewWrap"><img id="posterPreview" alt="Preview poster"><div class="upload-meta" id="posterPreviewMeta"></div></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
+<div class="field">
+  <label>Kategori Utama</label>
+  <select id="kategoriUtama" required>
+    <option value="kajian">Kajian</option>
+    <option value="kegiatan">Kegiatan</option>
+    <option value="dakwah">Dakwah</option>
+  </select>
 </div>
-<div class="form-actions"><button type="button" class="btn light" onclick="closeF('kajian')">Batal</button><button class="btn green">Simpan</button></div>
-</form></div>
-<div class="panel table-wrap"><table><thead><tr><th>Jenis</th><th>Agenda</th><th>Penceramah</th><th>Jadwal</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="kajianRows"></tbody></table></div>
+
+<div class="field">
+  <label>Jenis Agenda</label>
+  <select id="jenisAgenda" required>
+    <option value="kajian">Kajian</option>
+    <option value="seminar">Seminar</option>
+    <option value="pelatihan">Pelatihan</option>
+  </select>
+</div>
+
+<div class="field full">
+  <label>Judul Agenda</label>
+  <input id="judul" required placeholder="Contoh: Kajian Ba'da Maghrib">
+</div>
+
+<div class="field full">
+  <label>Tema / Materi</label>
+  <textarea id="tema" placeholder="Contoh: Tafsir Al-Qur'an"></textarea>
+</div>
+
+<div class="field">
+  <label>Penceramah / Narasumber</label>
+  <input id="penceramah" placeholder="Nama penceramah atau narasumber">
+</div>
+
+<div class="field">
+  <label>Lokasi</label>
+  <input id="lokasi" placeholder="Contoh: Masjid Jami' Harapan Kita">
+</div>
+
+<div class="field">
+  <label>Tanggal</label>
+  <input type="date" id="tanggal">
+</div>
+
+<div class="field">
+  <label>Waktu</label>
+  <input id="waktu" placeholder="Contoh: Ba'da Maghrib / 09.00 WIB">
+</div>
+
+<div class="field">
+  <label>Status</label>
+  <select id="kajianStatus">
+    <option value="publish">Publish</option>
+    <option value="draft">Draft</option>
+  </select>
+</div>
+
+<div class="field full">
+  <label>Poster</label>
+  <input type="file" id="posterFile" accept="image/jpeg,image/png">
+  <div class="upload-preview hidden" id="posterPreviewWrap">
+    <img id="posterPreview" alt="Preview poster">
+    <div class="upload-meta" id="posterPreviewMeta"></div>
+  </div>
+  <small class="file-help">Format JPG/PNG, maksimal 5 MB.</small>
+</div>
+</div>
+
+<div class="form-actions">
+  <button type="button" class="btn light" onclick="closeF('kajian')">Batal</button>
+  <button class="btn green">Simpan</button>
+</div>
+</form>
+</div>
+
+<div class="panel table-wrap">
+<table class="agenda-admin-table">
+<thead>
+<tr>
+  <th>Kategori</th>
+  <th>Jenis</th>
+  <th>Agenda</th>
+  <th>Penceramah / Narasumber</th>
+  <th>Jadwal</th>
+  <th>Lokasi</th>
+  <th>Status</th>
+  <th>Aksi</th>
+</tr>
+</thead>
+<tbody id="kajianRows"></tbody>
+</table>
+</div>
 </section>
 <section class="view hidden" id="view-media">
 <div class="panel-head"><h2>Media YouTube</h2><button class="btn primary" id="addMedia">+ Tambah Video</button></div>
@@ -55,26 +139,230 @@
 <div class="panel table-wrap"><table><thead><tr><th>Judul</th><th>Kategori</th><th>URL</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="mediaRows"></tbody></table></div>
 </section>
 <section class="view hidden" id="view-keuangan">
-<div class="panel-head"><h2>Laporan Keuangan</h2><button class="btn primary" id="addKeuangan">+ Upload Laporan</button></div>
+<div class="panel-head"><h2>Laporan Keuangan</h2><button class="btn primary" id="addKeuangan">+ Tambah Laporan</button></div>
+<div class="finance-report-tabs" role="tablist" aria-label="Jenis laporan keuangan">
+  <button type="button" class="finance-report-tab active" data-finance-report="weekly">Pekanan</button>
+  <button type="button" class="finance-report-tab" data-finance-report="monthly">Bulanan</button>
+  <button type="button" class="finance-report-tab" data-finance-report="yearly">Tahunan</button>
+</div>
 <div class="panel hidden" id="keuanganFormWrap"><form id="keuanganForm"><input type="hidden" id="keuanganId"><input type="hidden" id="keuanganImageLama">
 <div class="form-grid">
+<div class="field"><label>Mode Data</label><select id="dataMode"><option value="structured">Structured</option><option value="legacy">Legacy Upload Gambar</option></select></div>
+<div class="field"><label>Status</label><select id="keuanganStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
 <div class="field"><label>Periode Awal</label><input type="date" id="periodeAwal" required></div>
 <div class="field"><label>Periode Akhir</label><input type="date" id="periodeAkhir" required></div>
-<div class="field full"><label>Preview Periode</label><div class="period-preview" id="periodPreview">Pilih periode awal dan periode akhir.</div></div>
 <div class="field"><label>Tanggal Publikasi</label><input type="date" id="publishDate" required></div>
-<div class="field"><label>Status</label><select id="keuanganStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
-<div class="field full"><label>Upload Laporan</label><input type="file" id="keuanganImage" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="keuanganPreviewWrap"><img id="keuanganPreview" alt="Preview laporan keuangan"><div class="upload-meta" id="keuanganPreviewMeta"></div></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
+<div class="field"><label>Saldo Awal</label><input type="number" id="saldoAwal" min="0" step="0.01" placeholder="0"></div>
+<div class="field full"><label>Preview Periode</label><div class="period-preview" id="periodPreview">Pilih periode awal dan periode akhir.</div></div>
+<div class="field full"><label>Catatan</label><textarea id="keuanganCatatan" placeholder="Catatan tambahan untuk laporan. Opsional."></textarea></div>
 </div>
+
+<div id="legacyFields" class="finance-mode-block hidden">
+<div class="field full"><label>Upload Laporan Gambar</label><input type="file" id="keuanganImage" accept="image/jpeg,image/png"><div class="upload-preview hidden" id="keuanganPreviewWrap"><img id="keuanganPreview" alt="Preview laporan keuangan"><div class="upload-meta" id="keuanganPreviewMeta"></div></div><small class="file-help">Format JPG/PNG, maksimal 5 MB.</small></div>
+</div>
+
+<div id="structuredFields" class="finance-mode-block">
+<div class="notice">Mode structured akan menyimpan saldo, detail transaksi, dan membuat JPG laporan otomatis dari template admin.</div>
+<div id="continuityCheck" class="continuity-card info">
+  <div class="continuity-icon">i</div>
+  <div>
+    <strong>Kontinuitas ledger</strong>
+    <p>Isi periode dan saldo awal untuk memeriksa kesinambungan dengan laporan structured sebelumnya.</p>
+  </div>
+</div>
+
+<div class="finance-summary-cards">
+<div class="mini-stat"><span>Total Pemasukan</span><strong id="summaryIncome">Rp 0</strong></div>
+<div class="mini-stat"><span>Total Pengeluaran</span><strong id="summaryExpense">Rp 0</strong></div>
+<div class="mini-stat"><span>Saldo Akhir</span><strong id="summaryBalance">Rp 0</strong></div>
+</div>
+
+<div class="detail-block">
+<div class="detail-head"><h3>Rincian Pemasukan</h3><button type="button" class="btn light" id="addIncomeRow">+ Tambah Pemasukan</button></div>
+<div class="table-wrap detail-table-wrap"><table class="detail-table"><thead><tr><th>Tanggal</th><th>Kategori</th><th>Uraian</th><th>Nominal</th><th>Urutan</th><th>Aksi</th></tr></thead><tbody id="incomeRows"></tbody></table></div>
+<div class="detail-total">Subtotal Pemasukan: <strong id="incomeTotalText">Rp 0</strong></div>
+</div>
+
+<div class="detail-block">
+<div class="detail-head"><h3>Rincian Pengeluaran</h3><button type="button" class="btn light" id="addExpenseRow">+ Tambah Pengeluaran</button></div>
+<div class="table-wrap detail-table-wrap"><table class="detail-table"><thead><tr><th>Tanggal</th><th>Kategori</th><th>Uraian</th><th>Nominal</th><th>Urutan</th><th>Aksi</th></tr></thead><tbody id="expenseRows"></tbody></table></div>
+<div class="detail-total">Subtotal Pengeluaran: <strong id="expenseTotalText">Rp 0</strong></div>
+</div>
+
+<div class="detail-block">
+<div class="detail-head"><h3>Preview Poster</h3><button type="button" class="btn light" id="refreshFinancePreview">Refresh Preview</button></div>
+<div class="notice">Preview ini akan dipakai untuk generate JPG otomatis ke bucket laporan-keuangan saat data disimpan.</div>
+<div class="poster-scale-note">Canvas export: 1920 × 1080, rasio 16:9.</div>
+<div class="finance-poster-stage">
+<div id="financePosterPreview" class="finance-poster">
+  <div class="poster-side">
+    <div class="poster-brand-logo"><img src="../assets/images/logo-mjhk.png" alt="Logo MJHK"></div>
+    <div class="poster-brand-title">MASJID JAMI' HARAPAN KITA</div>
+    <div class="poster-brand-tagline">Transparansi Keuangan. Amanah. Untuk Kemakmuran Masjid dan Umat.</div>
+  </div>
+  <div class="poster-main">
+    <div class="poster-header-row">
+      <div>
+        <div class="poster-kicker">LAPORAN KEUANGAN PEKANAN</div>
+        <div class="poster-period-badge" id="previewPeriodText">Periode belum dipilih</div>
+      </div>
+      <div class="poster-publish-box">
+        <span>Tanggal Publikasi</span>
+        <strong id="previewPublishDate">-</strong>
+      </div>
+    </div>
+    <div class="poster-top-stats">
+      <div class="poster-stat-card"><span>Saldo Awal</span><strong id="previewSaldoAwal">Rp 0</strong></div>
+      <div class="poster-stat-card"><span>Total Pemasukan</span><strong id="previewIncomeTotal">Rp 0</strong></div>
+      <div class="poster-stat-card"><span>Total Pengeluaran</span><strong id="previewExpenseTotal">Rp 0</strong></div>
+    </div>
+    <div class="poster-columns">
+      <div class="poster-box">
+        <div class="poster-box-head">PEMASUKAN</div>
+        <div class="poster-list" id="previewIncomeList"></div>
+      </div>
+      <div class="poster-box">
+        <div class="poster-box-head">PENGELUARAN</div>
+        <div class="poster-list" id="previewExpenseList"></div>
+      </div>
+    </div>
+    <div class="poster-footer-row">
+      <div class="poster-balance-box">
+        <span>Saldo Kas Saat Ini</span>
+        <strong id="previewFinalBalance">Rp 0</strong>
+      </div>
+      <div class="poster-note-box">
+        <div class="poster-note-title">Catatan</div>
+        <p id="previewCatatan">Belum ada catatan tambahan.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
 <div class="form-actions"><button type="button" class="btn light" onclick="closeF('keuangan')">Batal</button><button class="btn green">Simpan</button></div>
 </form></div>
-<div class="panel table-wrap"><table><thead><tr><th>Periode</th><th>Awal</th><th>Akhir</th><th>Publikasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="keuanganRows"></tbody></table></div>
+<div id="financeWeeklyView" class="finance-report-view">
+<div class="panel table-wrap"><table><thead><tr><th>Periode</th><th>Mode</th><th>Publikasi</th><th>Status</th><th>Kontinuitas</th><th>Ringkasan</th><th>Aksi</th></tr></thead><tbody id="keuanganRows"></tbody></table></div>
+</div>
+
+<div id="financeMonthlyView" class="finance-report-view hidden">
+  <div class="panel report-toolbar">
+    <div>
+      <h3>Rekap Bulanan</h3>
+      <p>Rekap resmi dihitung dari laporan <b>Structured + Publish</b>. Pada periode parsial, saldo awal/akhir menunjukkan saldo pada awal dan akhir <b>cakupan data</b>, bukan awal/akhir bulan kalender.</p>
+    </div>
+    <div class="report-toolbar-actions">
+      <div class="report-filter report-filter-stack">
+        <div>
+          <label for="monthlyYearFilter">Tahun</label>
+          <select id="monthlyYearFilter"></select>
+        </div>
+        <div>
+          <label for="monthlyMonthFilter">Bulan</label>
+          <select id="monthlyMonthFilter"></select>
+        </div>
+      </div>
+      <button type="button" class="btn primary" id="generateMonthlyReport">Preview & Generate PDF</button>
+      <a class="btn light hidden" id="monthlySavedReportLink" target="_blank" rel="noopener">Lihat PDF Tersimpan</a>
+    </div>
+  </div>
+  <div class="report-stats">
+    <div class="report-stat"><span>Pemasukan Periode Terpilih</span><strong id="monthlyYearIncome">Rp 0</strong></div>
+    <div class="report-stat"><span>Pengeluaran Periode Terpilih</span><strong id="monthlyYearExpense">Rp 0</strong></div>
+    <div class="report-stat"><span>Arus Kas Bersih</span><strong id="monthlyYearNet">Rp 0</strong></div>
+    <div class="report-stat"><span>Transaksi</span><strong id="monthlyYearTransactions">0</strong></div>
+  </div>
+  <div class="panel table-wrap">
+    <table class="report-table">
+      <thead><tr><th>Bulan</th><th>Cakupan Data</th><th>Status</th><th>Saldo Awal Cakupan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Arus Bersih</th><th>Saldo Akhir Cakupan</th><th>Transaksi</th></tr></thead>
+      <tbody id="monthlyReportRows"></tbody>
+    </table>
+  </div>
+
+  <div class="category-breakdown-grid">
+    <div class="panel">
+      <div class="category-panel-head"><h3>Pemasukan per Kategori</h3><span id="monthlyIncomeCategoryPeriod">-</span></div>
+      <div class="table-wrap compact-table-wrap"><table class="category-table"><thead><tr><th>Kategori</th><th>Nominal</th><th>Transaksi</th></tr></thead><tbody id="monthlyIncomeCategoryRows"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="category-panel-head"><h3>Pengeluaran per Kategori</h3><span id="monthlyExpenseCategoryPeriod">-</span></div>
+      <div class="table-wrap compact-table-wrap"><table class="category-table"><thead><tr><th>Kategori</th><th>Nominal</th><th>Transaksi</th></tr></thead><tbody id="monthlyExpenseCategoryRows"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<div id="financeYearlyView" class="finance-report-view hidden">
+  <div class="panel report-toolbar">
+    <div>
+      <h3>Rekap Tahunan</h3>
+      <p>Rekap tahunan menggabungkan seluruh transaksi structured yang sudah dipublish. Pada periode parsial, saldo awal/akhir mengikuti batas cakupan data yang tersedia.</p>
+    </div>
+    <div class="report-toolbar-actions">
+      <div class="report-filter">
+        <label for="yearlyYearFilter">Tahun</label>
+        <select id="yearlyYearFilter"></select>
+      </div>
+      <button type="button" class="btn primary" id="generateYearlyReport">Preview & Generate PDF</button>
+      <a class="btn light hidden" id="yearlySavedReportLink" target="_blank" rel="noopener">Lihat PDF Tersimpan</a>
+      <button type="button" class="btn light" id="refreshFinanceReports">Refresh Rekap</button>
+    </div>
+  </div>
+  <div class="panel table-wrap">
+    <table class="report-table">
+      <thead><tr><th>Tahun</th><th>Cakupan Data</th><th>Status</th><th>Saldo Awal Cakupan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Arus Bersih</th><th>Saldo Akhir Cakupan</th><th>Transaksi</th></tr></thead>
+      <tbody id="yearlyReportRows"></tbody>
+    </table>
+  </div>
+
+  <div class="category-breakdown-grid">
+    <div class="panel">
+      <div class="category-panel-head"><h3>Pemasukan per Kategori</h3><span id="yearlyIncomeCategoryPeriod">-</span></div>
+      <div class="table-wrap compact-table-wrap"><table class="category-table"><thead><tr><th>Kategori</th><th>Nominal</th><th>Transaksi</th></tr></thead><tbody id="yearlyIncomeCategoryRows"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="category-panel-head"><h3>Pengeluaran per Kategori</h3><span id="yearlyExpenseCategoryPeriod">-</span></div>
+      <div class="table-wrap compact-table-wrap"><table class="category-table"><thead><tr><th>Kategori</th><th>Nominal</th><th>Transaksi</th></tr></thead><tbody id="yearlyExpenseCategoryRows"></tbody></table></div>
+    </div>
+  </div>
+</div>
 </section>
 </main></div>
 <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+<div class="modal report-preview-modal hidden" id="reportPreviewModal" role="dialog" aria-modal="true" aria-labelledby="reportPreviewTitle">
+  <div class="report-preview-modal-card pdf-preview-card">
+    <div class="report-preview-modal-head">
+      <div>
+        <h2 id="reportPreviewTitle">Preview Laporan Keuangan</h2>
+        <p id="reportPreviewSubtitle">Periksa PDF sebelum disimpan ke Supabase.</p>
+      </div>
+      <button type="button" class="btn light" id="closeReportPreview">Tutup</button>
+    </div>
+
+    <div class="pdf-preview-info">
+      <strong>A4 Landscape</strong>
+      <span>Rincian transaksi dikelompokkan per kategori dan ditampilkan sampai level uraian transaksi.</span>
+    </div>
+
+    <iframe id="periodicPdfPreview" class="periodic-pdf-preview" title="Preview PDF laporan keuangan"></iframe>
+
+    <div class="report-preview-actions">
+      <button type="button" class="btn light" id="cancelReportSave">Batal</button>
+      <button type="button" class="btn green" id="savePeriodicReport">Simpan PDF ke Supabase</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
 <div class="modal-card"><h2 id="confirmTitle">Konfirmasi hapus</h2><p id="confirmMessage">Data yang dihapus tidak dapat dikembalikan.</p><div class="modal-actions"><button class="btn light" id="cancelDelete">Batal</button><button class="btn danger" id="confirmDelete">Hapus</button></div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="../assets/js/supabase-client.js"></script>
 <script src="admin.js"></script>
 </body>
