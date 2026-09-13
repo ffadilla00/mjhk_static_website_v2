@@ -1,0 +1,17 @@
+# MJHK Production Security Headers - TEMPLATE
+# Jangan aktifkan final CSP/HSTS sebelum hosting + domain production dipilih.
+#
+# Safe baseline untuk Cloudflare Pages / Netlify style _headers:
+#
+# /*
+#   X-Content-Type-Options: nosniff
+#   Referrer-Policy: strict-origin-when-cross-origin
+#   X-Frame-Options: DENY
+#   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+#
+# /admin/*
+#   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+#   Cache-Control: no-store
+#
+# CSP ditambahkan di Phase 9C.2 berdasarkan origin audit aktual.
+# HSTS baru diaktifkan setelah HTTPS domain final terkonfirmasi.

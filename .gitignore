@@ -15,3 +15,6 @@ public-dist/
 
 # Local hardening backup
 *.phase9b.bak
+*.phase9c1.bak
+*.phase9c2.bak
+*.phase9c3.bak

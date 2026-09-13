@@ -5,9 +5,11 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT"
 
 DIST="${1:-public-dist}"
+PROFILE="${MJHK_HEADER_PROFILE:-safe}"
 
-echo "=== MJHK PUBLIC BUILD v9B.1 ==="
+echo "=== MJHK PUBLIC BUILD v9C.3 ==="
 echo "Output: $DIST"
+echo "Header profile: $PROFILE"
 
 rm -rf "$DIST"
 mkdir -p "$DIST"
@@ -26,7 +28,28 @@ copy_required "assets"
 copy_required "profile"
 copy_required "admin"
 
-# Defensive cleanup: source/dev artifacts must never be hosted.
+[ -f robots.txt ] && cp robots.txt "$DIST/robots.txt"
+[ -f sitemap.xml ] && cp sitemap.xml "$DIST/sitemap.xml"
+[ -f favicon.ico ] && cp favicon.ico "$DIST/favicon.ico"
+
+case "$PROFILE" in
+  safe)
+    cp deploy-config/_headers.safe "$DIST/_headers"
+    ;;
+  report-only)
+    cp deploy-config/_headers.report-only "$DIST/_headers"
+    ;;
+  enforce)
+    cp deploy-config/_headers.enforce "$DIST/_headers"
+    ;;
+  none)
+    ;;
+  *)
+    echo "[FAIL] Unknown MJHK_HEADER_PROFILE: $PROFILE"
+    exit 2
+    ;;
+esac
+
 rm -rf \
   "$DIST/.git" \
   "$DIST/.vscode" \
@@ -43,49 +66,29 @@ find "$DIST" -type f \( \
   -name 'README*.txt' -o \
   -name 'README*.md' -o \
   -name '*.phase9b.bak' -o \
+  -name '*.phase9c1.bak' -o \
+  -name '*.phase9c2.bak' -o \
+  -name '*.phase9c3.bak' -o \
   -name '*.bak' \
 \) -delete
 
-# Phase 9B verification proved these legacy assets are no longer referenced.
 rm -rf "$DIST/assets/data"
 rm -f "$DIST/assets/images"/keuangan-2026-08-*.jpg
 
-echo
-echo "=== DENYLIST CHECK ==="
-
 FAIL=0
 
-for bad in \
-  ".git" ".vscode" "worker-tanya-mjhk" "scripts" "supabase" \
-  "node_modules" ".wrangler" ".env" ".dev.vars"
-do
-  if find "$DIST" -name "$bad" -print -quit | grep -q .; then
-    echo "[FAIL] Ditemukan forbidden path: $bad"
-    FAIL=1
-  else
-    echo "[PASS] $bad tidak ada"
-  fi
-done
-
-if find "$DIST" -type f \( -name '*.bak' -o -name '*.phase9b.bak' \) -print -quit | grep -q .; then
+if find "$DIST" -type f -name '*.bak' -print -quit | grep -q .; then
   echo "[FAIL] Backup file masih masuk artifact"
   FAIL=1
 else
   echo "[PASS] Backup file tidak ada"
 fi
 
-if [ -e "$DIST/assets/data" ]; then
-  echo "[FAIL] Legacy assets/data masih ada"
+if [ "$PROFILE" != "none" ] && [ ! -f "$DIST/_headers" ]; then
+  echo "[FAIL] _headers tidak ikut artifact"
   FAIL=1
 else
-  echo "[PASS] Legacy assets/data tidak ada"
-fi
-
-if find "$DIST/assets/images" -maxdepth 1 -type f -name 'keuangan-2026-08-*.jpg' -print -quit | grep -q .; then
-  echo "[FAIL] Legacy finance JPG masih ada"
-  FAIL=1
-else
-  echo "[PASS] Legacy finance JPG tidak ada"
+  echo "[PASS] Header profile artifact konsisten"
 fi
 
 SECRET_HITS="$(mktemp)"

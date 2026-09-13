@@ -1,0 +1,63 @@
+MJHK PRODUCTION DOMAIN PLAN
+===========================
+
+Canonical public URL:
+  https://www.mj-harapankita.or.id
+
+Registrar:
+  Hostinger
+
+DNS / CDN / Static Hosting:
+  Cloudflare
+
+Recommended architecture:
+  Hostinger = registrar only
+  Cloudflare = authoritative DNS + Pages + TLS/CDN/security
+
+DNS migration:
+1. Add zone mj-harapankita.or.id to Cloudflare.
+2. Cloudflare will assign two authoritative nameservers.
+3. In Hostinger hPanel:
+   Domains -> mj-harapankita.or.id -> DNS / Nameservers -> Change nameservers
+4. Replace Hostinger nameservers with the two Cloudflare nameservers.
+5. Wait until Cloudflare zone becomes Active.
+
+Cloudflare Pages:
+- Connect the Git repository.
+- Production branch: main
+- Build command:
+    MJHK_HEADER_PROFILE=safe bash scripts/build-public-dist.sh
+- Build output directory:
+    public-dist
+
+Custom domain:
+  Add www.mj-harapankita.or.id to the Pages project.
+
+Canonical strategy:
+  www.mj-harapankita.or.id is canonical.
+  Redirect apex:
+    https://mj-harapankita.or.id/*
+  to:
+    https://www.mj-harapankita.or.id/$1
+  with HTTP 301 and query string preserved.
+
+Also redirect the generated *.pages.dev hostname to:
+  https://www.mj-harapankita.or.id
+after the custom domain is active, to avoid duplicate public URLs.
+
+Tanya MJHK:
+Add production website origin to ALLOWED_ORIGINS:
+  https://www.mj-harapankita.or.id
+
+Optional safety:
+Also allow:
+  https://mj-harapankita.or.id
+during launch/redirect propagation.
+
+Header rollout:
+1. SAFE first
+2. REPORT-ONLY after production is stable
+3. ENFORCE only after report-only validation
+4. HSTS last, after HTTPS and redirects are confirmed
+
+Do not enable HSTS yet.
