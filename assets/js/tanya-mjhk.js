@@ -81,14 +81,66 @@
     }).format(Number(value || 0))}`;
   }
 
+
+  function extractGreeting(question) {
+    const input = clean(question);
+
+    const pattern =
+      /^\s*(assalamualaikum(?:\s+warahmatullahi(?:\s+wabarakatuh)?)?|assalamu\s*['’]?\s*alaikum(?:\s+warahmatullahi(?:\s+wabarakatuh)?)?|assalam|salam|halo|hai|hello|selamat\s+(?:pagi|siang|sore|malam)|pagi|siang|sore|malam)\b[\s,!.;:?\-]*/i;
+
+    const match = input.match(pattern);
+
+    if (!match) {
+      return {
+        matched: false,
+        rest: input,
+        reply: ""
+      };
+    }
+
+    const greeting = clean(match[1]).toLowerCase();
+    const rest = clean(input.slice(match[0].length));
+
+    const islamic =
+      greeting.startsWith("assalam") ||
+      greeting === "salam";
+
+    let reply = "Halo.";
+
+    if (islamic) {
+      reply = "Wa'alaikumussalam warahmatullahi wabarakatuh.";
+    } else if (greeting.includes("pagi")) {
+      reply = "Selamat pagi.";
+    } else if (greeting.includes("siang")) {
+      reply = "Selamat siang.";
+    } else if (greeting.includes("sore")) {
+      reply = "Selamat sore.";
+    } else if (greeting.includes("malam")) {
+      reply = "Selamat malam.";
+    }
+
+    return {
+      matched: true,
+      rest,
+      reply
+    };
+  }
+
+  function greetingOnlyAnswer(greeting) {
+    return `${greeting.reply} Ada yang bisa saya bantu terkait informasi Masjid Jami' Harapan Kita?`;
+  }
+
+  function withGreeting(result, greeting) {
+    if (!greeting.matched) return result;
+
+    return Object.assign({}, result, {
+      answer: `${greeting.reply} ${result.answer || ""}`.trim()
+    });
+  }
+
   function classify(question) {
     const q = question.toLowerCase();
 
-    if (
-      /(assalamu|assalam|halo|hai|hello|pagi|siang|sore|malam)\b/.test(q)
-    ) {
-      return "greeting";
-    }
 
     if (
       /(agenda|kegiatan|kajian|dakwah|seminar|pelatihan|training|ustadz|ustad|penceramah|narasumber|tafsir|bidayatul|sirah|fiqih|fiqh|al-azkar|mawarits|maulid)/.test(q)
@@ -476,24 +528,34 @@
   }
 
   async function localFallback(question) {
-    const intent = classify(question);
+    const greeting = extractGreeting(question);
+    const intentQuestion = greeting.matched ? greeting.rest : question;
 
-    if (intent === "greeting") {
+    if (greeting.matched && !intentQuestion) {
       return {
-        answer:
-          "Wa'alaikumussalam. Silakan tanyakan agenda, seminar, pelatihan, kajian, dakwah, profile, media YouTube, atau laporan keuangan MJHK."
+        answer: greetingOnlyAnswer(greeting)
       };
     }
 
-    if (intent === "agenda") return localAgenda(question);
-    if (intent === "keuangan") return localKeuangan(question);
-    if (intent === "media") return localMedia();
-    if (intent === "profile") return localProfile(question);
+    const intent = classify(intentQuestion);
+    let result;
 
-    return {
-      answer:
-        "Maaf, Tanya MJHK hanya memberikan informasi resmi Masjid Jami' Harapan Kita. Coba tanyakan tentang agenda, seminar, pelatihan, kajian, dakwah, profile masjid, media, atau laporan keuangan."
-    };
+    if (intent === "agenda") {
+      result = await localAgenda(intentQuestion);
+    } else if (intent === "keuangan") {
+      result = await localKeuangan(intentQuestion);
+    } else if (intent === "media") {
+      result = await localMedia();
+    } else if (intent === "profile") {
+      result = await localProfile(intentQuestion);
+    } else {
+      result = {
+        answer:
+          "Maaf, Tanya MJHK hanya memberikan informasi resmi Masjid Jami' Harapan Kita. Coba tanyakan tentang agenda, seminar, pelatihan, kajian, dakwah, profile masjid, media, atau laporan keuangan."
+      };
+    }
+
+    return withGreeting(result, greeting);
   }
 
   async function askApi(question) {

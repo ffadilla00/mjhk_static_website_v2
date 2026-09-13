@@ -180,6 +180,60 @@ const MONTH_ALIASES = {
   desember:12, des:12
 };
 
+
+function extractGreeting(question) {
+  const input = clean(question);
+
+  const pattern =
+    /^\s*(assalamualaikum(?:\s+warahmatullahi(?:\s+wabarakatuh)?)?|assalamu\s*['’]?\s*alaikum(?:\s+warahmatullahi(?:\s+wabarakatuh)?)?|assalam|salam|halo|hai|hello|selamat\s+(?:pagi|siang|sore|malam)|pagi|siang|sore|malam)\b[\s,!.;:?\-]*/i;
+
+  const match = input.match(pattern);
+
+  if (!match) {
+    return {
+      matched: false,
+      rest: input,
+      reply: ""
+    };
+  }
+
+  const greeting = clean(match[1]).toLowerCase();
+  const rest = clean(input.slice(match[0].length));
+
+  const islamic =
+    greeting.startsWith("assalam") ||
+    greeting === "salam";
+
+  let reply = "Halo.";
+
+  if (islamic) {
+    reply = "Wa'alaikumussalam warahmatullahi wabarakatuh.";
+  } else if (greeting.includes("pagi")) {
+    reply = "Selamat pagi.";
+  } else if (greeting.includes("siang")) {
+    reply = "Selamat siang.";
+  } else if (greeting.includes("sore")) {
+    reply = "Selamat sore.";
+  } else if (greeting.includes("malam")) {
+    reply = "Selamat malam.";
+  }
+
+  return {
+    matched: true,
+    rest,
+    reply
+  };
+}
+
+function greetingOnlyAnswer(greeting) {
+  return `${greeting.reply} Ada yang bisa saya bantu terkait informasi Masjid Jami' Harapan Kita?`;
+}
+
+function prefixGreetingAnswer(greeting, answer) {
+  if (!greeting.matched) return answer;
+  return `${greeting.reply} ${answer}`.trim();
+}
+
 function classify(question) {
   const q = question.toLowerCase();
   const intents = [];
@@ -206,12 +260,6 @@ function classify(question) {
     intents.push("profile");
   }
 
-  if (
-    !intents.length &&
-    /(assalamu|assalam|halo|hai|hello|pagi|siang|sore|malam)\b/.test(q)
-  ) {
-    return ["greeting"];
-  }
 
   return [...new Set(intents)];
 }
@@ -1174,7 +1222,7 @@ export default {
           ok: true,
           service: "tanya-mjhk",
           status: "active",
-          version: "1.3.1"
+          version: "1.3.2"
         },
         200,
         cors
@@ -1186,7 +1234,7 @@ export default {
         {
           ok: true,
           service: "tanya-mjhk",
-          version: "1.3.1",
+          version: "1.3.2",
           capabilities: ["agenda-structured", "keuangan-structured"]
         },
         200,
@@ -1287,24 +1335,28 @@ export default {
       );
     }
 
-    const intents = classify(question);
+    const greeting = extractGreeting(question);
+    const intentQuestion = greeting.matched ? greeting.rest : question;
 
-    if (intents.includes("greeting")) {
+    if (greeting.matched && !intentQuestion) {
       return json(
         {
-          answer:
-            "Wa'alaikumussalam. Silakan tanyakan agenda Kegiatan, Kajian & Dakwah, seminar, pelatihan, profile masjid, media YouTube, atau laporan keuangan MJHK termasuk nominal yang sudah terstruktur."
+          answer: greetingOnlyAnswer(greeting)
         },
         200,
         cors
       );
     }
 
+    const intents = classify(intentQuestion);
+
     if (!intents.length) {
+      const fallback =
+        "Maaf, Tanya MJHK hanya memberikan informasi resmi Masjid Jami' Harapan Kita. Coba tanyakan tentang agenda, seminar, pelatihan, kajian, dakwah, profile masjid, media, atau laporan keuangan.";
+
       return json(
         {
-          answer:
-            "Maaf, Tanya MJHK hanya memberikan informasi resmi Masjid Jami' Harapan Kita. Coba tanyakan tentang agenda, seminar, pelatihan, kajian, dakwah, profile masjid, media, atau laporan keuangan."
+          answer: prefixGreetingAnswer(greeting, fallback)
         },
         200,
         cors
@@ -1312,15 +1364,17 @@ export default {
     }
 
     try {
-      const chunks = await retrieveContext(env, intents, question);
+      const chunks = await retrieveContext(env, intents, intentQuestion);
 
       const result = await answerByIntent(
         env,
-        question,
+        intentQuestion,
         intents,
         chunks,
         rateKey
       );
+
+      result.answer = prefixGreetingAnswer(greeting, result.answer);
 
       return json(result, 200, cors);
     } catch (error) {

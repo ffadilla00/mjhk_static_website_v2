@@ -9,3 +9,9 @@ node_modules/
 
 # Cloudflare local state
 .wrangler/
+
+# Production build artifact
+public-dist/
+
+# Local hardening backup
+*.phase9b.bak

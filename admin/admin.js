@@ -4,6 +4,23 @@ const MONTHS=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus"
 const MAX_FILE_SIZE=5*1024*1024;
 let kajianData=[],mediaData=[],keuanganData=[],monthlyFinanceData=[],yearlyFinanceData=[],monthlyCategoryData=[],yearlyCategoryData=[],financeDetailReportData=[],continuityData=[],periodicReportData=[],pendingDelete=null,pendingPeriodicReport=null,periodicPreviewUrl=null,openingBalanceTouched=false;
 
+
+function escHTML(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+function setMetaLines(target,lines){
+  target.replaceChildren();
+  lines.filter(Boolean).forEach((line,index)=>{
+    if(index)target.appendChild(document.createElement("br"));
+    target.appendChild(document.createTextNode(String(line)));
+  });
+}
+
 function fmtDate(s){if(!s)return"";const[y,m,d]=s.split("-").map(Number);return `${d} ${MONTHS[m-1]} ${y}`}
 function fmtPeriod(a,b){if(!a||!b)return"";const[ya,ma,da]=a.split("-").map(Number),[yb,mb,db]=b.split("-").map(Number);if(ya===yb&&ma===mb)return `${da} sampai ${db} ${MONTHS[mb-1]} ${yb}`;if(ya===yb)return `${da} ${MONTHS[ma-1]} sampai ${db} ${MONTHS[mb-1]} ${yb}`;return `${da} ${MONTHS[ma-1]} ${ya} sampai ${db} ${MONTHS[mb-1]} ${yb}`}
 function rupiah(v){const n=Number(v||0);return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n)}
@@ -121,20 +138,20 @@ function refresh(){
     return `<tr>
       <td><span class="agenda-pill category-${agendaCategoryClass(kategori)}">${agendaLabel(kategori)}</span></td>
       <td><span class="agenda-pill type-${agendaTypeClass(jenis)}">${agendaLabel(jenis)}</span></td>
-      <td><b>${x.judul||""}</b>${x.tema?`<br><span class="agenda-subtext">${x.tema}</span>`:""}</td>
+      <td><b>${escHTML(x.judul)}</b>${x.tema?`<br><span class="agenda-subtext">${escHTML(x.tema)}</span>`:""}</td>
       <td>${x.penceramah||"-"}</td>
-      <td>${fmtDate(x.tanggal)}${x.waktu?`<br>${x.waktu}`:""}</td>
+      <td>${fmtDate(x.tanggal)}${x.waktu?`<br>${escHTML(x.waktu)}`:""}</td>
       <td>${x.lokasi||"-"}</td>
-      <td><span class="status">${x.status}</span></td>
+      <td><span class="status">${escHTML(x.status)}</span></td>
       <td><div class="actions"><button class="small edit" onclick="editK(${x.id})">Edit</button><button class="small delete" onclick="deleteKajian(${x.id},this)">Hapus</button></div></td>
     </tr>`;
   }).join("")||'<tr><td colspan="8" class="loading-row">Belum ada data.</td></tr>';
-  $("#mediaRows").innerHTML=mediaData.map(x=>`<tr><td><b>${x.judul||""}</b></td><td>${x.kategori||""}</td><td>${x.youtube_url||""}</td><td>${fmtDate(x.tanggal)}</td><td><span class="status">${x.status}</span></td><td><div class="actions"><button class="small edit" onclick="editM(${x.id})">Edit</button><button class="small delete" onclick="deleteMedia(${x.id},this)">Hapus</button></div></td></tr>`).join("")||'<tr><td colspan="6" class="loading-row">Belum ada data.</td></tr>';
+  $("#mediaRows").innerHTML=mediaData.map(x=>`<tr><td><b>${escHTML(x.judul)}</b></td><td>${escHTML(x.kategori)}</td><td>${escHTML(x.youtube_url)}</td><td>${fmtDate(x.tanggal)}</td><td><span class="status">${escHTML(x.status)}</span></td><td><div class="actions"><button class="small edit" onclick="editM(${x.id})">Edit</button><button class="small delete" onclick="deleteMedia(${x.id},this)">Hapus</button></div></td></tr>`).join("")||'<tr><td colspan="6" class="loading-row">Belum ada data.</td></tr>';
   $("#keuanganRows").innerHTML=keuanganData.map(x=>`<tr>
     <td><b>${fmtPeriod(x.periode_awal,x.periode_akhir)}</b></td>
     <td><span class="mode-pill ${x.data_mode==='structured'?'mode-structured':'mode-legacy'}">${x.data_mode||'legacy'}</span></td>
     <td>${fmtDate(x.tanggal_publish)}</td>
-    <td><span class="status">${x.status}</span></td>
+    <td><span class="status">${escHTML(x.status)}</span></td>
     <td>${x.data_mode==='structured'?continuityLabel(continuityById(x.id)):'<span class="muted-value">Legacy</span>'}</td>
     <td>${x.data_mode==='structured'?`Saldo akhir: <b>${rupiah(x.saldo_akhir||0)}</b><br>Total masuk: ${rupiah(x.total_pemasukan||0)}<br>Total keluar: ${rupiah(x.total_pengeluaran||0)}`:`Arsip gambar laporan`}</td>
     <td><div class="actions"><button class="small edit" onclick="editF(${x.id})">Edit</button><button class="small delete" onclick="deleteFinance(${x.id},this)">Hapus</button></div></td>
@@ -267,7 +284,7 @@ function renderCategoryTable(selector,rows){
     tbody.innerHTML='<tr><td colspan="3" class="loading-row">Belum ada transaksi pada kategori ini.</td></tr>';
     return;
   }
-  tbody.innerHTML=rows.map(x=>`<tr><td><b>${x.kategori}</b></td><td>${rupiah(x.total_nominal)}</td><td>${x.jumlah_transaksi}</td></tr>`).join("");
+  tbody.innerHTML=rows.map(x=>`<tr><td><b>${escHTML(x.kategori)}</b></td><td>${rupiah(x.total_nominal)}</td><td>${x.jumlah_transaksi}</td></tr>`).join("");
 }
 
 function selectedMonthlyCategoryData(){
@@ -590,7 +607,7 @@ function drawPdfSection(doc,title,groups,startY){
     doc.setTextColor(11,79,58);
     doc.setFont("helvetica","bold");
     doc.setFontSize(9.5);
-    doc.text(`${index+1}. ${group.kategori}`,16,y+4);
+    doc.text(`${index+1}. ${escHTML(group.kategori)}`,16,y+4);
 
     doc.setFontSize(8.5);
     doc.text(`Subtotal: ${pdfMoney(group.subtotal)}`,280,y+4,{align:"right"});
@@ -948,9 +965,9 @@ $("#refreshFinanceReports").onclick=async()=>{
 };
 
 function clearPreview(wrap,img,meta){$(wrap).classList.add("hidden");$(img).removeAttribute("src");$(meta).textContent=""}
-function showPreview(file,wrap,img,meta){if(!file){clearPreview(wrap,img,meta);return}const reader=new FileReader();reader.onload=()=>{$(img).src=reader.result;$(meta).innerHTML=`Sumber: File lokal<br>Nama file: ${file.name}<br>Ukuran: ${(file.size/(1024*1024)).toFixed(2)} MB`;$(wrap).classList.remove("hidden")};reader.readAsDataURL(file)}
+function showPreview(file,wrap,img,meta){if(!file){clearPreview(wrap,img,meta);return}const reader=new FileReader();reader.onload=()=>{$(img).src=reader.result;setMetaLines($(meta),["Sumber: File lokal",`Nama file: ${file.name}`,`Ukuran: ${(file.size/(1024*1024)).toFixed(2)} MB`]);$(wrap).classList.remove("hidden")};reader.readAsDataURL(file)}
 function storageFileName(url){if(!url)return"";const clean=url.split(/[?#]/)[0],encoded=clean.slice(clean.lastIndexOf("/")+1);try{return decodeURIComponent(encoded)}catch(err){return encoded}}
-function showStoredPreview(url,wrap,img,meta){if(!url){clearPreview(wrap,img,meta);return}$(img).src=url;const name=storageFileName(url);$(meta).innerHTML=`Sumber: Supabase Storage${name?`<br>Nama file: ${name}`:""}`;$(wrap).classList.remove("hidden")}
+function showStoredPreview(url,wrap,img,meta){if(!url){clearPreview(wrap,img,meta);return}$(img).src=url;const name=storageFileName(url);setMetaLines($(meta),["Sumber: Supabase Storage",...(name?[`Nama file: ${name}`]:[])]);$(wrap).classList.remove("hidden")}
 function validateFile(file){if(!file)return true;if(!["image/jpeg","image/png"].includes(file.type)){toast("File harus berformat JPG atau PNG.","error");return false}if(file.size>MAX_FILE_SIZE){toast("Ukuran file maksimal 5 MB.","error");return false}return true}
 function safeName(n){return n.toLowerCase().replace(/[^a-z0-9._-]+/g,"-")}
 function storagePath(url,bucket){if(!url)return"";const marker=`/storage/v1/object/public/${bucket}/`,i=url.indexOf(marker);return i>=0?decodeURIComponent(url.slice(i+marker.length)):""}
@@ -1132,8 +1149,8 @@ function addDetailRow(jenis,data={}){
   tr.dataset.jenis=jenis;
   tr.innerHTML=`
     <td><input type="date" class="detail-date" value="${data.tanggal_transaksi||$("#periodeAwal").value||""}"></td>
-    <td><input type="text" class="detail-kategori" placeholder="Contoh: Infaq Tromol Jumat" value="${data.kategori||""}"></td>
-    <td><input type="text" class="detail-uraian" placeholder="Uraian singkat" value="${data.uraian||""}"></td>
+    <td><input type="text" class="detail-kategori" placeholder="Contoh: Infaq Tromol Jumat" value="${escHTML(data.kategori)}"></td>
+    <td><input type="text" class="detail-uraian" placeholder="Uraian singkat" value="${escHTML(data.uraian)}"></td>
     <td><input type="number" class="detail-nominal" min="0" step="0.01" placeholder="0" value="${data.nominal??""}"></td>
     <td><input type="number" class="detail-urutan" min="1" step="1" value="${data.urutan||tbody.children.length+1}"></td>
     <td><button type="button" class="small delete-row">Hapus</button></td>`;
