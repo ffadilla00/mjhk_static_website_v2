@@ -1200,6 +1200,31 @@ function updateFinanceTotals(){
   $("#expenseTotalText").textContent=rupiah(expense);
   updateContinuityCheck();
 }
+// Phase Finance Typography v2.0 START
+function fitPosterRowLabels(list){
+  if(!list)return;
+
+  const MAX_SIZE=15.5;
+  const MIN_SIZE=12.5;
+  const STEP=.5;
+
+  list.querySelectorAll(".poster-row-label").forEach(node=>{
+    node.style.fontSize="";
+
+    if(node.clientWidth<=0)return;
+
+    let size=MAX_SIZE;
+    node.style.fontSize=`${size}px`;
+
+    while(node.scrollWidth>node.clientWidth&&size>MIN_SIZE){
+      size=Math.max(MIN_SIZE,size-STEP);
+      node.style.fontSize=`${size}px`;
+    }
+
+    node.classList.toggle("poster-row-label-tight",size<MAX_SIZE);
+  });
+}
+
 function renderPosterList(kind,details){
   const list=$(kind==="pemasukan"?"#previewIncomeList":"#previewExpenseList");
   const source=details
@@ -1215,13 +1240,17 @@ function renderPosterList(kind,details){
 
   list.innerHTML=items.map((x,i)=>{
     const label=(x.uraian||x.kategori||"Transaksi").trim();
-    return `<div class="poster-row"><span>${i+1}. ${label}</span><strong>${rupiah(x.nominal)}</strong></div>`;
+    return `<div class="poster-row"><span class="poster-row-label" title="${escHTML(label)}">${i+1}. ${escHTML(label)}</span><strong>${rupiah(x.nominal)}</strong></div>`;
   }).join("");
 
   if(source.length>8){
     list.innerHTML+=`<div class="poster-more">+ ${source.length-8} transaksi lainnya</div>`;
   }
+
+  fitPosterRowLabels(list);
 }
+// Phase Finance Typography v2.0 END
+
 function renderFinancePreview(){
   if($("#dataMode").value!=="structured")return;
   const details=safeCollectDetails();
