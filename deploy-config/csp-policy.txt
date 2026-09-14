@@ -3,7 +3,7 @@ base-uri 'self';
 object-src 'none';
 frame-ancestors 'none';
 form-action 'self';
-script-src 'self' https://cdn.jsdelivr.net;
+script-src 'self' https://cdn.jsdelivr.net; https://static.cloudflareinsights.com;
 style-src-elem 'self' https://fonts.googleapis.com;
 style-src-attr 'unsafe-inline';
 font-src 'self' https://fonts.gstatic.com data:;
