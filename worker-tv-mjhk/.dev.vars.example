@@ -1,0 +1,2 @@
+# Local development only. Never commit .dev.vars.
+SUPABASE_SERVICE_ROLE_KEY=replace_locally_only

@@ -341,10 +341,25 @@ assert_ask_contains \
   "Wa'alaikumussalam" \
   "Greeting Assalamualaikum"
 
-assert_ask_contains \
-  "Assalamualaikum, ada seminar terdekat?" \
-  "Seminar" \
-  "Greeting + pertanyaan agenda"
+AGENDA_ASK="$TMPDIR_SMOKE/agenda-ask.json"
+if post_ask "Assalamualaikum, ada seminar terdekat?" > "$AGENDA_ASK" 2>/dev/null; then
+  if grep -Fqi "Wa'alaikumussalam" "$AGENDA_ASK" \
+    && grep -Fq '"href":"#kajian"' "$AGENDA_ASK" \
+    && { grep -Fqi "Seminar" "$AGENDA_ASK" \
+         || grep -Fqi "Belum ada agenda mendatang yang dipublikasikan." "$AGENDA_ASK"; }; then
+    pass "Greeting + pertanyaan agenda"
+  else
+    fail "Greeting + pertanyaan agenda"
+    printf "      response: "
+    cat "$AGENDA_ASK" 2>/dev/null || true
+    printf "\n"
+  fi
+else
+  fail "Greeting + pertanyaan agenda"
+  printf "      response: "
+  cat "$AGENDA_ASK" 2>/dev/null || true
+  printf "\n"
+fi
 
 assert_ask_contains \
   "Berapa saldo kas MJHK saat ini?" \
