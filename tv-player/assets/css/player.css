@@ -374,3 +374,337 @@ button, select, input { font: inherit; }
   font-size: 13px;
   line-height: 1.45;
 }
+/* ==========================================================================
+   Phase 3A.1 Visual Polish — presentation-only overrides
+   ========================================================================== */
+
+.tv-stage {
+  --cfg-header-bg: #123f31;
+  --cfg-header-text: #ffffff;
+  --cfg-running-bg: #0c2f24;
+  --cfg-running-text: #ffffff;
+  --cfg-running-label-bg: #c5a764;
+  --cfg-running-label-text: #0c2f24;
+  --cfg-prayer-panel-bg: #e7efe9;
+  --cfg-prayer-row-bg: #ffffff;
+  --cfg-prayer-title: #13231c;
+  --cfg-prayer-time: #13231c;
+  --cfg-prayer-highlight-bg: #14513f;
+  --cfg-prayer-highlight-title: #ffffff;
+  --cfg-prayer-highlight-time: #ffffff;
+  --cfg-stage-bg: #f6f0df;
+  --cfg-accent: #c5a764;
+  background: var(--cfg-stage-bg);
+}
+
+.tv-header {
+  color: var(--cfg-header-text);
+  background:
+    radial-gradient(circle at 82% 35%, color-mix(in srgb, var(--cfg-accent) 24%, transparent), transparent 32%),
+    linear-gradient(135deg, color-mix(in srgb, var(--cfg-header-bg) 88%, #05140f), var(--cfg-header-bg));
+}
+
+.header-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.mosque-logo-frame {
+  flex: 0 0 78px;
+  width: 78px;
+  height: 78px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--cfg-accent) 68%, transparent);
+  background: rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.mosque-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.mosque-logo-fallback {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--cfg-accent);
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.header-mosque {
+  min-width: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.mosque-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prayer-panel {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.68), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--cfg-prayer-panel-bg) 88%, white), var(--cfg-prayer-panel-bg));
+}
+
+.prayer-row {
+  color: var(--cfg-prayer-title);
+  background: color-mix(in srgb, var(--cfg-prayer-row-bg) 94%, transparent);
+  border: 1px solid rgba(18,63,49,.06);
+  box-shadow: 0 10px 26px rgba(18,63,49,.075);
+}
+
+.prayer-name {
+  color: var(--cfg-prayer-title);
+}
+
+.prayer-time {
+  color: var(--cfg-prayer-time);
+}
+
+.prayer-row.is-next {
+  background:
+    radial-gradient(circle at 92% 25%, color-mix(in srgb, var(--cfg-accent) 22%, transparent), transparent 30%),
+    linear-gradient(135deg, color-mix(in srgb, var(--cfg-prayer-highlight-bg) 88%, #061b14), var(--cfg-prayer-highlight-bg));
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--cfg-prayer-highlight-bg) 26%, transparent);
+}
+
+.prayer-row.is-next .prayer-name {
+  color: var(--cfg-prayer-highlight-title);
+}
+
+.prayer-row.is-next .prayer-time {
+  color: var(--cfg-prayer-highlight-time);
+}
+
+.tv-body[data-prayer-position="right"] {
+  grid-template-columns: 1fr 350px;
+}
+
+.tv-body[data-prayer-position="right"] .prayer-panel {
+  order: 2;
+  border-right: 0;
+  border-left: 1px solid rgba(18,63,49,.14);
+}
+
+.tv-body[data-prayer-position="right"] .content-panel {
+  order: 1;
+}
+
+.content-panel {
+  background:
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--cfg-accent) 18%, transparent), transparent 27%),
+    linear-gradient(145deg, #f8f5ec, color-mix(in srgb, var(--cfg-prayer-panel-bg) 74%, white));
+}
+
+.slide-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(circle at 86% 22%, color-mix(in srgb, var(--cfg-accent) 24%, transparent), transparent 28%),
+    linear-gradient(120deg, #0c2f24, #1e5644 70%, #2f6d58);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 26px 60px rgba(18,63,49,.14);
+}
+
+.slide-card::before,
+.slide-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border: 2px solid rgba(255,255,255,.055);
+  border-radius: 50% 50% 0 0;
+  transform: rotate(28deg);
+}
+
+.slide-card::before {
+  width: 640px;
+  height: 840px;
+  right: -220px;
+  top: -170px;
+}
+
+.slide-card::after {
+  width: 460px;
+  height: 620px;
+  right: -90px;
+  top: -40px;
+}
+
+.slide-accent {
+  width: 90px;
+  height: 8px;
+  margin-bottom: 28px;
+  border-radius: 999px;
+  background: var(--cfg-accent);
+}
+
+.slide-footer-note {
+  position: absolute;
+  left: 64px;
+  bottom: 46px;
+  color: rgba(255,255,255,.56);
+  font-size: 19px;
+  letter-spacing: .8px;
+}
+
+.state-overlay {
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 24px 60px rgba(12,47,36,.12);
+  background:
+    radial-gradient(circle at 50% 48%, color-mix(in srgb, var(--cfg-accent) 14%, transparent), transparent 31%),
+    linear-gradient(135deg, rgba(12,47,36,.985), rgba(18,63,49,.985));
+}
+
+.state-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0;
+  background-image: var(--state-asset);
+  background-size: cover;
+  background-position: center;
+  transition: opacity 260ms ease;
+}
+
+.state-overlay.has-state-asset::after {
+  opacity: 1;
+}
+
+.state-overlay.has-state-asset::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(3,14,10,.10), rgba(3,14,10,.18));
+}
+
+.state-overlay.has-state-asset .state-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.state-content {
+  position: relative;
+  z-index: 2;
+  width: min(1180px, 92%);
+}
+
+.state-decoration {
+  position: absolute;
+  z-index: 1;
+  width: 430px;
+  height: 650px;
+  bottom: -315px;
+  border: 2px solid rgba(255,255,255,.055);
+  border-radius: 50% 50% 0 0;
+}
+
+.state-decoration-left {
+  left: -170px;
+  transform: rotate(28deg);
+}
+
+.state-decoration-right {
+  right: -170px;
+  transform: rotate(-28deg);
+}
+
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  border-color: color-mix(in srgb, var(--cfg-accent) 55%, transparent);
+  background: rgba(0,0,0,.08);
+  color: #fff;
+}
+
+.countdown-box {
+  min-width: 270px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+  backdrop-filter: blur(8px);
+}
+
+.state-overlay.state-enter {
+  animation: mjhk-state-enter 320ms ease-out;
+}
+
+@keyframes mjhk-state-enter {
+  from {
+    opacity: .25;
+    transform: scale(.992);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.running-text-bar {
+  color: var(--cfg-running-text);
+  background: var(--cfg-running-bg);
+}
+
+.running-label {
+  color: var(--cfg-running-label-text);
+  background: var(--cfg-running-label-bg);
+}
+
+.tv-stage.running-text-hidden .tv-body {
+  height: 930px;
+}
+
+.tv-stage.running-text-hidden .running-text-bar {
+  display: none;
+}
+
+html[data-player-mode="production"] .dev-panel,
+.dev-panel.is-production-hidden {
+  display: none !important;
+}
+
+.dev-panel {
+  border: 1px solid rgba(197,167,100,.18);
+}
+
+.dev-panel code {
+  color: #d9bd77;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state-overlay.state-enter {
+    animation: none;
+  }
+
+  .running-text {
+    animation-duration: 56s;
+  }
+
+  /* Phase 3A.1 LOCK — internal state code is simulator-only */
+  html[data-player-mode="production"] .state-badge {
+  display: none !important;
+  }
+}

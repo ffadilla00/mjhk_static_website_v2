@@ -1,10 +1,19 @@
 import { TVStateEngine } from "./engine.js";
 import { TV_STATES } from "./states.js";
 import { SCENARIOS } from "./scenarios.js";
-import { renderState, scaleStage, updateClock } from "./ui.js";
+import { VISUAL_CONFIG } from "./visual-config.js";
+import {
+  applyVisualConfig,
+  renderState,
+  scaleStage,
+  setPrayerPanelPosition,
+  updateClock,
+} from "./ui.js";
 
 const refs = {
   tvStage: document.querySelector("#tvStage"),
+  tvBody: document.querySelector("#tvBody"),
+  prayerPanel: document.querySelector("#prayerPanel"),
   prayerRows: document.querySelector("#prayerRows"),
   stateOverlay: document.querySelector("#stateOverlay"),
   stateBadge: document.querySelector("#stateBadge"),
@@ -19,6 +28,7 @@ const refs = {
   runScenario: document.querySelector("#runScenario"),
   stateSelect: document.querySelector("#stateSelect"),
   applyState: document.querySelector("#applyState"),
+  prayerPositionSelect: document.querySelector("#prayerPositionSelect"),
   ramadanToggle: document.querySelector("#ramadanToggle"),
   pauseClock: document.querySelector("#pauseClock"),
   resetPlayer: document.querySelector("#resetPlayer"),
@@ -27,6 +37,10 @@ const refs = {
   clockTime: document.querySelector("#clockTime"),
   clockDate: document.querySelector("#clockDate"),
   hijriDate: document.querySelector("#hijriDate"),
+  mosqueLogo: document.querySelector("#mosqueLogo"),
+  mosqueLogoFallback: document.querySelector("#mosqueLogoFallback"),
+  mosqueName: document.querySelector("#mosqueName"),
+  mosqueAddress: document.querySelector("#mosqueAddress"),
 };
 
 const engine = new TVStateEngine();
@@ -60,6 +74,10 @@ refs.applyState.addEventListener("click", () => {
   engine.setState(refs.stateSelect.value, 0);
 });
 
+refs.prayerPositionSelect.addEventListener("change", () => {
+  setPrayerPanelPosition(refs, refs.prayerPositionSelect.value);
+});
+
 refs.ramadanToggle.addEventListener("change", () => {
   engine.setRamadanMode(refs.ramadanToggle.checked);
 });
@@ -83,8 +101,18 @@ function refreshClock() {
   updateClock(refs.clockTime, refs.clockDate, refs.hijriDate);
 }
 
+function applyModeFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const productionMode = params.get("mode") === "production";
+
+  document.documentElement.dataset.playerMode = productionMode ? "production" : "simulator";
+  refs.devPanel.classList.toggle("is-production-hidden", productionMode);
+}
+
 window.addEventListener("resize", () => scaleStage(refs.tvStage));
 
+applyVisualConfig(refs, VISUAL_CONFIG);
+applyModeFromQuery();
 scaleStage(refs.tvStage);
 refreshClock();
 window.setInterval(refreshClock, 1000);
