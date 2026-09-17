@@ -1,0 +1,118 @@
+export const TV_STATES = Object.freeze({
+  NORMAL: "NORMAL",
+  PRE_ADHAN: "PRE_ADHAN",
+  ADHAN: "ADHAN",
+  IQAMAH_COUNTDOWN: "IQAMAH_COUNTDOWN",
+  IQAMAH: "IQAMAH",
+  SALAT: "SALAT",
+  PRAYER_PROHIBITION: "PRAYER_PROHIBITION",
+  SYURUQ: "SYURUQ",
+  ISYRAQ: "ISYRAQ",
+  IMSAK: "IMSAK",
+  FRIDAY_PRE_ADHAN: "FRIDAY_PRE_ADHAN",
+  FRIDAY_KHUTBAH: "FRIDAY_KHUTBAH",
+  FRIDAY_SALAT: "FRIDAY_SALAT",
+});
+
+export const STATE_DEFINITIONS = Object.freeze({
+  NORMAL: {
+    title: "Informasi Masjid",
+    message: "Slideshow dan running text berjalan normal.",
+    tone: "normal",
+    overlay: false,
+    priority: 10,
+  },
+  PRE_ADHAN: {
+    title: "Menuju Waktu Adzan",
+    message: "Persiapan memasuki waktu shalat.",
+    tone: "warning",
+    overlay: true,
+    priority: 60,
+    countdownLabel: "Menuju Adzan",
+  },
+  ADHAN: {
+    title: "Telah Masuk Waktu Adzan",
+    message: "Mohon menghentikan aktivitas dan bersiap menunaikan shalat berjamaah.",
+    tone: "quiet",
+    overlay: true,
+    priority: 80,
+  },
+  IQAMAH_COUNTDOWN: {
+    title: "Menuju Iqamah",
+    message: "Mohon jamaah segera merapatkan dan meluruskan shaf.",
+    tone: "quiet",
+    overlay: true,
+    priority: 85,
+    countdownLabel: "Menuju Iqamah",
+  },
+  IQAMAH: {
+    title: "Lurus dan Rapatkan Shaf",
+    message: "Iqamah telah dikumandangkan. Mohon bersiap memulai shalat.",
+    tone: "quiet",
+    overlay: true,
+    priority: 90,
+  },
+  SALAT: {
+    title: "الله",
+    message: "Shalat berjamaah sedang berlangsung.",
+    tone: "quiet",
+    overlay: true,
+    priority: 100,
+  },
+  PRAYER_PROHIBITION: {
+    title: "Memasuki Waktu Larangan Salat",
+    message: "Informasi waktu larangan salat ditampilkan sesuai konfigurasi masjid.",
+    tone: "warning",
+    overlay: true,
+    priority: 70,
+  },
+  SYURUQ: {
+    title: "Waktu Syuruq",
+    message: "Mohon tunggu 10 menit sebelum melaksanakan shalat Isyraq.",
+    tone: "warning",
+    overlay: true,
+    priority: 65,
+    countdownLabel: "Masa Tunggu",
+  },
+  ISYRAQ: {
+    title: "Waktu Isyraq",
+    message: "Waktu pelaksanaan shalat Isyraq. Default simulasi: 3 menit.",
+    tone: "normal",
+    overlay: true,
+    priority: 65,
+    countdownLabel: "Waktu Isyraq",
+  },
+  IMSAK: {
+    title: "Waktu Imsak",
+    message: "Mode Ramadan aktif. Slot Syuruq pada panel jadwal diganti dengan Imsak.",
+    tone: "ramadan",
+    overlay: true,
+    priority: 68,
+  },
+  FRIDAY_PRE_ADHAN: {
+    title: "Menuju Adzan Jumat",
+    message: "Hitung mundur sebelum masuk waktu Adzan Jumat.",
+    tone: "friday",
+    overlay: true,
+    priority: 75,
+    countdownLabel: "Menuju Adzan Jumat",
+  },
+  FRIDAY_KHUTBAH: {
+    title: "Dilarang Bicara Saat Khutbah Jum'at",
+    message: "Mohon menyimak khutbah dengan tenang dan tidak berbicara.",
+    tone: "friday",
+    overlay: true,
+    priority: 95,
+  },
+  FRIDAY_SALAT: {
+    title: "الله",
+    message: "Shalat Jumat sedang berlangsung.",
+    tone: "quiet",
+    overlay: true,
+    priority: 100,
+  },
+});
+
+export function getStateDefinition(code) {
+  return STATE_DEFINITIONS[code] || STATE_DEFINITIONS.NORMAL;
+}

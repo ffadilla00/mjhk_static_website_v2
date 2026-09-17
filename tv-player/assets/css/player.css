@@ -1,0 +1,710 @@
+:root {
+  --green-950: #0c2f24;
+  --green-900: #123f31;
+  --green-800: #1e5644;
+  --green-700: #2e6a57;
+  --green-200: #d7e8dd;
+  --green-100: #ebf4ef;
+  --gold: #c5a764;
+  --cream: #f6f0df;
+  --ink: #13231c;
+  --muted: #6f7e77;
+  --white: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: #101614;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body { overflow: hidden; }
+
+button, select, input { font: inherit; }
+
+.app-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.tv-stage {
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  position: absolute;
+  overflow: hidden;
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.tv-header {
+  height: 150px;
+  display: grid;
+  grid-template-columns: 290px 1fr 380px;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 44px;
+  color: var(--white);
+  background:
+    radial-gradient(circle at 82% 35%, rgba(197,167,100,.22), transparent 32%),
+    linear-gradient(135deg, var(--green-950), var(--green-800));
+}
+
+.clock-time {
+  font-size: 66px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.clock-date {
+  margin-top: 10px;
+  font-size: 22px;
+  opacity: .82;
+}
+
+.header-mosque {
+  padding-left: 18px;
+  border-left: 4px solid var(--gold);
+}
+
+.mosque-name {
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.mosque-address {
+  margin-top: 8px;
+  font-size: 19px;
+  opacity: .83;
+}
+
+.header-meta {
+  text-align: right;
+  font-size: 21px;
+  line-height: 1.5;
+}
+
+.tv-body {
+  height: 850px;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+}
+
+.prayer-panel {
+  background: linear-gradient(180deg, #eef5f0, #dfeadf);
+  padding: 22px;
+  border-right: 1px solid rgba(18,63,49,.14);
+}
+
+.prayer-rows {
+  height: 100%;
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.prayer-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0 22px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 8px 18px rgba(18,63,49,.08);
+}
+
+.prayer-row.is-next {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--green-800), var(--green-950));
+}
+
+.prayer-name {
+  font-size: 31px;
+  font-weight: 750;
+}
+
+.prayer-time {
+  font-size: 38px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.content-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  background:
+    linear-gradient(rgba(12,47,36,.06), rgba(12,47,36,.06)),
+    radial-gradient(circle at 80% 20%, rgba(197,167,100,.23), transparent 30%),
+    linear-gradient(145deg, #f9f4e8, #e7efe9);
+}
+
+.normal-content {
+  width: 100%;
+  height: 100%;
+}
+
+.slide-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 28px;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--white);
+  background:
+    linear-gradient(115deg, rgba(8,37,28,.95), rgba(30,86,68,.80)),
+    radial-gradient(circle at 70% 30%, rgba(197,167,100,.24), transparent 35%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
+}
+
+.slide-kicker {
+  color: var(--gold);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.slide-card h1 {
+  margin: 18px 0;
+  font-size: 76px;
+  line-height: 1.06;
+  max-width: 1100px;
+}
+
+.slide-card p {
+  max-width: 1000px;
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.45;
+  color: rgba(255,255,255,.88);
+}
+
+.state-overlay {
+  position: absolute;
+  inset: 28px;
+  z-index: 5;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px;
+  color: white;
+  background:
+    radial-gradient(circle at center, rgba(197,167,100,.14), transparent 38%),
+    linear-gradient(135deg, rgba(12,47,36,.98), rgba(18,63,49,.98));
+}
+
+.state-overlay.is-hidden { display: none; }
+
+.state-overlay[data-tone="warning"] {
+  background: linear-gradient(135deg, #6b4b18, #312208);
+}
+
+.state-overlay[data-tone="quiet"] {
+  background: linear-gradient(135deg, #182722, #0d1714);
+}
+
+.state-overlay[data-tone="ramadan"] {
+  background: linear-gradient(135deg, #183952, #0b2637);
+}
+
+.state-overlay[data-tone="friday"] {
+  background: linear-gradient(135deg, #3b2b18, #16110a);
+}
+
+.state-badge {
+  padding: 10px 20px;
+  border: 2px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.state-overlay h2 {
+  margin: 26px 0 18px;
+  font-size: 88px;
+  line-height: 1.05;
+}
+
+.state-overlay p {
+  margin: 0;
+  max-width: 1150px;
+  font-size: 32px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.87);
+}
+
+.countdown-box {
+  margin-top: 42px;
+  padding: 20px 34px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.10);
+}
+
+.countdown-box.is-hidden { display: none; }
+
+.countdown-box span {
+  display: block;
+  font-size: 22px;
+  opacity: .75;
+}
+
+.countdown-box strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 70px;
+  font-variant-numeric: tabular-nums;
+}
+
+.running-text-bar {
+  height: 80px;
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  color: white;
+  background: var(--green-950);
+  overflow: hidden;
+}
+
+.running-label {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  color: var(--green-950);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.running-window {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.running-text {
+  width: max-content;
+  font-size: 30px;
+  font-weight: 650;
+  animation: marquee 28s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+.dev-panel {
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  z-index: 99;
+  width: min(560px, calc(100vw - 36px));
+  color: #e7f3ec;
+  background: rgba(8,18,14,.94);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  backdrop-filter: blur(12px);
+  padding: 16px;
+}
+
+.dev-panel.is-collapsed { width: auto; }
+
+.dev-panel.is-collapsed .dev-row,
+.dev-panel.is-collapsed .dev-note { display: none; }
+
+.dev-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dev-panel button,
+.dev-panel select {
+  border: 1px solid rgba(255,255,255,.16);
+  color: #fff;
+  background: #17372b;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.dev-panel button { cursor: pointer; }
+
+.dev-row {
+  margin-top: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-row label { min-width: 120px; }
+
+.dev-row select {
+  flex: 1;
+  min-width: 180px;
+}
+
+.dev-status {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+.dev-status code { color: #d9bd77; }
+
+.dev-note {
+  margin: 12px 0 0;
+  color: #9db4a9;
+  font-size: 13px;
+  line-height: 1.45;
+}
+/* ==========================================================================
+   Phase 3A.1 Visual Polish — presentation-only overrides
+   ========================================================================== */
+
+.tv-stage {
+  --cfg-header-bg: #123f31;
+  --cfg-header-text: #ffffff;
+  --cfg-running-bg: #0c2f24;
+  --cfg-running-text: #ffffff;
+  --cfg-running-label-bg: #c5a764;
+  --cfg-running-label-text: #0c2f24;
+  --cfg-prayer-panel-bg: #e7efe9;
+  --cfg-prayer-row-bg: #ffffff;
+  --cfg-prayer-title: #13231c;
+  --cfg-prayer-time: #13231c;
+  --cfg-prayer-highlight-bg: #14513f;
+  --cfg-prayer-highlight-title: #ffffff;
+  --cfg-prayer-highlight-time: #ffffff;
+  --cfg-stage-bg: #f6f0df;
+  --cfg-accent: #c5a764;
+  background: var(--cfg-stage-bg);
+}
+
+.tv-header {
+  color: var(--cfg-header-text);
+  background:
+    radial-gradient(circle at 82% 35%, color-mix(in srgb, var(--cfg-accent) 24%, transparent), transparent 32%),
+    linear-gradient(135deg, color-mix(in srgb, var(--cfg-header-bg) 88%, #05140f), var(--cfg-header-bg));
+}
+
+.header-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.mosque-logo-frame {
+  flex: 0 0 78px;
+  width: 78px;
+  height: 78px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--cfg-accent) 68%, transparent);
+  background: rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.mosque-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.mosque-logo-fallback {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--cfg-accent);
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.header-mosque {
+  min-width: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.mosque-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prayer-panel {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.68), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--cfg-prayer-panel-bg) 88%, white), var(--cfg-prayer-panel-bg));
+}
+
+.prayer-row {
+  color: var(--cfg-prayer-title);
+  background: color-mix(in srgb, var(--cfg-prayer-row-bg) 94%, transparent);
+  border: 1px solid rgba(18,63,49,.06);
+  box-shadow: 0 10px 26px rgba(18,63,49,.075);
+}
+
+.prayer-name {
+  color: var(--cfg-prayer-title);
+}
+
+.prayer-time {
+  color: var(--cfg-prayer-time);
+}
+
+.prayer-row.is-next {
+  background:
+    radial-gradient(circle at 92% 25%, color-mix(in srgb, var(--cfg-accent) 22%, transparent), transparent 30%),
+    linear-gradient(135deg, color-mix(in srgb, var(--cfg-prayer-highlight-bg) 88%, #061b14), var(--cfg-prayer-highlight-bg));
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--cfg-prayer-highlight-bg) 26%, transparent);
+}
+
+.prayer-row.is-next .prayer-name {
+  color: var(--cfg-prayer-highlight-title);
+}
+
+.prayer-row.is-next .prayer-time {
+  color: var(--cfg-prayer-highlight-time);
+}
+
+.tv-body[data-prayer-position="right"] {
+  grid-template-columns: 1fr 350px;
+}
+
+.tv-body[data-prayer-position="right"] .prayer-panel {
+  order: 2;
+  border-right: 0;
+  border-left: 1px solid rgba(18,63,49,.14);
+}
+
+.tv-body[data-prayer-position="right"] .content-panel {
+  order: 1;
+}
+
+.content-panel {
+  background:
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--cfg-accent) 18%, transparent), transparent 27%),
+    linear-gradient(145deg, #f8f5ec, color-mix(in srgb, var(--cfg-prayer-panel-bg) 74%, white));
+}
+
+.slide-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(circle at 86% 22%, color-mix(in srgb, var(--cfg-accent) 24%, transparent), transparent 28%),
+    linear-gradient(120deg, #0c2f24, #1e5644 70%, #2f6d58);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 26px 60px rgba(18,63,49,.14);
+}
+
+.slide-card::before,
+.slide-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border: 2px solid rgba(255,255,255,.055);
+  border-radius: 50% 50% 0 0;
+  transform: rotate(28deg);
+}
+
+.slide-card::before {
+  width: 640px;
+  height: 840px;
+  right: -220px;
+  top: -170px;
+}
+
+.slide-card::after {
+  width: 460px;
+  height: 620px;
+  right: -90px;
+  top: -40px;
+}
+
+.slide-accent {
+  width: 90px;
+  height: 8px;
+  margin-bottom: 28px;
+  border-radius: 999px;
+  background: var(--cfg-accent);
+}
+
+.slide-footer-note {
+  position: absolute;
+  left: 64px;
+  bottom: 46px;
+  color: rgba(255,255,255,.56);
+  font-size: 19px;
+  letter-spacing: .8px;
+}
+
+.state-overlay {
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 24px 60px rgba(12,47,36,.12);
+  background:
+    radial-gradient(circle at 50% 48%, color-mix(in srgb, var(--cfg-accent) 14%, transparent), transparent 31%),
+    linear-gradient(135deg, rgba(12,47,36,.985), rgba(18,63,49,.985));
+}
+
+.state-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0;
+  background-image: var(--state-asset);
+  background-size: cover;
+  background-position: center;
+  transition: opacity 260ms ease;
+}
+
+.state-overlay.has-state-asset::after {
+  opacity: 1;
+}
+
+.state-overlay.has-state-asset::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(3,14,10,.10), rgba(3,14,10,.18));
+}
+
+.state-overlay.has-state-asset .state-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.state-content {
+  position: relative;
+  z-index: 2;
+  width: min(1180px, 92%);
+}
+
+.state-decoration {
+  position: absolute;
+  z-index: 1;
+  width: 430px;
+  height: 650px;
+  bottom: -315px;
+  border: 2px solid rgba(255,255,255,.055);
+  border-radius: 50% 50% 0 0;
+}
+
+.state-decoration-left {
+  left: -170px;
+  transform: rotate(28deg);
+}
+
+.state-decoration-right {
+  right: -170px;
+  transform: rotate(-28deg);
+}
+
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  border-color: color-mix(in srgb, var(--cfg-accent) 55%, transparent);
+  background: rgba(0,0,0,.08);
+  color: #fff;
+}
+
+.countdown-box {
+  min-width: 270px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+  backdrop-filter: blur(8px);
+}
+
+.state-overlay.state-enter {
+  animation: mjhk-state-enter 320ms ease-out;
+}
+
+@keyframes mjhk-state-enter {
+  from {
+    opacity: .25;
+    transform: scale(.992);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.running-text-bar {
+  color: var(--cfg-running-text);
+  background: var(--cfg-running-bg);
+}
+
+.running-label {
+  color: var(--cfg-running-label-text);
+  background: var(--cfg-running-label-bg);
+}
+
+.tv-stage.running-text-hidden .tv-body {
+  height: 930px;
+}
+
+.tv-stage.running-text-hidden .running-text-bar {
+  display: none;
+}
+
+html[data-player-mode="production"] .dev-panel,
+.dev-panel.is-production-hidden {
+  display: none !important;
+}
+
+.dev-panel {
+  border: 1px solid rgba(197,167,100,.18);
+}
+
+.dev-panel code {
+  color: #d9bd77;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state-overlay.state-enter {
+    animation: none;
+  }
+
+  .running-text {
+    animation-duration: 56s;
+  }
+
+  /* Phase 3A.1 LOCK — internal state code is simulator-only */
+  html[data-player-mode="production"] .state-badge {
+  display: none !important;
+  }
+}
