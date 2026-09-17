@@ -1,4 +1,4 @@
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 const JSON_LIMIT = 32 * 1024;
 const PAIR_LIMIT = 16 * 1024;
 const SCREENSHOT_LIMIT = 5 * 1024 * 1024;
@@ -14,6 +14,16 @@ const SECURITY_HEADERS = {
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 };
 
+// MJHK_PHASE3B1_CORS_V1
+const CORS_ALLOWED_ORIGINS = new Set([
+  "http://127.0.0.1:5501",
+  "http://localhost:5501",
+]);
+
+const CORS_ALLOW_METHODS = "GET, POST, OPTIONS";
+const CORS_ALLOW_HEADERS = "Content-Type, x-mjhk-device-code, authorization";
+const CORS_MAX_AGE = "86400";
+
 export default {
   async fetch(request, env) {
     const requestId = crypto.randomUUID();
@@ -23,7 +33,7 @@ export default {
       const path = normalizePath(url.pathname);
 
       if (request.method === "OPTIONS") {
-        throw new HttpError(405, "method_not_allowed");
+        return corsPreflight(request, requestId);
       }
 
       if (path === "/health") {
@@ -33,7 +43,7 @@ export default {
           service: "mjhk-tv-gateway",
           version: VERSION,
           time: new Date().toISOString(),
-        }, 200, requestId);
+        }, 200, requestId, request);
       }
 
       if (path === "/v1/pair/claim") {
@@ -47,7 +57,7 @@ export default {
           p_pairing_code: body.pairing_code,
           p_device_info: isObject(body.device_info) ? body.device_info : {},
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       const auth = readDeviceAuth(request);
@@ -55,7 +65,7 @@ export default {
       if (path === "/v1/device/bootstrap") {
         requireMethod(request, "GET");
         const data = await bootstrap(env, auth);
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       if (path === "/v1/device/heartbeat") {
@@ -67,7 +77,7 @@ export default {
           p_device_token: auth.deviceToken,
           p_telemetry: isObject(body) ? body : {},
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       // IMPORTANT: exact ACK route must be matched BEFORE the dynamic
@@ -88,7 +98,7 @@ export default {
             ? body.error_message.slice(0, 1000)
             : null,
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       if (
@@ -106,7 +116,7 @@ export default {
           p_device_token: auth.deviceToken,
           p_revision_id: revisionId,
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       if (path === "/v1/device/commands") {
@@ -118,7 +128,7 @@ export default {
           p_device_token: auth.deviceToken,
           p_limit: limit,
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       const ackMatch = path.match(/^\/v1\/device\/commands\/([0-9a-fA-F-]{36})\/ack$/);
@@ -140,7 +150,7 @@ export default {
             ? body.error_message.slice(0, 1000)
             : null,
         });
-        return json(data, 200, requestId);
+        return json(data, 200, requestId, request);
       }
 
       if (path === "/v1/device/screenshot") {
@@ -171,7 +181,7 @@ export default {
           p_device_token: auth.deviceToken,
           p_storage_path: objectPath,
         });
-        return json(data, 201, requestId);
+        return json(data, 201, requestId, request);
       }
 
       const mediaMatch = path.match(/^\/v1\/device\/media\/([0-9a-fA-F-]{36})$/);
@@ -196,7 +206,7 @@ export default {
             url: signed,
             expires_in: SIGNED_MEDIA_TTL,
             source: "signed_storage",
-          }, 200, requestId);
+          }, 200, requestId, request);
         }
 
         if (content.storage_url) {
@@ -205,7 +215,7 @@ export default {
             url: content.storage_url,
             expires_in: null,
             source: "external_or_legacy",
-          }, 200, requestId);
+          }, 200, requestId, request);
         }
 
         throw new HttpError(404, "content_media_missing");
@@ -213,7 +223,7 @@ export default {
 
       throw new HttpError(404, "not_found");
     } catch (err) {
-      return errorResponse(err, requestId);
+      return errorResponse(err, requestId, request);
     }
   },
 };
@@ -404,9 +414,9 @@ function mapRpcError(message, status) {
   return new HttpError(502, "upstream_rpc_failed");
 }
 
-function errorResponse(err, requestId) {
+function errorResponse(err, requestId, request) {
   if (err instanceof HttpError) {
-    return json({ error: err.code, request_id: requestId }, err.status, requestId);
+    return json({ error: err.code, request_id: requestId }, err.status, requestId, request);
   }
 
   console.error(JSON.stringify({
@@ -415,15 +425,52 @@ function errorResponse(err, requestId) {
     type: err instanceof Error ? err.name : "unknown",
   }));
 
-  return json({ error: "internal_error", request_id: requestId }, 500, requestId);
+  return json({ error: "internal_error", request_id: requestId }, 500, requestId, request);
 }
 
-function json(body, status, requestId) {
+function json(body, status, requestId, request) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       ...SECURITY_HEADERS,
+      ...corsHeaders(request),
       "Content-Type": "application/json; charset=utf-8",
+      "X-MJHK-Request-ID": requestId,
+    },
+  });
+}
+
+function corsHeaders(request) {
+  const origin = request?.headers?.get("Origin") || "";
+  if (!origin || !CORS_ALLOWED_ORIGINS.has(origin)) return {};
+
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": CORS_ALLOW_METHODS,
+    "Access-Control-Allow-Headers": CORS_ALLOW_HEADERS,
+    "Access-Control-Max-Age": CORS_MAX_AGE,
+    "Vary": "Origin",
+  };
+}
+
+function corsPreflight(request, requestId) {
+  const origin = request.headers.get("Origin") || "";
+
+  if (!CORS_ALLOWED_ORIGINS.has(origin)) {
+    return new Response(null, {
+      status: 403,
+      headers: {
+        ...SECURITY_HEADERS,
+        "X-MJHK-Request-ID": requestId,
+      },
+    });
+  }
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      ...SECURITY_HEADERS,
+      ...corsHeaders(request),
       "X-MJHK-Request-ID": requestId,
     },
   });
