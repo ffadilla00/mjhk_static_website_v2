@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MJHK TV Typed Presentation Adapter</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: #08140f;
+      color: #ecf5f0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; }
+    main { width: min(1150px,100%); margin: 0 auto; }
+    h1 { margin-bottom: 8px; }
+    .muted { color: #98ada4; line-height: 1.6; }
+    .card {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid #27463a;
+      border-radius: 16px;
+      background: #0f211a;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 220px minmax(0,1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #20382f;
+    }
+    .row:last-child { border-bottom: 0; }
+    code { color: #d9bd77; overflow-wrap: anywhere; white-space: pre-wrap; }
+    button {
+      border: 1px solid #365f4f;
+      border-radius: 10px;
+      padding: 10px 13px;
+      color: white;
+      background: #174332;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    [data-state="ok"] { color: #77db9f; }
+    [data-state="warning"] { color: #e5be63; }
+    [data-state="error"] { color: #ff8c8c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MJHK TV — Phase 3B.2D-B Typed Presentation Adapter</h1>
+    <p class="muted">
+      LKG snapshot → immutable runtime → typed presentation contract.
+      Belum DOM binding, belum state-engine binding, dan belum revision ACK.
+    </p>
+
+    <section class="card">
+      <div class="row">
+        <strong>Last-Known-Good</strong>
+        <code id="adapterLkg">-</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Adapter Contract</strong>
+        <code id="adapterContract">-</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Typed Adapter</strong>
+        <code id="adapterResult">NOT RUN</code>
+        <button id="runAdapter" type="button">Run Typed Adapter</button>
+      </div>
+      <div class="row">
+        <strong>Failure Isolation</strong>
+        <code id="adapterIsolation">NOT RUN</code>
+        <button id="runAdapterFailure" type="button">Test Unsupported Type</button>
+      </div>
+    </section>
+
+    <p class="muted">
+      Diagnostics hanya menampilkan metadata: jumlah item, tipe slideshow,
+      state scope, revision ID/number, dan frozen status. Isi text/URL tidak dicetak.
+    </p>
+  </main>
+
+  <script type="module" src="assets/js/presentation-adapter-diagnostics.js"></script>
+</body>
+</html>

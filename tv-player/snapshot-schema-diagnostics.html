@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MJHK TV Snapshot Schema Audit</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: #08140f;
+      color: #ecf5f0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; }
+    main { width: min(1200px,100%); margin: 0 auto; }
+    h1 { margin-bottom: 8px; }
+    .muted { color: #98ada4; line-height: 1.6; }
+    .card {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid #27463a;
+      border-radius: 16px;
+      background: #0f211a;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 210px minmax(0,1fr) auto;
+      gap: 14px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px solid #20382f;
+    }
+    .row:last-child { border-bottom: 0; }
+    code {
+      color: #d9bd77;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      max-height: 340px;
+      overflow: auto;
+    }
+    button {
+      border: 1px solid #365f4f;
+      border-radius: 10px;
+      padding: 10px 13px;
+      color: white;
+      background: #174332;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    [data-state="ok"] { color: #77db9f; }
+    [data-state="warning"] { color: #e5be63; }
+    [data-state="error"] { color: #ff8c8c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MJHK TV — Phase 3B.2D-A Typed Snapshot Schema Audit</h1>
+    <p class="muted">
+      Audit struktur snapshot tanpa menampilkan nilai. Fokus pada schema aktual
+      playlist_items dan running_text sebelum typed adapter dibuat.
+    </p>
+
+    <section class="card">
+      <div class="row">
+        <strong>Last-Known-Good</strong>
+        <code id="schemaLkg">-</code>
+        <button id="inspectSchema" type="button">Inspect Schema</button>
+      </div>
+      <div class="row">
+        <strong>Top-Level Keys</strong>
+        <code id="schemaTop">NOT RUN</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Playlist Items</strong>
+        <code id="schemaPlaylist">NOT RUN</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Running Text</strong>
+        <code id="schemaRunningText">NOT RUN</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Full Safe Contract</strong>
+        <code id="schemaFull">NOT RUN</code>
+        <span></span>
+      </div>
+    </section>
+
+    <p class="muted">
+      Hanya nama field, tipe data, ukuran array, dan variasi shape yang ditampilkan.
+      Nilai string/angka/URL/pesan tidak pernah dicetak.
+    </p>
+  </main>
+
+  <script type="module" src="assets/js/snapshot-schema-diagnostics.js"></script>
+</body>
+</html>
