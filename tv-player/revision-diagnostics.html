@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MJHK TV Revision Diagnostics</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: #08140f;
+      color: #ecf5f0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; }
+    main { width: min(980px,100%); margin: 0 auto; }
+    h1 { margin-bottom: 8px; }
+    .muted { color: #98ada4; line-height: 1.6; }
+    .card {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid #27463a;
+      border-radius: 16px;
+      background: #0f211a;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 190px minmax(0,1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #20382f;
+    }
+    .row:last-child { border-bottom: 0; }
+    code { color: #d9bd77; overflow-wrap: anywhere; white-space: pre-wrap; }
+    button {
+      border: 1px solid #365f4f;
+      border-radius: 10px;
+      padding: 10px 13px;
+      color: white;
+      background: #174332;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    [data-state="ok"] { color: #77db9f; }
+    [data-state="warning"] { color: #e5be63; }
+    [data-state="error"] { color: #ff8c8c; }
+    [data-state="checking"] { color: #9ec8ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MJHK TV — Phase 3B.2A Revision Probe</h1>
+    <p class="muted">
+      Read-only probe: Bootstrap → desired_revision_id → fetch revision →
+      transport/identity validation. Belum apply config dan belum ACK.
+    </p>
+
+    <section class="card">
+      <div class="row">
+        <strong>Device Session</strong>
+        <code id="revisionSession">-</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Desired Revision</strong>
+        <code id="desiredRevision">-</code>
+        <button id="probeRevision" type="button">Probe Revision</button>
+      </div>
+      <div class="row">
+        <strong>Fetch</strong>
+        <code id="revisionFetchStatus" data-state="idle">NOT RUN</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Validation</strong>
+        <code id="revisionValidation" data-state="idle">NOT RUN</code>
+        <span></span>
+      </div>
+      <div class="row">
+        <strong>Response Keys</strong>
+        <code id="revisionResponseKeys">-</code>
+        <span></span>
+      </div>
+    </section>
+
+    <p class="muted">
+      Hanya nama field/metadata aman yang ditampilkan. Payload config tidak
+      dirender pada halaman ini.
+    </p>
+  </main>
+
+  <script type="module" src="assets/js/revision-diagnostics.js"></script>
+</body>
+</html>
