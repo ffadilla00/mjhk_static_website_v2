@@ -6,18 +6,22 @@ import {
 } from "./presentation-adapter.js";
 import { PresentationBinder } from "./presentation-binding.js";
 
-const BRIDGE_VERSION = "3B.2D-C2-v1";
+const BRIDGE_VERSION = "3B.2E-C-v1";
 
 export function createPresentationPlayerBridge() {
   const refs = resolvePlayerRefs();
 
   let binder = null;
+  let currentTypedConfig = null;
   let pendingState = "NORMAL";
-  let initialized = false;
+  let binderStarted = false;
+
+  const initialRunningText = {
+    text: refs.runningText.textContent || "",
+    hidden: refs.runningText.hidden,
+  };
 
   async function initialize() {
-    if (initialized) return true;
-
     try {
       const store = new RevisionStore();
       const lkg = await store.loadLastKnownGood();
@@ -29,32 +33,78 @@ export function createPresentationPlayerBridge() {
 
       const runtime = prepareRuntimeConfig(lkg);
       const typed = adaptPresentationConfig(runtime);
-      const mount = ensurePresentationMount(refs.normalContent);
 
-      binder = new PresentationBinder({
-        root: refs.tvStage,
-        stage: mount,
-        runningText: refs.runningText,
-        emptyBehavior: "clear",
-      });
+      applyPresentationConfig(typed);
 
-      binder.setConfig(typed);
-      binder.setPresentationState(pendingState);
-      binder.start();
-
-      const meta = safePresentationMeta(typed);
-
-      refs.tvStage.dataset.presentationBridge = "ready";
-      refs.tvStage.dataset.presentationBridgeVersion = BRIDGE_VERSION;
-      refs.tvStage.dataset.presentationRevision =
-        String(meta?.revision_number ?? "");
-
-      initialized = true;
       return true;
     } catch (error) {
       markBridgeError(refs.tvStage, error);
       return false;
     }
+  }
+
+  function applyPresentationConfig(typedConfig) {
+    const previous = currentTypedConfig;
+
+    try {
+      const activeBinder = ensureBinder();
+
+      activeBinder.setConfig(typedConfig);
+      activeBinder.setPresentationState(pendingState);
+
+      if (!binderStarted) {
+        activeBinder.start();
+        binderStarted = true;
+      }
+
+      currentTypedConfig = typedConfig;
+      markReady(typedConfig);
+
+      return getSafeMeta();
+    } catch (error) {
+      // Transactional UI safety:
+      // if the candidate fails locally, restore the previous typed config.
+      if (previous && binder) {
+        try {
+          binder.setConfig(previous);
+          binder.setPresentationState(pendingState);
+          currentTypedConfig = previous;
+          markReady(previous);
+        } catch {
+          markBridgeError(refs.tvStage, {
+            code: "presentation_restore_failed",
+          });
+        }
+      } else {
+        markBridgeError(refs.tvStage, error);
+      }
+
+      throw error;
+    }
+  }
+
+  function clearPresentationConfig() {
+    if (binder) {
+      binder.stop();
+    }
+
+    binderStarted = false;
+    binder = null;
+    currentTypedConfig = null;
+
+    const mount = refs.normalContent.querySelector("#presentationMount");
+    if (mount) mount.replaceChildren();
+
+    refs.runningText.textContent = initialRunningText.text;
+    refs.runningText.hidden = initialRunningText.hidden;
+
+    delete refs.tvStage.dataset.presentationRevision;
+    delete refs.tvStage.dataset.presentationContentId;
+    delete refs.tvStage.dataset.presentationContentType;
+
+    refs.tvStage.dataset.presentationFullscreen = "false";
+    refs.tvStage.dataset.presentationContentActive = "false";
+    refs.tvStage.dataset.presentationBridge = "no-lkg";
   }
 
   function setPresentationState(state) {
@@ -71,6 +121,7 @@ export function createPresentationPlayerBridge() {
 
   function refresh() {
     if (!binder) return;
+
     try {
       binder.render();
     } catch (error) {
@@ -79,21 +130,54 @@ export function createPresentationPlayerBridge() {
   }
 
   function getSafeMeta() {
-    if (!binder) {
-      return {
+    if (!binder || !currentTypedConfig) {
+      return Object.freeze({
         ready: false,
         state: pendingState,
-      };
+        revision_id: null,
+        revision_number: null,
+      });
     }
 
-    return {
+    const typedMeta = safePresentationMeta(currentTypedConfig);
+
+    return Object.freeze({
       ready: true,
+      revision_id: typedMeta?.revision_id ?? null,
+      revision_number: typedMeta?.revision_number ?? null,
       ...binder.meta(),
-    };
+    });
+  }
+
+  function ensureBinder() {
+    if (binder) return binder;
+
+    const mount = ensurePresentationMount(refs.normalContent);
+
+    binder = new PresentationBinder({
+      root: refs.tvStage,
+      stage: mount,
+      runningText: refs.runningText,
+      emptyBehavior: "clear",
+    });
+
+    return binder;
+  }
+
+  function markReady(typedConfig) {
+    const meta = safePresentationMeta(typedConfig);
+
+    refs.tvStage.dataset.presentationBridge = "ready";
+    refs.tvStage.dataset.presentationBridgeVersion = BRIDGE_VERSION;
+    refs.tvStage.dataset.presentationRevision =
+      String(meta?.revision_number ?? "");
+    delete refs.tvStage.dataset.presentationBridgeError;
   }
 
   return Object.freeze({
     initialize,
+    applyPresentationConfig,
+    clearPresentationConfig,
     setPresentationState,
     refresh,
     getSafeMeta,
@@ -127,6 +211,7 @@ function ensurePresentationMount(normalContent) {
   mount.setAttribute("aria-live", "off");
 
   normalContent.append(mount);
+
   return mount;
 }
 

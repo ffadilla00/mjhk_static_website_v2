@@ -91,7 +91,7 @@ grep -Fq '?mode=production' tv-player/index.html \
   && pass "Production preview mode tersedia" \
   || fail "Production preview mode tidak ditemukan"
 
-if grep -R -Eqi 'SUPABASE_SERVICE_ROLE|sb_secret_' tv-player; then
+if grep -R -Eqi 'SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_ROLE|SUPABASE_URL|createClient[[:space:]]*\(|@supabase/supabase-js|https://[^[:space:]]*\.supabase\.co|/rest/v1/|/storage/v1/' tv-player/assets/js; then
   fail "TV player mengandung service-role/secret reference"
 else
   pass "TV player bebas service-role/secret"

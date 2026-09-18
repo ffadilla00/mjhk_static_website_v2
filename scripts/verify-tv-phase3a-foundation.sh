@@ -40,7 +40,7 @@ grep -Fq "Ramadan mode" tv-player/index.html   && grep -Fq "IMSAK" tv-player/ass
 
 grep -Fq "FRIDAY_KHUTBAH" tv-player/assets/js/scenarios.js   && pass "Friday scenario tersedia"   || fail "Friday scenario tidak ditemukan"
 
-if grep -R -Eqi 'SUPABASE_SERVICE_ROLE|sb_secret_' tv-player; then
+if grep -R -Eqi 'SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_ROLE|SUPABASE_URL|createClient[[:space:]]*\(|@supabase/supabase-js|https://[^[:space:]]*\.supabase\.co|/rest/v1/|/storage/v1/' tv-player/assets/js; then
   fail "Player tidak boleh mengandung service-role credential"
 else
   pass "Player bebas service-role"

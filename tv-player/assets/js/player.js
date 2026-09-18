@@ -11,6 +11,7 @@ import {
 } from "./ui.js";
 
 import { createPresentationPlayerBridge } from "./presentation-player-bridge.js";
+import { startRevisionStartupSync } from "./revision-sync-startup.js";
 
 const refs = {
   tvStage: document.querySelector("#tvStage"),
@@ -48,7 +49,7 @@ const refs = {
 const engine = new TVStateEngine();
 
 const presentationBridge = createPresentationPlayerBridge();
-void presentationBridge.initialize();
+void startRevisionStartupSync({ presentationBridge });
 
 for (const [key, scenario] of Object.entries(SCENARIOS)) {
   const option = document.createElement("option");
