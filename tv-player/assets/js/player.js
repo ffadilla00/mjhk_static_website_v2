@@ -10,6 +10,8 @@ import {
   updateClock,
 } from "./ui.js";
 
+import { createPresentationPlayerBridge } from "./presentation-player-bridge.js";
+
 const refs = {
   tvStage: document.querySelector("#tvStage"),
   tvBody: document.querySelector("#tvBody"),
@@ -45,6 +47,9 @@ const refs = {
 
 const engine = new TVStateEngine();
 
+const presentationBridge = createPresentationPlayerBridge();
+void presentationBridge.initialize();
+
 for (const [key, scenario] of Object.entries(SCENARIOS)) {
   const option = document.createElement("option");
   option.value = key;
@@ -61,6 +66,7 @@ for (const code of Object.values(TV_STATES)) {
 
 engine.addEventListener("change", (event) => {
   renderState(event.detail, refs);
+  presentationBridge.setPresentationState(event.detail.state);
   refs.pauseClock.textContent = event.detail.paused ? "Resume Scenario" : "Pause Scenario";
 });
 

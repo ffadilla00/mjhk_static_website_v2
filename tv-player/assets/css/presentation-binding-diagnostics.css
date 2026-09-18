@@ -1,0 +1,19 @@
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#07150f;color:#eef7f2}
+*{box-sizing:border-box}body{margin:0;padding:24px}main{width:min(1280px,100%);margin:auto}
+.muted{color:#9bb0a7}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+button,select{border:1px solid #3e6556;border-radius:9px;padding:10px 13px;background:#154533;color:#fff}
+.status{padding:12px 14px;background:#10241b;border:1px solid #28483c;border-radius:12px;margin-bottom:16px}
+[data-state=ok]{color:#77d99e}[data-state=error]{color:#ff9090}
+.tv-shell{display:grid;grid-template-rows:84px minmax(0,1fr) 62px;width:100%;aspect-ratio:16/9;overflow:hidden;background:#e8efe9;color:#fff;border:1px solid #355d4d}
+.tv-header{display:flex;align-items:center;padding:0 36px;background:#124735;font-size:27px;font-weight:800}
+.tv-body{min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr)}
+.tv-prayers{padding:18px;background:#edf3ee;color:#153025;font-weight:700}.tv-prayers div{padding:16px 10px;margin-bottom:10px;border-radius:12px;background:#fff}
+.tv-stage{position:relative;min-width:0;overflow:hidden;background:#174d3b}
+.tv-footer{display:flex;align-items:center;overflow:hidden;background:#0b3c2d}.tv-footer strong{align-self:stretch;display:grid;place-items:center;min-width:100px;background:#cfb46c;color:#133226}
+.tv-running{padding:0 22px;font-size:22px;font-weight:700;white-space:nowrap}
+.mjhk-bound-content{width:100%;height:100%}.mjhk-bound-content--image img,.mjhk-bound-content__image{display:block;width:100%;height:100%;object-fit:cover}
+.mjhk-bound-content--text{display:grid;place-items:center;padding:7%;background:linear-gradient(135deg,#0c3b2d,#2d6a50)}
+.mjhk-bound-content__text{max-width:900px;padding:5%}.mjhk-bound-content__text h2{margin:0 0 18px;font-size:clamp(36px,4vw,68px)}.mjhk-bound-content__text p{margin:0;font-size:clamp(21px,2vw,34px);line-height:1.4}
+.mjhk-bound-content--image_text{position:relative}.mjhk-bound-content--image_text .mjhk-bound-content__text{position:absolute;left:5%;bottom:7%;max-width:70%;background:rgb(0 0 0/.62);border-radius:18px}
+.tv-shell[data-presentation-fullscreen=true] .tv-body{display:block}.tv-shell[data-presentation-fullscreen=true] .tv-prayers{display:none}.tv-shell[data-presentation-fullscreen=true] .tv-stage{width:100%;height:100%}
+.meta{margin-top:14px;color:#b9c9c1;overflow-wrap:anywhere}

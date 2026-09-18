@@ -1,0 +1,181 @@
+/*
+ * MJHK TV — Phase 3B.2D-C2 Surgical Player Bridge v1
+ * + Media Fallback Hotfix v1
+ */
+
+#normalContent {
+  position: relative;
+}
+
+.presentation-mount {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  background: var(--cfg-stage-bg, #f6f0df);
+}
+
+#tvStage[data-presentation-content-active="true"] .presentation-mount {
+  display: block;
+}
+
+.presentation-mount .mjhk-bound-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.presentation-mount .mjhk-bound-content--image img,
+.presentation-mount .mjhk-bound-content__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.presentation-mount .mjhk-bound-content--text {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding:
+    var(--mjhk-content-safe-y, 56px)
+    var(--mjhk-content-safe-x, 64px);
+  color: #fff;
+  background:
+    linear-gradient(135deg, #103d2f 0%, #28654c 100%);
+}
+
+.presentation-mount .mjhk-bound-content__text {
+  position: relative;
+  z-index: 3;
+  max-width: 1280px;
+}
+
+.presentation-mount .mjhk-bound-content__text h2 {
+  margin: 0 0 22px;
+  font-size: clamp(44px, 4vw, 76px);
+  line-height: 1.08;
+}
+
+.presentation-mount .mjhk-bound-content__text p {
+  margin: 0;
+  font-size: clamp(25px, 2vw, 38px);
+  line-height: 1.4;
+}
+
+.presentation-mount .mjhk-bound-content--image_text {
+  position: relative;
+}
+
+.presentation-mount
+.mjhk-bound-content--image_text
+.mjhk-bound-content__text {
+  position: absolute;
+  left: var(--mjhk-content-safe-x, 64px);
+  right: var(--mjhk-content-safe-x, 64px);
+  bottom: var(--mjhk-content-safe-y, 56px);
+  z-index: 3;
+  max-width: 1050px;
+  padding: 34px 40px;
+  color: #fff;
+  background: rgb(5 23 17 / 0.76);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+
+/* Graceful fallback: failed remote media must never expose browser broken-image UI. */
+.presentation-mount .mjhk-media-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 48px;
+  text-align: center;
+  color: #f8f6ef;
+  background:
+    radial-gradient(circle at 80% 20%, rgb(197 167 100 / 0.16), transparent 32%),
+    linear-gradient(135deg, #103b2e, #225b46);
+}
+
+.presentation-mount .mjhk-media-fallback__mark {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border: 2px solid rgb(197 167 100 / 0.72);
+  border-radius: 22px;
+  color: #d8bd78;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.presentation-mount .mjhk-media-fallback strong {
+  font-size: clamp(30px, 3vw, 52px);
+}
+
+.presentation-mount .mjhk-media-fallback span {
+  color: rgb(255 255 255 / 0.72);
+  font-size: clamp(18px, 1.5vw, 28px);
+}
+
+/* On image+text, fallback remains background while text stays readable above it. */
+.presentation-mount
+.mjhk-bound-content--image_text.has-media-error
+.mjhk-media-fallback strong,
+.presentation-mount
+.mjhk-bound-content--image_text.has-media-error
+.mjhk-media-fallback span {
+  display: none;
+}
+
+#tvStage[data-presentation-fullscreen="true"] {
+  grid-template-rows: minmax(0, 1fr) !important;
+}
+
+#tvStage[data-presentation-fullscreen="true"] #tvHeader,
+#tvStage[data-presentation-fullscreen="true"] #prayerPanel,
+#tvStage[data-presentation-fullscreen="true"] #runningTextBar {
+  display: none !important;
+}
+
+#tvStage[data-presentation-fullscreen="true"] #tvBody {
+  display: block !important;
+  min-height: 0;
+  height: 100%;
+}
+
+#tvStage[data-presentation-fullscreen="true"] #contentPanel,
+#tvStage[data-presentation-fullscreen="true"] #normalContent,
+#tvStage[data-presentation-fullscreen="true"] .presentation-mount {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+#stateOverlay {
+  z-index: 20;
+}
+
+#tvStage[data-presentation-bridge="error"]::after {
+  content: "Presentation bridge fallback";
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 30;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgb(120 30 30 / 0.78);
+  color: #fff;
+}
+
+html[data-mjhk-production="true"]
+#tvStage[data-presentation-bridge="error"]::after {
+  display: none;
+}

@@ -23,3 +23,6 @@ public-dist/
 *.phase9c5-desktop.bak
 *.finance-typography-v2.bak
 *.finance-typography-v2-1.bak
+
+# Phase 3B.2D-C2 temporary patch backups
+*.phase3b2dc2.bak

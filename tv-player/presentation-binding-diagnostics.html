@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MJHK TV Presentation Binding</title><link rel="stylesheet" href="assets/css/presentation-binding-diagnostics.css"></head>
+<body><main><h1>MJHK TV — Phase 3B.2D-C1 Presentation Binding Core</h1>
+<p class="muted">Typed presentation config → isolated 16:9 surface. Locked player engine remains untouched.</p>
+<div class="controls"><button id="bindingLoad">Load LKG + Bind</button><select id="bindingState"><option>NORMAL</option>
+<option>PRE_ADHAN</option>
+<option>ADHAN</option>
+<option>IQAMAH_COUNTDOWN</option>
+<option>IQAMAH</option>
+<option>SALAT</option>
+<option>PRAYER_PROHIBITION</option>
+<option>SYURUQ</option>
+<option>ISYRAQ</option>
+<option>IMSAK</option>
+<option>FRIDAY_PRE_ADHAN</option>
+<option>FRIDAY_KHUTBAH</option>
+<option>FRIDAY_SALAT</option></select>
+<button id="bindingApplyState">Apply State</button><button id="bindingNext">Next Slide</button><button id="bindingStart">Start Cycle</button><button id="bindingStop">Stop Cycle</button></div>
+<div id="bindingStatus" class="status">NOT RUN</div>
+<section id="bindingSurface" class="tv-shell" data-presentation-fullscreen="false" data-presentation-state="NORMAL">
+<header class="tv-header">Masjid Jami' Harapan Kita — Binding Harness</header>
+<div class="tv-body"><aside class="tv-prayers"><div>Subuh</div><div>Dzuhur</div><div>Ashar</div><div>Maghrib</div><div>Isya</div></aside><div id="bindingStage" class="tv-stage"></div></div>
+<footer class="tv-footer"><strong>INFO</strong><div id="bindingRunningText" class="tv-running" hidden></div></footer></section>
+<div class="meta"><strong>Binding Meta:</strong> <code id="bindingMeta">-</code></div>
+<p class="muted">Slideshow renders only in NORMAL. Dedicated prayer states retain stage ownership; running text follows state_scope.</p>
+</main><script type="module" src="assets/js/presentation-binding-diagnostics.js"></script></body></html>
