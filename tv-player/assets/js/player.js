@@ -12,6 +12,11 @@ import {
 
 import { createPresentationPlayerBridge } from "./presentation-player-bridge.js";
 import { startRevisionStartupSync } from "./revision-sync-startup.js";
+import { createRuntimeHeartbeat } from "./runtime-heartbeat.js";
+import { createRuntimeCommandPoller } from "./runtime-command-poller.js";
+import { createRuntimeCommandDispatcher } from "./runtime-command-dispatcher.js";
+import { attachRuntimeCommandCoordinator } from "./runtime-command-coordinator.js";
+import { createRuntimeOperationsSupervisor } from "./runtime-operations-supervisor.js";
 
 const refs = {
   tvStage: document.querySelector("#tvStage"),
@@ -49,7 +54,38 @@ const refs = {
 const engine = new TVStateEngine();
 
 const presentationBridge = createPresentationPlayerBridge();
-void startRevisionStartupSync({ presentationBridge });
+const revisionStartupPromise =
+  startRevisionStartupSync({ presentationBridge });
+
+const runtimeHeartbeat =
+  createRuntimeHeartbeat({ presentationBridge });
+const runtimeCommandPoller =
+  createRuntimeCommandPoller();
+const runtimeCommandDispatcher =
+  createRuntimeCommandDispatcher({
+    presentationBridge,
+  });
+
+const runtimeCommandCoordinator =
+  attachRuntimeCommandCoordinator({
+    poller: runtimeCommandPoller,
+    dispatcher: runtimeCommandDispatcher,
+  });
+const runtimeOperationsSupervisor =
+  createRuntimeOperationsSupervisor({
+    heartbeat: runtimeHeartbeat,
+    commandPoller: runtimeCommandPoller,
+    commandCoordinator: runtimeCommandCoordinator,
+  });
+
+void revisionStartupPromise.finally(() => {
+  runtimeOperationsSupervisor.start();
+});
+
+window.addEventListener("pagehide", () => {
+  runtimeOperationsSupervisor.stop();
+  runtimeCommandCoordinator.stop();
+});
 
 for (const [key, scenario] of Object.entries(SCENARIOS)) {
   const option = document.createElement("option");

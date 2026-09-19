@@ -40,21 +40,37 @@ do
     || fail "$js syntax ERROR"
 done
 
+PLAYER="tv-player/assets/js/player.js"
+
 grep -Fq \
   'startRevisionStartupSync' \
-  tv-player/assets/js/player.js \
+  "$PLAYER" \
   && pass "Player startup sync terpasang" \
   || fail "Player startup sync belum terpasang"
 
-grep -Fq \
-  'void startRevisionStartupSync({ presentationBridge });' \
-  tv-player/assets/js/player.js \
-  && pass "Player boot memakai startup coordinator" \
-  || fail "Startup coordinator call tidak ditemukan"
+# Phase-aware startup invocation:
+# Phase 3B originally used:
+#   void startRevisionStartupSync({ presentationBridge });
+#
+# Phase 3C-B intentionally wraps the SAME call in revisionStartupPromise so
+# heartbeat can start only after revision startup settles.
+#
+# Verify the semantic call rather than one exact historical statement form.
+STARTUP_CALL_COUNT="$(
+  grep -oF \
+    'startRevisionStartupSync({ presentationBridge })' \
+    "$PLAYER" 2>/dev/null | wc -l | tr -d '[:space:]'
+)"
+
+if [[ "$STARTUP_CALL_COUNT" == "1" ]]; then
+  pass "Player boot memakai startup coordinator"
+else
+  fail "Startup coordinator call harus tepat satu kali (found: $STARTUP_CALL_COUNT)"
+fi
 
 if grep -Fq \
   'void presentationBridge.initialize();' \
-  tv-player/assets/js/player.js
+  "$PLAYER"
 then
   fail "Legacy standalone bridge initialize masih aktif"
 else
@@ -105,10 +121,7 @@ grep -Fq \
   && pass "Bridge transactional config API tersedia" \
   || fail "Bridge transactional API tidak lengkap"
 
-# Phase-aware ACK rule:
-# - Before Phase D exists, Phase C must not send ACK.
-# - After Phase D exists, startup may orchestrate ACK, but transport endpoint must
-#   remain delegated to revision-ack-delivery.js, never hardcoded in startup/deps.
+# Phase D aware ACK rule.
 if [[ -f "$ACK" ]]; then
   if grep -Fq 'RevisionAckDelivery' "$S" \
     && ! grep -Fq '/v1/device/revision/ack' "$S" \

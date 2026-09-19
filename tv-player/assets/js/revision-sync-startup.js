@@ -69,6 +69,11 @@ async function runStartupSync({ presentationBridge }) {
   }
 
   publishSafeSyncStatus(result, ackResult);
+
+  return Object.freeze({
+    result,
+    ack_result: ackResult,
+  });
   return Object.freeze({ ...result, ack_delivery: ackResult });
 }
 
@@ -126,4 +131,29 @@ function renderDeveloperStatus(detail) {
 function safeToken(value, fallback) {
   const text = typeof value === "string" ? value : fallback;
   return text.toLowerCase().replace(/[^a-z0-9_-]+/g, "_").slice(0, 80) || fallback;
+}
+
+
+let runtimeCommandSyncPromise = null;
+
+export function runRevisionSyncNow({
+  presentationBridge,
+} = {}) {
+  if (runtimeCommandSyncPromise) {
+    return runtimeCommandSyncPromise;
+  }
+
+  // Startup sync has already settled before command polling begins.
+  // Reset only the startup memoization so sync_now can execute the exact
+  // same locked pipeline again.
+  startupPromise = null;
+
+  runtimeCommandSyncPromise =
+    startRevisionStartupSync({
+      presentationBridge,
+    }).finally(() => {
+      runtimeCommandSyncPromise = null;
+    });
+
+  return runtimeCommandSyncPromise;
 }
