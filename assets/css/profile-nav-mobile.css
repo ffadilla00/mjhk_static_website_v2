@@ -158,10 +158,10 @@
     gap: 30px;
   }
 
-  .nav-links > a,
-  .nav-dropdown-toggle {
+  .navbar .nav-links > a,
+  .navbar .nav-dropdown-toggle {
     font-size: 16px;
-    line-height: 1.2;
+    font-weight: 700;
   }
 
   .nav-dropdown-menu a {

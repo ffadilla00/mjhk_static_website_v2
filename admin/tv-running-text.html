@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Running Text | MJHK TV CMS</title>
+  <link rel="stylesheet" href="tv-admin.css">
+  <link rel="stylesheet" href="tv-running-text.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Admin MJHK</strong><span>TV CMS</span></div>
+    </div>
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link" href="tv.html">Dashboard TV</a>
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link active" href="tv-running-text.html">Running Text</a>
+      <span class="menu-section-title">Tampilan</span>
+      <button type="button" class="menu-link disabled" disabled>Dedicated Screens <small>Phase 4D</small></button>
+      <button type="button" class="menu-link disabled" disabled>Theme &amp; Layout <small>Phase 4D</small></button>
+      <button type="button" class="menu-link disabled" disabled>Prayer Settings <small>Phase 4D</small></button>
+      <span class="menu-section-title">Operasional</span>
+      <button type="button" class="menu-link disabled" disabled>Devices <small>Phase 4E</small></button>
+      <button type="button" class="menu-link disabled" disabled>Publish &amp; Revision <small>Phase 4F</small></button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MJHK TV CMS • Phase 4C-B</p>
+        <h1>Running Text</h1>
+        <p id="adminIdentity" class="muted">Memuat sesi...</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+        <button type="button" class="btn primary" id="newBtn">+ Running Text</button>
+      </div>
+    </header>
+
+    <div id="statusBanner" class="banner hidden" role="status"></div>
+    <div id="permissionBanner" class="banner danger hidden" role="alert"></div>
+
+    <section class="panel intro-panel">
+      <div>
+        <h2>Draft Running Text</h2>
+        <p>Data disimpan di <code>tv_running_text</code>. Belum masuk revision TV sampai Phase 4F.</p>
+      </div>
+      <div class="pill-row">
+        <span class="badge neutral">priority</span>
+        <span class="badge neutral">schedule</span>
+        <span class="badge neutral">state-aware</span>
+      </div>
+    </section>
+
+    <section class="ticker-preview-panel">
+      <div class="ticker-label">INFO</div>
+      <div class="ticker-window"><div id="tickerPreviewText" class="ticker-text">Preview running text aktif akan tampil di sini.</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head running-toolbar">
+        <div>
+          <h2>Running Text Library</h2>
+          <p id="runningSummary">Memuat data...</p>
+        </div>
+        <div class="filter-row">
+          <label><span>Status</span>
+            <select id="activeFilter">
+              <option value="">Semua</option>
+              <option value="active">Aktif</option>
+              <option value="inactive">Nonaktif</option>
+            </select>
+          </label>
+          <label><span>State</span>
+            <select id="stateFilter">
+              <option value="">Semua state</option>
+              <option>NORMAL</option><option>PRE_ADHAN</option><option>ADHAN</option>
+              <option>IQAMAH_COUNTDOWN</option><option>IQAMAH</option><option>SALAT</option>
+              <option>PRAYER_PROHIBITION</option><option>SYURUQ</option><option>ISYRAQ</option>
+              <option>IMSAK</option><option>FRIDAY_PRE_ADHAN</option><option>FRIDAY_KHUTBAH</option>
+              <option>FRIDAY_SALAT</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div id="runningList" class="running-list">
+        <div class="empty-card">Memuat running text...</div>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      <strong>Boundary 4C-B:</strong> source CRUD only. Tidak ada publish revision atau push langsung ke player.
+    </footer>
+  </main>
+
+  <dialog id="editorDialog" class="editor-dialog">
+    <form method="dialog" id="editorForm" class="editor-form">
+      <div class="dialog-head">
+        <div><p class="eyebrow">Running text editor</p><h2 id="editorTitle">Running Text Baru</h2></div>
+        <button type="button" class="icon-btn" id="closeEditorBtn" aria-label="Tutup">×</button>
+      </div>
+      <input type="hidden" id="runningId">
+
+      <div class="form-grid">
+        <label class="field span-2">
+          <span>Teks *</span>
+          <textarea id="textInput" rows="4" maxlength="500" required placeholder="Contoh: Kajian Ahad Subuh insyaAllah dimulai pukul 04.45 WIB."></textarea>
+          <small><span id="charCount">0</span>/500 karakter</small>
+        </label>
+
+        <label class="field">
+          <span>Priority *</span>
+          <input id="priorityInput" type="number" min="0" max="100" value="20" required>
+          <small>Angka lebih tinggi tampil lebih dahulu.</small>
+        </label>
+
+        <label class="field">
+          <span>Urutan *</span>
+          <input id="sortOrderInput" type="number" min="0" max="9999" value="100" required>
+          <small>Dipakai saat priority sama.</small>
+        </label>
+
+        <div class="field span-2">
+          <span>Status</span>
+          <label class="switch-row"><input id="activeInput" type="checkbox" checked><span>Aktif</span></label>
+        </div>
+
+        <fieldset class="field span-2 fieldset">
+          <legend>State Scope *</legend>
+          <p class="field-help">Running text eligible hanya pada state yang dipilih. Dedicated screen tetap mengikuti policy player.</p>
+          <div id="stateScopeOptions" class="check-grid state-grid"></div>
+        </fieldset>
+
+        <fieldset class="field span-2 fieldset">
+          <legend>Hari Tayang *</legend>
+          <div id="weekdayOptions" class="check-grid weekday-grid"></div>
+        </fieldset>
+
+        <label class="field"><span>Mulai Tayang</span><input id="startsAtInput" type="datetime-local"></label>
+        <label class="field"><span>Selesai Tayang</span><input id="endsAtInput" type="datetime-local"></label>
+      </div>
+
+      <div id="formError" class="form-error hidden"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger-outline hidden" id="deleteBtn">Hapus</button>
+        <div class="action-spacer"></div>
+        <button type="button" class="btn light" id="cancelBtn">Batal</button>
+        <button type="submit" class="btn primary" id="saveBtn">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="deleteDialog" class="confirm-dialog">
+    <form method="dialog" class="confirm-card">
+      <h2>Hapus Running Text?</h2>
+      <p id="deleteMessage">Data akan dihapus dari Running Text Library.</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn light" id="cancelDeleteBtn">Batal</button>
+        <button type="button" class="btn danger" id="confirmDeleteBtn">Ya, Hapus</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="tv-running-text.js"></script>
+</body>
+</html>

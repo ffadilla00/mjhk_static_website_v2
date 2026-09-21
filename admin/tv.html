@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MJHK TV | Admin MJHK</title>
+  <link rel="stylesheet" href="tv-admin.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div>
+        <strong>Admin MJHK</strong>
+        <span>TV CMS</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link active" href="tv.html">Dashboard TV</a>
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link" href="tv-running-text.html">Running Text</a>
+      <span class="menu-section-title">Tampilan</span>
+      <button type="button" class="menu-link disabled" disabled>Dedicated Screens <small>Phase 4D</small></button>
+      <button type="button" class="menu-link disabled" disabled>Theme &amp; Layout <small>Phase 4D</small></button>
+      <button type="button" class="menu-link disabled" disabled>Prayer Settings <small>Phase 4D</small></button>
+      <span class="menu-section-title">Operasional</span>
+      <button type="button" class="menu-link disabled" disabled>Devices <small>Phase 4E</small></button>
+      <button type="button" class="menu-link disabled" disabled>Publish &amp; Revision <small>Phase 4F</small></button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MJHK TV CMS</p>
+        <h1>Dashboard TV</h1>
+        <p id="adminIdentity" class="muted">Memuat sesi...</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+        <a class="btn light" href="../tv-player/?mode=production" target="_blank" rel="noopener">Preview TV</a>
+        <button type="button" class="btn light" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <div id="permissionBanner" class="banner danger hidden" role="alert"></div>
+    <div id="statusBanner" class="banner hidden" role="status"></div>
+
+    <section class="metric-grid" aria-label="Ringkasan MJHK TV">
+      <article class="metric-card">
+        <span>Device Online</span>
+        <strong id="metricOnline">—</strong>
+        <small id="metricOnlineMeta">Memuat...</small>
+      </article>
+      <article class="metric-card">
+        <span>Revision Sync</span>
+        <strong id="metricSync">—</strong>
+        <small id="metricSyncMeta">Memuat...</small>
+      </article>
+      <article class="metric-card">
+        <span>Latest Revision</span>
+        <strong id="metricRevision">—</strong>
+        <small id="metricRevisionMeta">Memuat...</small>
+      </article>
+      <article class="metric-card">
+        <span>TV Content</span>
+        <strong id="metricContent">—</strong>
+        <small id="metricContentMeta">Memuat...</small>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Device Runtime</h2>
+          <p>Monitoring read-only dari <code>tv_devices</code>. Token/hash tidak pernah dimuat ke browser CMS.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Status</th>
+              <th>Revision</th>
+              <th>Runtime</th>
+              <th>Display</th>
+              <th>Last Seen</th>
+            </tr>
+          </thead>
+          <tbody id="deviceRows">
+            <tr><td colspan="6" class="empty">Memuat device...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="two-column">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Revision Terbaru</h2>
+            <p>Snapshot revision immutable yang menjadi sumber konfigurasi player.</p>
+          </div>
+        </div>
+        <div id="revisionList" class="stack-list">
+          <div class="empty-card">Memuat revision...</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Content Library</h2>
+            <p>Inventory <code>tv_content</code>. Editor konten masuk Phase 4C.</p>
+          </div>
+        </div>
+        <div id="contentList" class="stack-list">
+          <div class="empty-card">Memuat content...</div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Command Activity</h2>
+          <p>Riwayat command terbaru. Pengiriman command admin baru masuk Phase 4E.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Command</th>
+              <th>Device</th>
+              <th>Status</th>
+              <th>Attempts</th>
+              <th>Created</th>
+              <th>Completed</th>
+            </tr>
+          </thead>
+          <tbody id="commandRows">
+            <tr><td colspan="6" class="empty">Memuat command...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      <strong>Phase 4B boundary:</strong>
+      dashboard ini read-only. Publish revision, editing content, pairing, dan command mutation belum diaktifkan.
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="tv-admin.js"></script>
+</body>
+</html>
