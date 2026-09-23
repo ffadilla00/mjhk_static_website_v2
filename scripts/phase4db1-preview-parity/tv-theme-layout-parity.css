@@ -1,0 +1,9 @@
+/* Phase 4D-B1 Preview Parity Recovery */
+.tv-player-preview-frame{
+  display:block;
+  width:100%;
+  aspect-ratio:16/9;
+  border:1px solid #cfdad4;
+  border-radius:12px;
+  background:#101614;
+}

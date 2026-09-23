@@ -1,3 +1,5 @@
+const DEFAULT_MJHK_LOGO_URL = new URL("../img/mjhk-logo.png", import.meta.url).href;
+
 /*
  * MJHK TV — Phase 3A.1 Visual Contract
  *
@@ -10,7 +12,7 @@ export const VISUAL_CONFIG = Object.freeze({
   identity: {
     mosqueName: "Masjid Jami' Harapan Kita",
     mosqueAddress: "Jl. Menur III No. 9A Blok A4, Kelapa Dua - Tangerang",
-    logoUrl: null,
+    logoUrl: DEFAULT_MJHK_LOGO_URL,
     fallbackLogoText: "MJHK",
   },
 

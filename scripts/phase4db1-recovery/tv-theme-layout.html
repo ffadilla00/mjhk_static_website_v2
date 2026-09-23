@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Theme & Layout — MJHK TV CMS</title>
+  <link rel="stylesheet" href="tv-admin.css">
+  <link rel="stylesheet" href="tv-theme-layout.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Admin MJHK</strong><span>TV CMS</span></div>
+    </div>
+
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link" href="tv.html">Dashboard TV</a>
+
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link" href="tv-running-text.html">Running Text</a>
+
+      <span class="menu-section-title">Tampilan</span>
+      <a class="menu-link" href="tv-dedicated-screens.html">Dedicated Screens</a>
+      <a class="menu-link active" href="tv-theme-layout.html">Theme &amp; Layout</a>
+      <button type="button" class="menu-link disabled" disabled>
+        Prayer Settings <small>Phase 4D</small>
+      </button>
+
+      <span class="menu-section-title">Operasional</span>
+      <button type="button" class="menu-link disabled" disabled>
+        Devices <small>Phase 4E</small>
+      </button>
+      <button type="button" class="menu-link disabled" disabled>
+        Publish &amp; Revision <small>Phase 4F</small>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MJHK TV CMS · PHASE 4D-B1</p>
+        <h1>Theme &amp; Layout</h1>
+        <p id="sessionLabel" class="muted">Memuat sesi admin...</p>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+        <button type="button" class="btn primary" id="saveBtn">Simpan Perubahan</button>
+      </div>
+    </header>
+
+    <div class="theme-layout-page">
+      <section class="info-card">
+        <div>
+          <strong>Source Editor</strong>
+          <p>
+            Perubahan disimpan ke <code>tv_display_profiles</code>.
+            Belum publish ke revision TV sampai Phase 4F.
+          </p>
+        </div>
+        <div class="status-chips" aria-label="Boundary Phase 4D-B1">
+          <span>SOURCE CRUD</span>
+          <span>PROFILE SAFE</span>
+          <span>NO PUBLISH</span>
+        </div>
+      </section>
+
+      <div id="status" class="page-status" hidden></div>
+
+      <section class="theme-editor-grid">
+        <div class="theme-settings-column">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Display Profile</h2>
+                <p>Pilih profile tampilan yang akan diedit.</p>
+              </div>
+            </div>
+            <div class="panel-body compact">
+              <label class="field">
+                <span>Profile</span>
+                <select id="profileSelect"></select>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Layout</h2>
+                <p>Atur komposisi tampilan tanpa mengubah state engine.</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <label class="field">
+                <span>Prayer Panel</span>
+                <select id="prayerPanelSide">
+                  <option value="left">Kiri</option>
+                  <option value="right">Kanan</option>
+                </select>
+              </label>
+
+              <div class="toggle-grid">
+                <label class="check-row">
+                  <input id="headerShowClock" type="checkbox">
+                  <span>Tampilkan jam</span>
+                </label>
+
+                <label class="check-row">
+                  <input id="headerShowMosque" type="checkbox">
+                  <span>Tampilkan nama masjid</span>
+                </label>
+
+                <label class="check-row">
+                  <input id="headerShowGregorianDate" type="checkbox">
+                  <span>Tanggal Masehi</span>
+                </label>
+
+                <label class="check-row">
+                  <input id="headerShowHijriDate" type="checkbox">
+                  <span>Tanggal Hijriah</span>
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Durasi Slideshow (detik)</span>
+                  <input id="slideDuration" type="number" min="1" max="300">
+                </label>
+
+                <label class="field">
+                  <span>Running Text Speed (px/detik)</span>
+                  <input id="runningSpeed" type="number" min="1" max="500">
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Theme</h2>
+                <p>Warna profile disimpan di kolom JSONB <code>theme</code>.</p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="themeFields" class="theme-fields"></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel preview-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Live Preview 16:9</h2>
+              <p>Preview CMS saja, belum mengubah TV Player.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div id="tvPreview" class="tv-preview" data-prayer-side="left">
+              <header class="preview-header">
+                <img
+                  src="../tv-player/assets/img/mjhk-logo.png"
+                  alt="Logo MJHK"
+                  class="preview-logo"
+                >
+                <div class="preview-mosque">
+                  <strong>Masjid Jami' Harapan Kita</strong>
+                  <span>Kelapa Dua - Tangerang</span>
+                </div>
+
+                <div class="preview-clock">
+                  <strong>12:34</strong>
+                  <span>23 September 2026</span>
+                </div>
+              </header>
+
+              <div class="preview-body">
+                <aside class="preview-prayer">
+                  <div class="preview-prayer-title">Jadwal Salat</div>
+                  <div class="prayer-row"><span>Subuh</span><strong>04:32</strong></div>
+                  <div class="prayer-row is-active"><span>Dzuhur</span><strong>11:48</strong></div>
+                  <div class="prayer-row"><span>Ashar</span><strong>15:06</strong></div>
+                  <div class="prayer-row"><span>Maghrib</span><strong>17:52</strong></div>
+                  <div class="prayer-row"><span>Isya</span><strong>19:01</strong></div>
+                </aside>
+
+                <section class="preview-stage">
+                  <div class="preview-stage-card">
+                    <span>MJHK TV</span>
+                    <strong>Informasi Jamaah</strong>
+                    <p>Area slideshow / konten utama</p>
+                  </div>
+                </section>
+              </div>
+
+              <footer class="preview-running">
+                <strong>INFO</strong>
+                <span>
+                  Selamat datang di Masjid Jami' Harapan Kita •
+                  Mohon menjaga ketenangan dan kebersihan masjid.
+                </span>
+              </footer>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="tv-theme-layout.js"></script>
+</body>
+</html>

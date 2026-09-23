@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MJHK TV Player Preview</title>
+  <link rel="stylesheet" href="assets/css/player.css">
+  <link rel="stylesheet" href="assets/css/full-bleed-polish.css">
+  <link rel="stylesheet" href="assets/css/presentation-player-bridge.css">
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <section id="tvStage" class="tv-stage" aria-label="MJHK TV Player">
+      <header id="tvHeader" class="tv-header">
+        <div class="header-clock">
+          <div id="clockTime" class="clock-time">--:--</div>
+          <div id="clockDate" class="clock-date">--</div>
+        </div>
+
+        <div class="header-identity">
+          <div id="mosqueLogoFrame" class="mosque-logo-frame" aria-hidden="true">
+            <img id="mosqueLogo" class="mosque-logo is-hidden" alt="">
+            <div id="mosqueLogoFallback" class="mosque-logo-fallback">MJHK</div>
+          </div>
+
+          <div class="header-mosque">
+            <div id="mosqueName" class="mosque-name">Masjid Jami' Harapan Kita</div>
+            <div id="mosqueAddress" class="mosque-address">Jl. Menur III No. 9A Blok A4, Kelapa Dua - Tangerang</div>
+          </div>
+        </div>
+
+        <div class="header-meta">
+          <div id="hijriDate">Tanggal Hijriah</div>
+          <div id="specialDayText">MJHK TV</div>
+        </div>
+      </header>
+
+      <div id="tvBody" class="tv-body">
+        <aside id="prayerPanel" class="prayer-panel">
+          <div id="prayerRows" class="prayer-rows"></div>
+        </aside>
+
+        <section id="contentPanel" class="content-panel">
+          <div id="normalContent" class="normal-content">
+            <div class="slide-card">
+              <div class="slide-accent"></div>
+              <div class="slide-kicker">MEDIA INFORMASI MASJID</div>
+              <h1 id="slideTitle">Masjid Jami' Harapan Kita</h1>
+              <p id="slideBody">Konten slideshow, agenda, laporan keuangan, pengumuman, dan media jamaah akan tampil di area ini.</p>
+              <div class="slide-footer-note">MJHK TV • Media informasi jamaah</div>
+            </div>
+          </div>
+
+          <div id="stateOverlay" class="state-overlay is-hidden" aria-live="polite">
+            <div class="state-decoration state-decoration-left" aria-hidden="true"></div>
+            <div class="state-decoration state-decoration-right" aria-hidden="true"></div>
+            <div class="state-content">
+              <div class="state-badge" id="stateBadge">STATE</div>
+              <h2 id="stateTitle">State</h2>
+              <p id="stateMessage">Message</p>
+              <div id="countdownBox" class="countdown-box is-hidden">
+                <span id="countdownLabel">Countdown</span>
+                <strong id="countdownValue">00:00</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer id="runningTextBar" class="running-text-bar">
+        <div class="running-label">INFO</div>
+        <div class="running-window">
+          <div id="runningText" class="running-text">
+            Selamat datang di Masjid Jami' Harapan Kita • Mohon menjaga ketenangan dan kebersihan masjid.
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <aside id="devPanel" class="dev-panel">
+      <div class="dev-panel-header">
+        <strong>Phase 3A.1 Developer Control</strong>
+        <button id="toggleDevPanel" type="button">Hide</button>
+      </div>
+
+      <div class="dev-row">
+        <label for="scenarioSelect">Scenario</label>
+        <select id="scenarioSelect"></select>
+        <button id="runScenario" type="button">Run</button>
+      </div>
+
+      <div class="dev-row">
+        <label for="stateSelect">Force State</label>
+        <select id="stateSelect"></select>
+        <button id="applyState" type="button">Apply</button>
+      </div>
+
+      <div class="dev-row">
+        <label for="prayerPositionSelect">Prayer Panel</label>
+        <select id="prayerPositionSelect">
+          <option value="left">Kiri</option>
+          <option value="right">Kanan</option>
+        </select>
+      </div>
+
+      <div class="dev-row">
+        <label>
+          <input id="ramadanToggle" type="checkbox">
+          Ramadan mode (Syuruq slot → Imsak)
+        </label>
+      </div>
+
+      <div class="dev-row dev-status">
+        <span>Current:</span>
+        <code id="currentStateCode">NORMAL</code>
+        <span>Remaining:</span>
+        <code id="remainingSeconds">0</code>
+      </div>
+
+      <div class="dev-row">
+        <button id="pauseClock" type="button">Pause Scenario</button>
+        <button id="resetPlayer" type="button">Reset</button>
+      </div>
+
+      <p class="dev-note">
+        Tambahkan <code>?mode=production</code> pada URL untuk preview layar TV tanpa panel developer.
+      </p>
+    </aside>
+  </main>
+
+  <script type="module" src="assets/js/preview-renderer.js"></script>
+</body>
+</html>

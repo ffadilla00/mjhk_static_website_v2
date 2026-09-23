@@ -1,0 +1,35 @@
+/* Phase 4D-B1 Preview Parity Hotfix v2 */
+.theme-editor-grid{
+  grid-template-columns:minmax(330px,420px) minmax(0,1fr);
+}
+
+.preview-panel .panel-body{
+  padding:12px;
+}
+
+.tv-player-preview-viewport{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border:1px solid #cfdad4;
+  border-radius:12px;
+  background:#101614;
+}
+
+.tv-player-preview-frame{
+  position:absolute;
+  inset:0 auto auto 0;
+  width:1920px;
+  height:1080px;
+  border:0;
+  border-radius:0;
+  background:#101614;
+  transform-origin:0 0;
+}
+
+@media(max-width:1180px){
+  .theme-editor-grid{
+    grid-template-columns:1fr;
+  }
+}
