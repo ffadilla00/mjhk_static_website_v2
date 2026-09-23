@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dedicated Screens — MJHK TV CMS</title>
+  <link rel="stylesheet" href="tv-admin.css">
+  <link rel="stylesheet" href="tv-dedicated-screens.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Admin MJHK</strong><span>TV CMS</span></div>
+    </div>
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link" href="tv.html">Dashboard TV</a>
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link" href="tv-running-text.html">Running Text</a>
+      <span class="menu-section-title">Tampilan</span>
+      <a class="menu-link active" href="tv-dedicated-screens.html">Dedicated Screens</a>
+      <a class="menu-link" href="tv-theme-layout.html">Theme &amp; Layout</a>
+      <button type="button" class="menu-link disabled" disabled>Prayer Settings <small>Phase 4D</small></button>
+      <span class="menu-section-title">Operasional</span>
+      <button type="button" class="menu-link disabled" disabled>Devices <small>Phase 4E</small></button>
+      <button type="button" class="menu-link disabled" disabled>Publish &amp; Revision <small>Phase 4F</small></button>
+    </nav>
+  </aside>
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">MJHK TV CMS · PHASE 4D-A2</p>
+          <h1>Dedicated Screens</h1>
+          <p id="sessionLabel" class="muted">Memuat sesi admin...</p>
+        </div>
+        <div class="top-actions">
+          <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+        </div>
+      </header>
+
+      <div class="dedicated-page">
+<section class="info-card">
+        <div>
+          <strong>Source Editor</strong>
+          <p>Perubahan disimpan ke <code>tv_state_assets</code>. Belum publish ke revision TV sampai Phase 4F.</p>
+        </div>
+        <div class="chip-row">
+          <span class="chip">SOURCE CRUD</span>
+          <span class="chip">STATE-SAFE</span>
+          <span class="chip">NO PUBLISH</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Protected Runtime Screens</h2>
+            <p>State berikut dimiliki runtime dan tidak dapat diedit dari CMS.</p>
+          </div>
+        </div>
+        <div id="lockedGrid" class="screen-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Editable Dedicated Screens</h2>
+            <p>Pilih konten visual dari Content Library untuk masing-masing state.</p>
+          </div>
+          <div id="loadState" class="muted"></div>
+        </div>
+        <div id="editableGrid" class="screen-grid"></div>
+      </section>
+
+      <div class="boundary-note">
+        <strong>Boundary 4D-A2:</strong>
+        source assignment only. Tidak mengubah state engine, prayer timing,
+        revision snapshot, desired revision, atau player runtime.
+      </div>
+          </div>
+    </main>
+
+<dialog id="editorDialog" class="editor-dialog">
+    <form method="dialog" id="editorForm">
+      <div class="dialog-head">
+        <div>
+          <div class="eyebrow">DEDICATED SCREEN EDITOR</div>
+          <h2 id="dialogTitle">Edit Screen</h2>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Tutup">×</button>
+      </div>
+
+      <input type="hidden" id="editStateCode">
+
+      <label class="field">
+        <span>State</span>
+        <input id="editRuntimeState" type="text" readonly>
+      </label>
+
+      <div class="field dedicated-media-field">
+        <span>Konten Visual</span>
+        <input id="editContentId" type="hidden">
+        <input id="dedicatedImageInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+
+        <div id="dedicatedUploadZone" class="dedicated-upload-zone" tabindex="0" role="button" aria-label="Upload gambar Dedicated Screen">
+          <div id="dedicatedPreviewEmpty" class="dedicated-preview-empty">
+            <div class="dedicated-upload-icon" aria-hidden="true">↑</div>
+            <strong>Upload gambar</strong>
+            <span>Klik atau drag & drop JPG, PNG, atau WebP</span>
+            <small>Rasio 16:9 · rekomendasi 1920 × 1080 · maksimal 10 MB</small>
+          </div>
+          <img id="dedicatedPreviewImage" class="dedicated-preview-image hidden" alt="">
+        </div>
+
+        <div class="dedicated-media-actions">
+          <button type="button" class="btn light hidden" id="replaceDedicatedImageBtn">Ganti Gambar</button>
+          <button type="button" class="btn light danger-text hidden" id="removeDedicatedImageBtn">Hapus Gambar</button>
+        </div>
+
+        <small id="dedicatedMediaHelp">Media khusus Dedicated Screen ini dan tidak masuk Slideshow Library.</small>
+      </div>
+
+      <label class="check-row">
+        <input id="editEnabled" type="checkbox">
+        <span>Aktifkan source screen ini</span>
+      </label>
+
+      <label class="field">
+        <span>Catatan Internal</span>
+        <textarea id="editNotes" rows="4" maxlength="500"></textarea>
+      </label>
+
+      <div class="dialog-note" id="specialRule"></div>
+
+      <div class="dialog-actions">
+        <button class="btn" value="cancel">Batal</button>
+        <button class="btn primary" id="saveBtn" type="submit">Simpan Source</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script type="module" src="tv-dedicated-screens.js"></script>
+</body>
+</html>

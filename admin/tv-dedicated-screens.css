@@ -1,0 +1,312 @@
+/*
+  Phase 4D-A2 UI Template Alignment Hotfix
+  Existing tv-admin.css owns the CMS shell.
+  This file only styles Dedicated Screens page internals.
+*/
+
+.dedicated-page{
+  display:grid;
+  gap:18px;
+}
+
+.info-card,
+.panel,
+.boundary-note{
+  background:#fff;
+  border:1px solid var(--line, #dde6e0);
+  border-radius:14px;
+}
+
+.info-card{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:16px 18px;
+}
+
+.info-card p,
+.panel-heading p{
+  margin:5px 0 0;
+  color:var(--muted, #6c7972);
+  font-size:13px;
+}
+
+.chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.chip{
+  background:#e9f0ec;
+  color:#355747;
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.panel-heading{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line, #dde6e0);
+}
+
+.panel-heading h2{
+  margin:0;
+  font-size:18px;
+}
+
+.screen-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  padding:16px;
+}
+
+.screen-card{
+  border:1px solid var(--line, #dde6e0);
+  border-radius:12px;
+  padding:15px;
+  display:grid;
+  gap:11px;
+  background:#fff;
+}
+
+.screen-card.locked{
+  background:#f3f6f4;
+}
+
+.screen-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.screen-card h3{
+  margin:0 0 3px;
+  font-size:15px;
+}
+
+.screen-meta{
+  color:var(--muted, #6c7972);
+  font-size:12px;
+  line-height:1.45;
+}
+
+.status{
+  align-self:flex-start;
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.status.locked{
+  background:#dde5df;
+  color:#53655b;
+}
+
+.status.enabled{
+  background:#dff1e6;
+  color:#15643d;
+}
+
+.status.disabled{
+  background:#f5e2e2;
+  color:#8c3030;
+}
+
+.boundary-note{
+  background:#eaf4ee;
+  color:#315b49;
+  padding:13px 16px;
+  font-size:12px;
+}
+
+.editor-dialog{
+  width:min(620px,calc(100vw - 32px));
+  border:0;
+  padding:0;
+  border-radius:14px;
+  box-shadow:0 25px 80px rgba(0,0,0,.25);
+}
+
+.editor-dialog::backdrop{
+  background:rgba(5,22,16,.55);
+}
+
+#editorForm{
+  padding:18px;
+}
+
+.dialog-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding-bottom:13px;
+  margin-bottom:15px;
+  border-bottom:1px solid var(--line, #dde6e0);
+}
+
+.dialog-head h2{
+  margin:4px 0 0;
+}
+
+.icon-btn{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line, #dde6e0);
+  background:#fff;
+  border-radius:8px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.field{
+  display:grid;
+  gap:7px;
+  margin:13px 0;
+  font-size:12px;
+  font-weight:800;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #cdd9d2;
+  border-radius:8px;
+  padding:10px;
+  background:#fff;
+  font:inherit;
+  font-weight:500;
+}
+
+.field small{
+  color:var(--muted, #6c7972);
+  font-weight:500;
+}
+
+.check-row{
+  display:flex;
+  gap:9px;
+  align-items:center;
+  margin:12px 0;
+  font-size:13px;
+  font-weight:700;
+}
+
+.dialog-note{
+  margin:13px 0;
+  padding:11px;
+  border-radius:8px;
+  background:#eef5f0;
+  color:#355e4b;
+  font-size:12px;
+}
+
+.dialog-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding-top:14px;
+  border-top:1px solid var(--line, #dde6e0);
+}
+
+@media (max-width:1100px){
+  .screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media (max-width:700px){
+  .info-card,.panel-heading{flex-direction:column}
+  .screen-grid{grid-template-columns:1fr}
+}
+
+
+/* PHASE4D-A2 DEDICATED MEDIA UPLOAD RECOVERY V2 START */
+.dedicated-media-field {
+  display: grid;
+  gap: 10px;
+}
+
+.dedicated-upload-zone {
+  min-height: 230px;
+  border: 1.5px dashed #9eb7ae;
+  border-radius: 14px;
+  background: #f7faf8;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.dedicated-upload-zone.dragover {
+  background: #eef6f2;
+  border-color: #185c46;
+}
+
+.dedicated-upload-zone:focus {
+  outline: 3px solid rgba(24, 92, 70, .18);
+  outline-offset: 2px;
+}
+
+.dedicated-preview-empty {
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  text-align: center;
+  padding: 26px;
+}
+
+.dedicated-upload-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #185c46;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.dedicated-preview-empty span,
+.dedicated-preview-empty small,
+#dedicatedMediaHelp {
+  color: #64766f;
+}
+
+.dedicated-preview-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #e9efec;
+}
+
+.dedicated-media-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.danger-text {
+  color: #a12f2f;
+}
+
+#saveBtn.btn.primary {
+  background: #185c46;
+  color: #fff;
+  border-color: #185c46;
+}

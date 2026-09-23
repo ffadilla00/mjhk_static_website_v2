@@ -1,3 +1,9 @@
+
+// PHASE4D-A2 SLIDESHOW BOUNDARY HOTFIX
+// Slideshow CMS owns only legacy source_type=NULL and source_type=manual.
+// dedicated_screen is managed exclusively by Dedicated Screens CMS.
+const SLIDESHOW_SOURCE_TYPES = Object.freeze([null, "manual"]);
+
 const db = window.mjhkSupabase;
 
 const CONTENT_TYPES =
@@ -60,14 +66,19 @@ async function loadContents() {
           "id,title,content_type,source_type,source_id,storage_url,body_text,metadata,status,created_by,created_at,updated_at,storage_bucket,storage_path"
         )
         .in("content_type", CONTENT_TYPES)
+        .or("source_type.is.null,source_type.eq.manual")
         .order("updated_at", {
           ascending: false,
         });
 
     if (error) throw error;
 
+    const slideshowRows = (data ?? []).filter(
+      (row) => row.source_type == null || row.source_type === "manual"
+    );
+
     state.contents =
-      await hydratePrivatePreviews(data ?? []);
+      await hydratePrivatePreviews(slideshowRows);
 
     renderContents();
 
@@ -680,6 +691,7 @@ async function saveEditor(event) {
             "id",
             state.editing.id
           )
+          .or("source_type.is.null,source_type.eq.manual")
           .select(
             "id,title,content_type,status,storage_bucket,storage_path,updated_at"
           )
@@ -966,7 +978,8 @@ async function confirmDelete() {
         .eq(
           "id",
           state.deleting.id
-        );
+        )
+        .or("source_type.is.null,source_type.eq.manual");
 
     if (error) throw error;
 
