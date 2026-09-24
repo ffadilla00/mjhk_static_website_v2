@@ -125,3 +125,39 @@ tbody tr:last-child td{border-bottom:0}
   .top-actions{width:100%}
   .top-actions .btn{flex:1}
 }
+
+
+/* MJHK TV CMS action button convention v1 */
+.btn.btn-save,
+button.btn-save {
+  background: #1f7a4d;
+  border-color: #1f7a4d;
+  color: #ffffff;
+}
+
+.btn.btn-save:hover:not(:disabled),
+button.btn-save:hover:not(:disabled) {
+  background: #19643f;
+  border-color: #19643f;
+}
+
+.btn.btn-cancel,
+button.btn-cancel {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
+.btn.btn-cancel:hover:not(:disabled),
+button.btn-cancel:hover:not(:disabled) {
+  background: #b85f05;
+  border-color: #b85f05;
+}
+
+.btn.btn-save:disabled,
+.btn.btn-cancel:disabled,
+button.btn-save:disabled,
+button.btn-cancel:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+}

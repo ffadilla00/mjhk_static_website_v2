@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prayer Settings — MJHK TV CMS</title>
+  <link rel="stylesheet" href="tv-admin.css">
+  <link rel="stylesheet" href="tv-prayer-settings.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Admin MJHK</strong><span>TV CMS</span></div>
+    </div>
+
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link" href="tv.html">Dashboard TV</a>
+
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link" href="tv-running-text.html">Running Text</a>
+
+      <span class="menu-section-title">Tampilan</span>
+      <a class="menu-link" href="tv-dedicated-screens.html">Dedicated Screens</a>
+      <a class="menu-link" href="tv-theme-layout.html">Theme &amp; Layout</a>
+      <a class="menu-link active" href="tv-prayer-settings.html">Prayer Settings</a>
+
+      <span class="menu-section-title">Operasional</span>
+      <button type="button" class="menu-link disabled" disabled>
+        Devices <small>Phase 4E</small>
+      </button>
+      <button type="button" class="menu-link disabled" disabled>
+        Publish &amp; Revision <small>Phase 4F</small>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MJHK TV CMS · PHASE 4D-C1</p>
+        <h1>Prayer Settings</h1>
+        <p id="sessionLabel" class="muted">Memuat sesi admin...</p>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <div class="prayer-settings-page">
+      <section class="info-card">
+        <div>
+          <strong>Source Editor</strong>
+          <p>
+            Mengedit <code>tv_system_settings</code> dan <code>tv_prayer_rules</code>.
+            Audio pre-Adhan, custom beep file, device runtime, dan revision tidak disentuh.
+          </p>
+        </div>
+        <div class="status-chips" aria-label="Boundary Phase 4D-C1">
+          <span>SOURCE CRUD</span>
+          <span>PRAYER ONLY</span>
+          <span>NO AUDIO UPLOAD</span>
+          <span>NO PUBLISH</span>
+        </div>
+      </section>
+
+      <div id="status" class="page-status" hidden></div>
+
+      <section class="panel">
+        <div class="panel-head with-action">
+          <div>
+            <h2>Global Prayer Settings</h2>
+            <p>Konfigurasi global perhitungan dan state salat.</p>
+          </div>
+          <button type="button" class="btn primary btn-save" id="saveGlobalBtn">
+            Simpan Global
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div class="section-block">
+            <h3>Lokasi &amp; Perhitungan</h3>
+            <div class="field-grid three">
+              <label class="field">
+                <span>Timezone</span>
+                <input id="timezone" type="text" autocomplete="off">
+              </label>
+
+              <label class="field">
+                <span>Latitude</span>
+                <input id="latitude" type="number" min="-90" max="90" step="0.000001">
+              </label>
+
+              <label class="field">
+                <span>Longitude</span>
+                <input id="longitude" type="number" min="-180" max="180" step="0.000001">
+              </label>
+            </div>
+
+            <label class="field json-field">
+              <span>Prayer Calculation Config (JSON)</span>
+              <textarea id="prayerCalculationConfig" rows="4" spellcheck="false"></textarea>
+              <small>Disimpan sebagai JSON object. Default saat ini: <code>{}</code>.</small>
+            </label>
+          </div>
+
+          <div class="section-block">
+            <h3>Kalender &amp; Ramadan</h3>
+            <div class="field-grid three">
+              <label class="field">
+                <span>Hijri Adjustment (hari)</span>
+                <input id="hijriAdjustmentDays" type="number" min="-3" max="3" step="1">
+              </label>
+
+              <label class="field">
+                <span>Ramadan Mode</span>
+                <select id="ramadanMode">
+                  <option value="auto">Auto</option>
+                  <option value="force_on">Force On</option>
+                  <option value="force_off">Force Off</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Imsak Offset (menit)</span>
+                <input id="imsakOffsetMinutes" type="number" min="0" max="60" step="1">
+              </label>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Syuruq, Isyraq &amp; Larangan Salat</h3>
+            <div class="field-grid four">
+              <label class="field">
+                <span>Syuruq Adjustment</span>
+                <input id="syuruqAdjustmentMinutes" type="number" min="-30" max="30" step="1">
+                <small>menit</small>
+              </label>
+
+              <label class="field">
+                <span>Syuruq Wait</span>
+                <input id="syuruqWaitMinutes" type="number" min="0" max="60" step="1">
+                <small>menit</small>
+              </label>
+
+              <label class="field">
+                <span>Durasi Isyraq</span>
+                <input id="isyraqDurationMinutes" type="number" min="1" max="30" step="1">
+                <small>menit</small>
+              </label>
+
+              <label class="field">
+                <span>Larangan sebelum Maghrib</span>
+                <input id="forbiddenBeforeMaghribMinutes" type="number" min="0" max="30" step="1">
+                <small>menit</small>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Fullscreen Threshold</h3>
+            <div class="field-grid two">
+              <label class="field">
+                <span>Adhan Threshold</span>
+                <input id="fullscreenAdhanThresholdMinutes" type="number" min="0" max="30" step="1">
+                <small>menit</small>
+              </label>
+
+              <label class="field">
+                <span>Iqamah Threshold</span>
+                <input id="fullscreenIqamahThresholdMinutes" type="number" min="0" max="60" step="1">
+                <small>menit</small>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Beep Count</h3>
+            <p class="section-note">
+              Phase 4D-C1 hanya mengatur jumlah beep. Custom file audio akan menjadi contract terpisah.
+            </p>
+            <div class="field-grid five">
+              <label class="field">
+                <span>Adhan</span>
+                <input id="beepAdhanCount" type="number" min="0" max="60" step="1">
+              </label>
+
+              <label class="field">
+                <span>Iqamah</span>
+                <input id="beepIqamahCount" type="number" min="0" max="60" step="1">
+              </label>
+
+              <label class="field">
+                <span>Larangan Salat</span>
+                <input id="beepForbiddenCount" type="number" min="0" max="60" step="1">
+              </label>
+
+              <label class="field">
+                <span>Isyraq</span>
+                <input id="beepIsyraqCount" type="number" min="0" max="60" step="1">
+              </label>
+
+              <label class="field">
+                <span>Imsak</span>
+                <input id="beepImsakCount" type="number" min="0" max="60" step="1">
+              </label>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Salat Jum'at</h3>
+            <div class="field-grid two">
+              <label class="field">
+                <span>Mode Selesai</span>
+                <select id="jumatPrayerEndMode">
+                  <option value="manual">Manual</option>
+                  <option value="duration">Berdasarkan Durasi</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Durasi Salat Jum'at</span>
+                <input id="jumatPrayerDurationMinutes" type="number" min="1" max="60" step="1">
+                <small id="jumatDurationHint">Kosong saat mode Manual.</small>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head with-action">
+          <div>
+            <h2>Per-Prayer Rules</h2>
+            <p>
+              Aturan Subuh, Dzuhur, Ashar, Maghrib, Isya, dan Jum'at.
+              Nilai nullable Jum'at dipertahankan sesuai contract database.
+            </p>
+          </div>
+          <button type="button" class="btn primary btn-save" id="savePrayerRulesBtn">
+            Simpan Aturan Salat
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div id="prayerRulesGrid" class="prayer-rules-grid"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="tv-prayer-settings.js"></script>
+</body>
+</html>
