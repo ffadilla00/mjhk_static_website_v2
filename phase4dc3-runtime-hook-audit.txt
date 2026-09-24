@@ -1,0 +1,744 @@
+]633;E;{   echo "=== ENGINE ==="\x3b   sed -n '1,240p' tv-player/assets/js/engine.js\x3b    echo\x3b   echo "=== PLAYER ==="\x3b   sed -n '1,240p' tv-player/assets/js/player.js\x3b    echo\x3b   echo "=== RUNTIME CONFIG CORE ==="\x3b   sed -n '1,280p' tv-player/assets/js/runtime-config-core.js\x3b    echo\x3b   echo "=== PRESENTATION PLAYER BRIDGE ==="\x3b   sed -n '1,260p' tv-player/assets/js/presentation-player-bridge.js\x3b } > phase4dc3-runtime-hook-audit.txt;31cd8d59-a9fb-45d4-8f18-875d5b9922a9]633;C=== ENGINE ===
+import { TV_STATES, getStateDefinition } from "./states.js";
+
+export class TVStateEngine extends EventTarget {
+  constructor() {
+    super();
+    this.state = TV_STATES.NORMAL;
+    this.remainingSeconds = 0;
+    this.ramadanMode = false;
+    this.runningScenario = null;
+    this.scenarioIndex = -1;
+    this.paused = false;
+    this._timer = null;
+  }
+
+  start() {
+    if (this._timer) return;
+    this._timer = window.setInterval(() => this.tick(), 1000);
+    this.emit();
+  }
+
+  tick() {
+    if (this.paused) return;
+
+    if (this.remainingSeconds > 0) {
+      this.remainingSeconds -= 1;
+
+      // IMPORTANT:
+      // Do not emit an expired countdown frame (00:00) while the old state
+      // is still active. As soon as a scenario step reaches zero, transition
+      // atomically to the next step and let setState() emit that new state.
+      if (this.remainingSeconds === 0 && this.runningScenario) {
+        this.advanceScenario();
+        return;
+      }
+
+      this.emit();
+      return;
+    }
+
+    // Covers zero-duration scenario steps and protects against any stale
+    // scenario state that somehow reaches a tick with remainingSeconds = 0.
+    if (this.runningScenario) {
+      this.advanceScenario();
+    }
+  }
+
+  setState(state, duration = 0) {
+    this.state = state;
+    this.remainingSeconds = Math.max(0, Number(duration) || 0);
+    this.emit();
+  }
+
+  setRamadanMode(enabled) {
+    this.ramadanMode = Boolean(enabled);
+    this.emit();
+  }
+
+  runScenario(scenario) {
+    this.runningScenario = scenario;
+    this.scenarioIndex = -1;
+    this.paused = false;
+
+    if (typeof scenario.ramadan === "boolean") {
+      this.ramadanMode = scenario.ramadan;
+    }
+
+    this.advanceScenario();
+  }
+
+  advanceScenario() {
+    if (!this.runningScenario) return;
+
+    this.scenarioIndex += 1;
+
+    if (this.scenarioIndex >= this.runningScenario.steps.length) {
+      this.runningScenario = null;
+      this.scenarioIndex = -1;
+      this.setState(TV_STATES.NORMAL, 0);
+      return;
+    }
+
+    const step = this.runningScenario.steps[this.scenarioIndex];
+    this.setState(step.state, step.duration);
+  }
+
+  reset() {
+    this.runningScenario = null;
+    this.scenarioIndex = -1;
+    this.paused = false;
+    this.ramadanMode = false;
+    this.setState(TV_STATES.NORMAL, 0);
+  }
+
+  togglePause() {
+    this.paused = !this.paused;
+    this.emit();
+    return this.paused;
+  }
+
+  snapshot() {
+    return {
+      state: this.state,
+      definition: getStateDefinition(this.state),
+      remainingSeconds: this.remainingSeconds,
+      ramadanMode: this.ramadanMode,
+      paused: this.paused,
+    };
+  }
+
+  emit() {
+    this.dispatchEvent(new CustomEvent("change", { detail: this.snapshot() }));
+  }
+}
+
+=== PLAYER ===
+import { TVStateEngine } from "./engine.js";
+import { TV_STATES } from "./states.js";
+import { SCENARIOS } from "./scenarios.js";
+import { VISUAL_CONFIG } from "./visual-config.js";
+import {
+  applyVisualConfig,
+  renderState,
+  scaleStage,
+  setPrayerPanelPosition,
+  updateClock,
+} from "./ui.js";
+
+import { createPresentationPlayerBridge } from "./presentation-player-bridge.js";
+import { startRevisionStartupSync } from "./revision-sync-startup.js";
+import { createRuntimeHeartbeat } from "./runtime-heartbeat.js";
+import { createRuntimeCommandPoller } from "./runtime-command-poller.js";
+import { createRuntimeCommandDispatcher } from "./runtime-command-dispatcher.js";
+import { attachRuntimeCommandCoordinator } from "./runtime-command-coordinator.js";
+import { createRuntimeOperationsSupervisor } from "./runtime-operations-supervisor.js";
+
+const refs = {
+  tvStage: document.querySelector("#tvStage"),
+  tvBody: document.querySelector("#tvBody"),
+  prayerPanel: document.querySelector("#prayerPanel"),
+  prayerRows: document.querySelector("#prayerRows"),
+  stateOverlay: document.querySelector("#stateOverlay"),
+  stateBadge: document.querySelector("#stateBadge"),
+  stateTitle: document.querySelector("#stateTitle"),
+  stateMessage: document.querySelector("#stateMessage"),
+  countdownBox: document.querySelector("#countdownBox"),
+  countdownLabel: document.querySelector("#countdownLabel"),
+  countdownValue: document.querySelector("#countdownValue"),
+  currentStateCode: document.querySelector("#currentStateCode"),
+  remainingSeconds: document.querySelector("#remainingSeconds"),
+  scenarioSelect: document.querySelector("#scenarioSelect"),
+  runScenario: document.querySelector("#runScenario"),
+  stateSelect: document.querySelector("#stateSelect"),
+  applyState: document.querySelector("#applyState"),
+  prayerPositionSelect: document.querySelector("#prayerPositionSelect"),
+  ramadanToggle: document.querySelector("#ramadanToggle"),
+  pauseClock: document.querySelector("#pauseClock"),
+  resetPlayer: document.querySelector("#resetPlayer"),
+  devPanel: document.querySelector("#devPanel"),
+  toggleDevPanel: document.querySelector("#toggleDevPanel"),
+  clockTime: document.querySelector("#clockTime"),
+  clockDate: document.querySelector("#clockDate"),
+  hijriDate: document.querySelector("#hijriDate"),
+  mosqueLogo: document.querySelector("#mosqueLogo"),
+  mosqueLogoFallback: document.querySelector("#mosqueLogoFallback"),
+  mosqueName: document.querySelector("#mosqueName"),
+  mosqueAddress: document.querySelector("#mosqueAddress"),
+};
+
+const engine = new TVStateEngine();
+
+const presentationBridge = createPresentationPlayerBridge();
+const revisionStartupPromise =
+  startRevisionStartupSync({ presentationBridge });
+
+const runtimeHeartbeat =
+  createRuntimeHeartbeat({ presentationBridge });
+const runtimeCommandPoller =
+  createRuntimeCommandPoller();
+const runtimeCommandDispatcher =
+  createRuntimeCommandDispatcher({
+    presentationBridge,
+  });
+
+const runtimeCommandCoordinator =
+  attachRuntimeCommandCoordinator({
+    poller: runtimeCommandPoller,
+    dispatcher: runtimeCommandDispatcher,
+  });
+const runtimeOperationsSupervisor =
+  createRuntimeOperationsSupervisor({
+    heartbeat: runtimeHeartbeat,
+    commandPoller: runtimeCommandPoller,
+    commandCoordinator: runtimeCommandCoordinator,
+  });
+
+void revisionStartupPromise.finally(() => {
+  runtimeOperationsSupervisor.start();
+});
+
+window.addEventListener("pagehide", () => {
+  runtimeOperationsSupervisor.stop();
+  runtimeCommandCoordinator.stop();
+});
+
+for (const [key, scenario] of Object.entries(SCENARIOS)) {
+  const option = document.createElement("option");
+  option.value = key;
+  option.textContent = scenario.label;
+  refs.scenarioSelect.append(option);
+}
+
+for (const code of Object.values(TV_STATES)) {
+  const option = document.createElement("option");
+  option.value = code;
+  option.textContent = code;
+  refs.stateSelect.append(option);
+}
+
+engine.addEventListener("change", (event) => {
+  renderState(event.detail, refs);
+  presentationBridge.setPresentationState(event.detail.state);
+  refs.pauseClock.textContent = event.detail.paused ? "Resume Scenario" : "Pause Scenario";
+});
+
+refs.runScenario.addEventListener("click", () => {
+  const scenario = SCENARIOS[refs.scenarioSelect.value];
+  if (scenario) engine.runScenario(scenario);
+});
+
+refs.applyState.addEventListener("click", () => {
+  engine.runningScenario = null;
+  engine.setState(refs.stateSelect.value, 0);
+});
+
+refs.prayerPositionSelect.addEventListener("change", () => {
+  setPrayerPanelPosition(refs, refs.prayerPositionSelect.value);
+});
+
+refs.ramadanToggle.addEventListener("change", () => {
+  engine.setRamadanMode(refs.ramadanToggle.checked);
+});
+
+refs.pauseClock.addEventListener("click", () => {
+  engine.togglePause();
+});
+
+refs.resetPlayer.addEventListener("click", () => {
+  engine.reset();
+});
+
+refs.toggleDevPanel.addEventListener("click", () => {
+  refs.devPanel.classList.toggle("is-collapsed");
+  refs.toggleDevPanel.textContent = refs.devPanel.classList.contains("is-collapsed")
+    ? "Show"
+    : "Hide";
+});
+
+function refreshClock() {
+  updateClock(refs.clockTime, refs.clockDate, refs.hijriDate);
+}
+
+function applyModeFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const productionMode = params.get("mode") === "production";
+
+  document.documentElement.dataset.playerMode = productionMode ? "production" : "simulator";
+  refs.devPanel.classList.toggle("is-production-hidden", productionMode);
+}
+
+window.addEventListener("resize", () => scaleStage(refs.tvStage));
+
+applyVisualConfig(refs, VISUAL_CONFIG);
+applyModeFromQuery();
+scaleStage(refs.tvStage);
+refreshClock();
+window.setInterval(refreshClock, 1000);
+engine.start();
+
+=== RUNTIME CONFIG CORE ===
+const MAX_DEPTH = 24;
+const MAX_NODES = 20000;
+const MAX_ARRAY_LENGTH = 5000;
+const MAX_STRING_LENGTH = 100000;
+const BLOCKED_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+export class RuntimeConfigError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.name = "RuntimeConfigError";
+    this.code = code;
+  }
+}
+
+export function prepareRuntimeConfig(lkgRecord) {
+  assertLkgEnvelope(lkgRecord);
+
+  const snapshot = cloneJsonValue(lkgRecord.snapshot);
+  validateSnapshot(snapshot);
+
+  const runtime = {
+    schema_version: 1,
+    revision_id: lkgRecord.revision_id,
+    revision_number: lkgRecord.revision_number,
+    source: "last-known-good",
+    hydrated_at: new Date().toISOString(),
+    config: snapshot,
+  };
+
+  return deepFreeze(runtime);
+}
+
+export function validateSnapshot(snapshot) {
+  if (!isPlainObject(snapshot)) {
+    throw new RuntimeConfigError(
+      "snapshot_root_invalid",
+      "Snapshot root harus plain object."
+    );
+  }
+
+  let nodes = 0;
+
+  walk(snapshot, 0);
+
+  return {
+    ok: true,
+    node_count: nodes,
+    top_level_keys: Object.keys(snapshot).sort(),
+  };
+
+  function walk(value, depth) {
+    nodes += 1;
+
+    if (nodes > MAX_NODES) {
+      throw new RuntimeConfigError(
+        "snapshot_too_complex",
+        `Snapshot melebihi ${MAX_NODES} nodes.`
+      );
+    }
+
+    if (depth > MAX_DEPTH) {
+      throw new RuntimeConfigError(
+        "snapshot_too_deep",
+        `Snapshot melebihi depth ${MAX_DEPTH}.`
+      );
+    }
+
+    if (value === null) return;
+
+    const type = typeof value;
+
+    if (type === "string") {
+      if (value.length > MAX_STRING_LENGTH) {
+        throw new RuntimeConfigError(
+          "snapshot_string_too_long",
+          `String snapshot melebihi ${MAX_STRING_LENGTH} karakter.`
+        );
+      }
+      return;
+    }
+
+    if (type === "number") {
+      if (!Number.isFinite(value)) {
+        throw new RuntimeConfigError(
+          "snapshot_number_invalid",
+          "Snapshot mengandung angka non-finite."
+        );
+      }
+      return;
+    }
+
+    if (type === "boolean") return;
+
+    if (Array.isArray(value)) {
+      if (value.length > MAX_ARRAY_LENGTH) {
+        throw new RuntimeConfigError(
+          "snapshot_array_too_large",
+          `Array snapshot melebihi ${MAX_ARRAY_LENGTH} item.`
+        );
+      }
+
+      for (const item of value) walk(item, depth + 1);
+      return;
+    }
+
+    if (!isPlainObject(value)) {
+      throw new RuntimeConfigError(
+        "snapshot_value_unsupported",
+        "Snapshot hanya boleh berisi JSON-compatible values."
+      );
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (BLOCKED_KEYS.has(key)) {
+        throw new RuntimeConfigError(
+          "snapshot_dangerous_key",
+          `Key berbahaya ditolak: ${key}`
+        );
+      }
+
+      walk(child, depth + 1);
+    }
+  }
+}
+
+export function safeSnapshotShape(snapshot) {
+  if (!isPlainObject(snapshot)) {
+    return {
+      valid_root: false,
+      top_level_keys: [],
+    };
+  }
+
+  return {
+    valid_root: true,
+    top_level_keys: Object.keys(snapshot).sort(),
+  };
+}
+
+export function safeRuntimeMeta(runtime) {
+  if (!runtime || typeof runtime !== "object") return null;
+
+  return {
+    revision_id: runtime.revision_id ?? null,
+    revision_number: runtime.revision_number ?? null,
+    source: runtime.source ?? null,
+    hydrated_at: runtime.hydrated_at ?? null,
+    config_present: Boolean(
+      runtime.config &&
+      typeof runtime.config === "object" &&
+      !Array.isArray(runtime.config)
+    ),
+    top_level_keys:
+      runtime.config && isPlainObject(runtime.config)
+        ? Object.keys(runtime.config).sort()
+        : [],
+  };
+}
+
+function assertLkgEnvelope(record) {
+  if (!record || typeof record !== "object" || Array.isArray(record)) {
+    throw new RuntimeConfigError(
+      "lkg_missing",
+      "Last-Known-Good revision tidak tersedia."
+    );
+  }
+
+  if (record.kind !== "lkg") {
+    throw new RuntimeConfigError(
+      "lkg_kind_invalid",
+      "Runtime config hanya boleh berasal dari LKG."
+    );
+  }
+
+  if (
+    typeof record.revision_id !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(record.revision_id)
+  ) {
+    throw new RuntimeConfigError(
+      "lkg_revision_id_invalid",
+      "LKG revision_id invalid."
+    );
+  }
+
+  if (!Number.isInteger(record.revision_number) || record.revision_number < 0) {
+    throw new RuntimeConfigError(
+      "lkg_revision_number_invalid",
+      "LKG revision_number invalid."
+    );
+  }
+
+  if (!isPlainObject(record.snapshot)) {
+    throw new RuntimeConfigError(
+      "lkg_snapshot_invalid",
+      "LKG snapshot invalid."
+    );
+  }
+}
+
+function cloneJsonValue(value) {
+  try {
+    if (typeof structuredClone === "function") {
+      return structuredClone(value);
+    }
+  } catch {
+    // Fall through to JSON clone.
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    throw new RuntimeConfigError(
+      "snapshot_clone_failed",
+      "Snapshot gagal di-clone secara aman."
+    );
+  }
+}
+
+function deepFreeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) {
+    return value;
+  }
+
+  Object.freeze(value);
+
+  for (const child of Object.values(value)) {
+    deepFreeze(child);
+  }
+
+  return value;
+}
+
+function isPlainObject(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+=== PRESENTATION PLAYER BRIDGE ===
+import { RevisionStore } from "./revision-store.js";
+import { prepareRuntimeConfig } from "./runtime-config-core.js";
+import {
+  adaptPresentationConfig,
+  safePresentationMeta,
+} from "./presentation-adapter.js";
+import { PresentationBinder } from "./presentation-binding.js";
+
+const BRIDGE_VERSION = "3B.2E-C-v1";
+
+export function createPresentationPlayerBridge() {
+  const refs = resolvePlayerRefs();
+
+  let binder = null;
+  let currentTypedConfig = null;
+  let pendingState = "NORMAL";
+  let binderStarted = false;
+
+  const initialRunningText = {
+    text: refs.runningText.textContent || "",
+    hidden: refs.runningText.hidden,
+  };
+
+  async function initialize() {
+    try {
+      const store = new RevisionStore();
+      const lkg = await store.loadLastKnownGood();
+
+      if (!lkg) {
+        refs.tvStage.dataset.presentationBridge = "no-lkg";
+        return false;
+      }
+
+      const runtime = prepareRuntimeConfig(lkg);
+      const typed = adaptPresentationConfig(runtime);
+
+      applyPresentationConfig(typed);
+
+      return true;
+    } catch (error) {
+      markBridgeError(refs.tvStage, error);
+      return false;
+    }
+  }
+
+  function applyPresentationConfig(typedConfig) {
+    const previous = currentTypedConfig;
+
+    try {
+      const activeBinder = ensureBinder();
+
+      activeBinder.setConfig(typedConfig);
+      activeBinder.setPresentationState(pendingState);
+
+      if (!binderStarted) {
+        activeBinder.start();
+        binderStarted = true;
+      }
+
+      currentTypedConfig = typedConfig;
+      markReady(typedConfig);
+
+      return getSafeMeta();
+    } catch (error) {
+      // Transactional UI safety:
+      // if the candidate fails locally, restore the previous typed config.
+      if (previous && binder) {
+        try {
+          binder.setConfig(previous);
+          binder.setPresentationState(pendingState);
+          currentTypedConfig = previous;
+          markReady(previous);
+        } catch {
+          markBridgeError(refs.tvStage, {
+            code: "presentation_restore_failed",
+          });
+        }
+      } else {
+        markBridgeError(refs.tvStage, error);
+      }
+
+      throw error;
+    }
+  }
+
+  function clearPresentationConfig() {
+    if (binder) {
+      binder.stop();
+    }
+
+    binderStarted = false;
+    binder = null;
+    currentTypedConfig = null;
+
+    const mount = refs.normalContent.querySelector("#presentationMount");
+    if (mount) mount.replaceChildren();
+
+    refs.runningText.textContent = initialRunningText.text;
+    refs.runningText.hidden = initialRunningText.hidden;
+
+    delete refs.tvStage.dataset.presentationRevision;
+    delete refs.tvStage.dataset.presentationContentId;
+    delete refs.tvStage.dataset.presentationContentType;
+
+    refs.tvStage.dataset.presentationFullscreen = "false";
+    refs.tvStage.dataset.presentationContentActive = "false";
+    refs.tvStage.dataset.presentationBridge = "no-lkg";
+  }
+
+  function setPresentationState(state) {
+    pendingState = state;
+
+    if (!binder) return;
+
+    try {
+      binder.setPresentationState(state);
+    } catch (error) {
+      markBridgeError(refs.tvStage, error);
+    }
+  }
+
+  function refresh() {
+    if (!binder) return;
+
+    try {
+      binder.render();
+    } catch (error) {
+      markBridgeError(refs.tvStage, error);
+    }
+  }
+
+  function getSafeMeta() {
+    if (!binder || !currentTypedConfig) {
+      return Object.freeze({
+        ready: false,
+        state: pendingState,
+        revision_id: null,
+        revision_number: null,
+      });
+    }
+
+    const typedMeta = safePresentationMeta(currentTypedConfig);
+
+    return Object.freeze({
+      ready: true,
+      revision_id: typedMeta?.revision_id ?? null,
+      revision_number: typedMeta?.revision_number ?? null,
+      ...binder.meta(),
+    });
+  }
+
+  function ensureBinder() {
+    if (binder) return binder;
+
+    const mount = ensurePresentationMount(refs.normalContent);
+
+    binder = new PresentationBinder({
+      root: refs.tvStage,
+      stage: mount,
+      runningText: refs.runningText,
+      emptyBehavior: "clear",
+    });
+
+    return binder;
+  }
+
+  function markReady(typedConfig) {
+    const meta = safePresentationMeta(typedConfig);
+
+    refs.tvStage.dataset.presentationBridge = "ready";
+    refs.tvStage.dataset.presentationBridgeVersion = BRIDGE_VERSION;
+    refs.tvStage.dataset.presentationRevision =
+      String(meta?.revision_number ?? "");
+    delete refs.tvStage.dataset.presentationBridgeError;
+  }
+
+  return Object.freeze({
+    initialize,
+    applyPresentationConfig,
+    clearPresentationConfig,
+    setPresentationState,
+    refresh,
+    getSafeMeta,
+  });
+}
+
+function resolvePlayerRefs() {
+  const tvStage = document.querySelector("#tvStage");
+  const normalContent = document.querySelector("#normalContent");
+  const runningText = document.querySelector("#runningText");
+
+  if (!tvStage || !normalContent || !runningText) {
+    throw new Error("presentation_player_dom_contract_missing");
+  }
+
+  return {
+    tvStage,
+    normalContent,
+    runningText,
+  };
+}
+
+function ensurePresentationMount(normalContent) {
+  let mount = normalContent.querySelector("#presentationMount");
+
+  if (mount) return mount;
+
+  mount = document.createElement("div");
+  mount.id = "presentationMount";
+  mount.className = "presentation-mount";
+  mount.setAttribute("aria-live", "off");
+
+  normalContent.append(mount);
+
+  return mount;
+}
+
+function markBridgeError(stage, error) {
+  stage.dataset.presentationBridge = "error";
+  stage.dataset.presentationBridgeError =
+    typeof error?.code === "string"
+      ? error.code.slice(0, 80)
+      : "bridge_error";
+}

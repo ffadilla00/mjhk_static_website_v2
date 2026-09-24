@@ -1,0 +1,791 @@
+=== MJHK TV PHASE 4D-C3 CUSTOM BEEP AUDIO AUDIT ===
+
+## 1. Runtime beep/audio implementation
+tv-player/assets/js/visual-config.js:70:      audioCue: "beep",
+tv-player/assets/js/visual-config.js:84:      audioCue: "beep",
+tv-player/MJHK_TV_Phase3A1_Visual_Contract.md:36:| ADHAN | Admin | Yes | Custom visual; beep remains separate audio rule |
+tv-player/MJHK_TV_Phase3A1_Visual_Contract.md:38:| IQAMAH | Admin | Yes | Custom visual; beep remains separate audio rule |
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:27:## Beep behavior
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:30:`tv_system_settings.beep_adhan_count`
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:33:`tv_system_settings.beep_iqamah_count`
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:36:`tv_system_settings.beep_isyraq_count`
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:43:→ beep ISYRAQ
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:48:`tv_system_settings.beep_imsak_count`
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:53:Ramadan OFF → no IMSAK / no IMSAK beep
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:54:Ramadan ON  → IMSAK eligible / configured beep
+tv-player/MJHK_TV_Phase4D_A1_STATE_MAPPING.md:57:`beep_forbidden_count` remains unchanged for backward compatibility.
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:40:- ADHAN: custom + beep
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:41:- IQAMAH: custom + beep
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:72:- beep_enabled
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:73:- beep media reference
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:76:## Beep rule
+tv-player/MJHK_TV_Phase4D_A_DEDICATED_SCREENS_STATE_CONTRACT.md:78:Explicit beep support is approved only for:
+
+## 2. Beep counts and prayer-state usage
+tv-player/assets/js/presentation-adapter.js:9:  "PRE_ADHAN",
+tv-player/assets/js/presentation-adapter.js:10:  "ADHAN",
+tv-player/assets/js/presentation-adapter.js:11:  "IQAMAH_COUNTDOWN",
+tv-player/assets/js/presentation-adapter.js:12:  "IQAMAH",
+tv-player/assets/js/presentation-adapter.js:16:  "ISYRAQ",
+tv-player/assets/js/presentation-adapter.js:17:  "IMSAK",
+tv-player/assets/js/presentation-adapter.js:18:  "FRIDAY_PRE_ADHAN",
+tv-player/assets/js/presentation-scheduler.js:2:  "NORMAL","PRE_ADHAN","ADHAN","IQAMAH_COUNTDOWN","IQAMAH","SALAT",
+tv-player/assets/js/presentation-scheduler.js:3:  "PRAYER_PROHIBITION","SYURUQ","ISYRAQ","IMSAK",
+tv-player/assets/js/presentation-scheduler.js:4:  "FRIDAY_PRE_ADHAN","FRIDAY_KHUTBAH","FRIDAY_SALAT"
+tv-player/assets/js/scenarios.js:11:    label: "Daily: Adhan → Iqamah → Salat",
+tv-player/assets/js/scenarios.js:14:      { state: TV_STATES.PRE_ADHAN, duration: 8 },
+tv-player/assets/js/scenarios.js:15:      { state: TV_STATES.ADHAN, duration: 5 },
+tv-player/assets/js/scenarios.js:16:      { state: TV_STATES.IQAMAH_COUNTDOWN, duration: 10 },
+tv-player/assets/js/scenarios.js:17:      { state: TV_STATES.IQAMAH, duration: 4 },
+tv-player/assets/js/scenarios.js:22:  SYURUQ_ISYRAQ_CYCLE: {
+tv-player/assets/js/scenarios.js:23:    label: "Syuruq → Isyraq",
+tv-player/assets/js/scenarios.js:27:      { state: TV_STATES.ISYRAQ, duration: 6 },
+tv-player/assets/js/scenarios.js:31:  RAMADAN_IMSAK: {
+tv-player/assets/js/scenarios.js:32:    label: "Ramadan: Imsak display",
+tv-player/assets/js/scenarios.js:36:      { state: TV_STATES.IMSAK, duration: 8 },
+tv-player/assets/js/scenarios.js:41:    label: "Friday: Pre-Adhan → Khutbah → Salat",
+tv-player/assets/js/scenarios.js:44:      { state: TV_STATES.FRIDAY_PRE_ADHAN, duration: 8 },
+tv-player/assets/js/states.js:3:  PRE_ADHAN: "PRE_ADHAN",
+tv-player/assets/js/states.js:4:  ADHAN: "ADHAN",
+tv-player/assets/js/states.js:5:  IQAMAH_COUNTDOWN: "IQAMAH_COUNTDOWN",
+tv-player/assets/js/states.js:6:  IQAMAH: "IQAMAH",
+tv-player/assets/js/states.js:10:  ISYRAQ: "ISYRAQ",
+tv-player/assets/js/states.js:11:  IMSAK: "IMSAK",
+tv-player/assets/js/states.js:12:  FRIDAY_PRE_ADHAN: "FRIDAY_PRE_ADHAN",
+tv-player/assets/js/states.js:25:  PRE_ADHAN: {
+tv-player/assets/js/states.js:33:  ADHAN: {
+tv-player/assets/js/states.js:40:  IQAMAH_COUNTDOWN: {
+tv-player/assets/js/states.js:41:    title: "Menuju Iqamah",
+tv-player/assets/js/states.js:46:    countdownLabel: "Menuju Iqamah",
+tv-player/assets/js/states.js:48:  IQAMAH: {
+tv-player/assets/js/states.js:50:    message: "Iqamah telah dikumandangkan. Mohon bersiap memulai shalat.",
+tv-player/assets/js/states.js:71:    message: "Mohon tunggu 10 menit sebelum melaksanakan shalat Isyraq.",
+tv-player/assets/js/states.js:77:  ISYRAQ: {
+tv-player/assets/js/states.js:78:    title: "Waktu Isyraq",
+tv-player/assets/js/states.js:79:    message: "Waktu pelaksanaan shalat Isyraq. Default simulasi: 3 menit.",
+tv-player/assets/js/states.js:83:    countdownLabel: "Waktu Isyraq",
+tv-player/assets/js/states.js:85:  IMSAK: {
+tv-player/assets/js/states.js:86:    title: "Waktu Imsak",
+tv-player/assets/js/states.js:87:    message: "Mode Ramadan aktif. Slot Syuruq pada panel jadwal diganti dengan Imsak.",
+tv-player/assets/js/states.js:92:  FRIDAY_PRE_ADHAN: {
+tv-player/assets/js/ui.js:17:// changes to Imsak during Ramadan. The row order intentionally remains
+tv-player/assets/js/ui.js:21:  ["Imsak", "04:23"],
+tv-player/assets/js/visual-config.js:58:    PRE_ADHAN: {
+tv-player/assets/js/visual-config.js:65:    ADHAN: {
+tv-player/assets/js/visual-config.js:72:    IQAMAH_COUNTDOWN: {
+tv-player/assets/js/visual-config.js:79:    IQAMAH: {
+tv-player/assets/js/visual-config.js:107:    ISYRAQ: {
+tv-player/assets/js/visual-config.js:114:    IMSAK: {
+tv-player/assets/js/visual-config.js:121:    FRIDAY_PRE_ADHAN: {
+tv-player/assets/js/visual-config.js:148:    PRE_ADHAN: true,
+tv-player/assets/js/visual-config.js:149:    ADHAN: false,
+tv-player/assets/js/visual-config.js:150:    IQAMAH_COUNTDOWN: true,
+tv-player/assets/js/visual-config.js:151:    IQAMAH: false,
+tv-player/assets/js/visual-config.js:155:    ISYRAQ: false,
+tv-player/assets/js/visual-config.js:156:    IMSAK: true,
+tv-player/assets/js/visual-config.js:157:    FRIDAY_PRE_ADHAN: true,
+
+## 3. Visual/revision/snapshot contracts
+supabase/tv/phase2b/00_phase2b_preflight.sql:28:     or to_regclass('public.tv_config_revisions') is null
+supabase/tv/phase2b/00_phase2b_preflight.sql:46:  'published_revisions' as check_name,
+supabase/tv/phase2b/00_phase2b_preflight.sql:48:from public.tv_config_revisions
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:41:alter table public.tv_system_settings
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:45:alter table public.tv_system_settings
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:49:alter table public.tv_system_settings
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:53:alter table public.tv_system_settings
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:153:-- One published configuration revision at a time.
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:154:create unique index if not exists ux_tv_one_published_revision
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:155:on public.tv_config_revisions ((1))
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:265:    from public.tv_display_profiles
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:421:  v_snapshot jsonb;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:422:  v_revision_id uuid;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:423:  v_revision_number bigint;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:434:  v_snapshot := jsonb_build_object(
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:441:    'system_settings',
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:444:         from public.tv_system_settings s
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:449:    'display_profiles',
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:452:         from public.tv_display_profiles d),
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:472:    'audio_rules',
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:475:         from public.tv_audio_rules a),
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:540:  update public.tv_config_revisions
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:544:  insert into public.tv_config_revisions(
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:546:    snapshot,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:553:    v_snapshot,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:558:  returning id, revision_number
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:559:  into v_revision_id, v_revision_number;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:562:  set active_revision_id = v_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:566:  set desired_revision_id = v_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:576:      'revision_id', v_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:577:      'revision_number', v_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:583:    'revision_id', v_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:584:    'revision_number', v_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:769:    'desired_revision_id', d.desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:770:    'desired_revision_number', desired.revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:771:    'applied_revision_id', d.applied_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:772:    'applied_revision_number', applied.revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:773:    'active_revision_id', ps.active_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:774:    'active_revision_number', active_rev.revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:782:  cross join public.tv_system_settings s
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:783:  left join public.tv_config_revisions desired on desired.id = d.desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:784:  left join public.tv_config_revisions applied on applied.id = d.applied_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:786:  left join public.tv_config_revisions active_rev on active_rev.id = ps.active_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:810:  v_desired_revision_id uuid;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:811:  v_desired_revision_number bigint;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:812:  v_applied_revision_id uuid;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:813:  v_applied_revision_number bigint;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:901:    d.desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:902:    desired.revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:903:    d.applied_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:904:    applied.revision_number
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:906:    v_desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:907:    v_desired_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:908:    v_applied_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:909:    v_applied_revision_number
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:911:  left join public.tv_config_revisions desired on desired.id = d.desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:912:  left join public.tv_config_revisions applied on applied.id = d.applied_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:931:    'desired_revision_id', v_desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:932:    'desired_revision_number', v_desired_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:933:    'applied_revision_id', v_applied_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:934:    'applied_revision_number', v_applied_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:941:-- 13. Device RPC: get desired/applied/active revision
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:944:create or replace function public.tv_device_get_revision(
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:947:  p_revision_id uuid default null
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:956:  v_requested_revision_id uuid;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:963:    p_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:964:    d.desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:965:    ps.active_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:967:  into v_requested_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:972:  if v_requested_revision_id is null then
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:980:    v_requested_revision_id = d.desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:981:    or v_requested_revision_id = d.applied_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:982:    or v_requested_revision_id = ps.active_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:990:    raise exception 'REVISION_NOT_ALLOWED';
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:995:    'revision_id', r.id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:996:    'revision_number', r.revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:999:    'snapshot', r.snapshot
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1002:  from public.tv_config_revisions r
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1003:  where r.id = v_requested_revision_id;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1016:-- 14. Device RPC: acknowledge config revision
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1019:create or replace function public.tv_device_ack_revision(
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1022:  p_revision_id uuid,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1033:  v_desired_revision_id uuid;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1037:  select desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1038:  into v_desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1042:  if p_success and p_revision_id is distinct from v_desired_revision_id then
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1043:    raise exception 'STALE_REVISION_ACK';
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1048:    set applied_revision_id = p_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1055:    set last_error = coalesce(nullif(p_error_message,''),'REVISION_APPLY_FAILED'),
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1062:      'revision_apply_failed',
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1064:        'revision_id', p_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1073:    'revision_id', p_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1338:revoke all on function public.tv_device_get_revision(text,text,uuid)
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1340:grant execute on function public.tv_device_get_revision(text,text,uuid)
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1343:revoke all on function public.tv_device_ack_revision(text,text,uuid,boolean,text)
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1345:grant execute on function public.tv_device_ack_revision(text,text,uuid,boolean,text)
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1410:  d.desired_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1411:  desired.revision_number as desired_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1413:  d.applied_revision_id,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1414:  applied.revision_number as applied_revision_number,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1420:cross join public.tv_system_settings s
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1423:left join public.tv_config_revisions desired
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1424:  on desired.id = d.desired_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1425:left join public.tv_config_revisions applied
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1426:  on applied.id = d.applied_revision_id
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1440:'Security/audit events for device registration, pairing, revocation and revision failures.';
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1449:'Admin-only atomic configuration publisher. Creates immutable revision and points enabled devices to it.';
+supabase/tv/phase2b/02_phase2b_verify.sql:199:from public.tv_system_settings
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:81:drop function if exists public.tv_device_ack_revision(text,text,uuid,boolean,text);
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:82:drop function if exists public.tv_device_get_revision(text,text,uuid);
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:98:drop index if exists public.ux_tv_one_published_revision;
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:123:alter table public.tv_system_settings
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:154:  d.desired_revision_id,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:155:  desired.revision_number as desired_revision_number,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:156:  d.applied_revision_id,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:157:  applied.revision_number as applied_revision_number,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:163:left join public.tv_config_revisions desired
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:164:  on desired.id = d.desired_revision_id
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:165:left join public.tv_config_revisions applied
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:166:  on applied.id = d.applied_revision_id;
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:117:       ├─ creates immutable JSON snapshot
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:118:       ├─ marks previous revision superseded
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:119:       ├─ publishes one new revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:120:       └─ sets desired_revision_id on enabled devices
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:126:desired revision > applied revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:129:and downloads the new snapshot.
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:131:It must fully download/cache required assets before changing `applied_revision_id`.
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:133:If an asset/config fails, it keeps the previous working revision.
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:138:Revision N (working)
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:140:      ├─ download Revision N+1
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:147:      ack Revision N+1
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:258:- revision publisher works
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:30:Creates one immutable published revision.
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:36:  "revision_id": "uuid",
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:37:  "revision_number": 1,
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:102:- desired/applied revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:103:- active revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:134:## Download revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:137:GET /v1/device/revision/:revision_id?
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:141:`tv_device_get_revision(text,text,uuid)`
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:143:If revision id omitted, desired revision is returned.
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:145:## Acknowledge revision
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:148:POST /v1/device/revision/ack
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:155:  "revision_id": "uuid",
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:162:`tv_device_ack_revision(...)`
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:164:A successful ACK is accepted only for the device's current desired revision.
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:242:- `REVISION_NOT_ALLOWED` -> 403
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:243:- `STALE_REVISION_ACK` -> 409
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:5:-- PostgreSQL data-modifying CTEs share one snapshot. A sibling UPDATE cannot
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:7:-- RETURNING. Therefore desired_revision_id is now assigned directly during
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:12:--   remaining_temp_revisions = 0
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:28:    from public.tv_config_revisions
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:32:      'TEMP SIMULATOR REVISION ALREADY EXISTS. Run 99_cleanup_temp_simulator.sql first.';
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:40:revision_insert as (
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:41:  insert into public.tv_config_revisions (
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:43:    snapshot,
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:53:      'message', 'MJHK Phase 2C temporary simulator revision',
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:62:  returning id, revision_number
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:71:    desired_revision_id
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:78:      from public.tv_display_profiles
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:86:  from revision_insert r
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:87:  returning id, device_code, desired_revision_id
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:131:  r.id as test_revision_id,
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:132:  r.revision_number as test_revision_number,
+supabase/tv/phase2c-test/00_create_temp_simulator.sql:137:cross join revision_insert r
+supabase/tv/phase2c-test/01_verify_temp_simulator.sql:13:  d.last_sync_at is not null as revision_ack_seen,
+supabase/tv/phase2c-test/01_verify_temp_simulator.sql:16:  d.applied_revision_id = d.desired_revision_id as desired_revision_applied,
+supabase/tv/phase2c-test/01_verify_temp_simulator.sql:47:  revision_number,
+supabase/tv/phase2c-test/01_verify_temp_simulator.sql:49:from public.tv_config_revisions
+supabase/tv/phase2c-test/01_verify_temp_simulator.sql:51:order by revision_number desc;
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:5:-- Does not touch active published revisions or real devices.
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:10:-- Never delete a revision if it somehow became active.
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:15:    from public.tv_config_revisions r
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:17:      on ps.active_revision_id = r.id
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:21:      'CLEANUP ABORTED: a simulator revision is active. Inspect publication state first.';
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:36:delete from public.tv_config_revisions
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:52:  count(*) as remaining_temp_revisions
+supabase/tv/phase2c-test/99_cleanup_temp_simulator.sql:53:from public.tv_config_revisions
+supabase/tv/phase3b2d-test/00_preflight.sql:9:    d.desired_revision_id,
+supabase/tv/phase3b2d-test/00_preflight.sql:10:    d.applied_revision_id,
+supabase/tv/phase3b2d-test/00_preflight.sql:11:    r.revision_number,
+supabase/tv/phase3b2d-test/00_preflight.sql:14:    jsonb_typeof(r.snapshot) as snapshot_type,
+supabase/tv/phase3b2d-test/00_preflight.sql:15:    jsonb_array_length(coalesce(r.snapshot->'playlist_items', '[]'::jsonb)) as playlist_count,
+supabase/tv/phase3b2d-test/00_preflight.sql:16:    jsonb_array_length(coalesce(r.snapshot->'running_text', '[]'::jsonb)) as running_text_count
+supabase/tv/phase3b2d-test/00_preflight.sql:18:  left join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/00_preflight.sql:19:    on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/00_preflight.sql:30:  count(*) as desired_revision_count
+supabase/tv/phase3b2d-test/00_preflight.sql:32:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/00_preflight.sql:33:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:2:-- Representative schema seed for the EXISTING temp simulator desired revision.
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:5:--   * only its current desired_revision_id
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:6:--   * only if that revision status = 'draft'
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:14:  v_revision_id uuid;
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:28:  select d.desired_revision_id
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:29:    into v_revision_id
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:33:  if v_revision_id is null then
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:34:    raise exception 'Temp simulator has no desired_revision_id';
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:39:  from public.tv_config_revisions r
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:40:  where r.id = v_revision_id;
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:43:    raise exception 'Desired revision % not found', v_revision_id;
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:48:      'Refusing to mutate non-draft test revision %. Current status=%',
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:49:      v_revision_id,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:53:  update public.tv_config_revisions r
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:55:    snapshot = jsonb_build_object(
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:136:  where r.id = v_revision_id;
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:145:  r.id as revision_id,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:146:  r.revision_number,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:148:  jsonb_typeof(r.snapshot) as snapshot_type,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:149:  jsonb_array_length(r.snapshot->'playlist_items') as playlist_items_count,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:150:  jsonb_array_length(r.snapshot->'running_text') as running_text_count,
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:153:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/01_seed_representative_snapshot.sql:154:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/02_verify_seed.sql:6:  d.desired_revision_id,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:7:  d.applied_revision_id,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:8:  r.revision_number,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:10:  jsonb_typeof(r.snapshot) as snapshot_type,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:11:  jsonb_typeof(r.snapshot->'playlist_items') as playlist_items_type,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:12:  jsonb_array_length(coalesce(r.snapshot->'playlist_items', '[]'::jsonb)) as playlist_items_count,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:13:  jsonb_typeof(r.snapshot->'running_text') as running_text_type,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:14:  jsonb_array_length(coalesce(r.snapshot->'running_text', '[]'::jsonb)) as running_text_count,
+supabase/tv/phase3b2d-test/02_verify_seed.sql:17:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/02_verify_seed.sql:18:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/02_verify_seed.sql:25:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/02_verify_seed.sql:26:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/02_verify_seed.sql:27:cross join lateral jsonb_array_elements(r.snapshot->'playlist_items') as item
+supabase/tv/phase3b2d-test/02_verify_seed.sql:35:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/02_verify_seed.sql:36:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/02_verify_seed.sql:37:cross join lateral jsonb_array_elements(r.snapshot->'running_text') as item
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:2:-- OPTIONAL cleanup for the temp simulator revision only.
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:3:-- Restores the test revision to an empty playlist/running-text snapshot.
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:10:  v_revision_id uuid;
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:13:  select d.desired_revision_id
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:14:    into v_revision_id
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:18:  if v_revision_id is null then
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:19:    raise exception 'Temp simulator or desired revision not found';
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:24:  from public.tv_config_revisions r
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:25:  where r.id = v_revision_id;
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:29:      'Refusing cleanup of non-draft revision %. status=%',
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:30:      v_revision_id,
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:34:  update public.tv_config_revisions r
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:36:    snapshot = jsonb_build_object(
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:49:  where r.id = v_revision_id;
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:56:  jsonb_array_length(r.snapshot->'playlist_items') as playlist_items_count,
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:57:  jsonb_array_length(r.snapshot->'running_text') as running_text_count,
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:60:join public.tv_config_revisions r
+supabase/tv/phase3b2d-test/99_restore_empty_snapshot.sql:61:  on r.id = d.desired_revision_id
+supabase/tv/phase3b2d-test/README.md:1:# MJHK TV — Phase 3B.2D-A.1 Representative Test Revision Seeder v1
+supabase/tv/phase3b2d-test/README.md:4:inside the EXISTING Phase 2C temp simulator desired revision so the safe
+supabase/tv/phase3b2d-test/README.md:8:- create or publish a production revision
+supabase/tv/phase3b2d-test/README.md:9:- change desired revision pointers
+supabase/tv/phase3b2d-test/README.md:10:- ACK a revision
+supabase/tv/phase3b2d-test/README.md:16:Seeder only updates the revision currently referenced by:
+supabase/tv/phase3b2d-test/README.md:22:and aborts unless that revision is still `draft`.
+supabase/tv/phase3b2d-test/README.md:72:2. Confirm exactly one temp device and its revision is `draft`
+supabase/tv/phase3b2d-test/README.md:73:3. `01_seed_representative_snapshot.sql`
+supabase/tv/phase3b2d-test/README.md:86:Because the revision ID stays the same but the test snapshot changed:
+supabase/tv/phase3b2d-test/README.md:94:   - Analyze Snapshot
+supabase/tv/phase3b2d-test/README.md:104:Do NOT run `99_restore_empty_snapshot.sql` yet.
+supabase/tv/phase3b2d-test/README.md:105:Keep the representative snapshot until the typed adapter is implemented and verified.
+supabase/tv/phase3b2e-e2e/00_preflight.sql:11:    d.desired_revision_id,
+
+## 4. Storage usage in existing CMS
+admin/admin.js:974:async function upload(bucket,file,prefix){const name=`${prefix}-${Date.now()}-${safeName(file.name)}`;const {error}=await db.storage.from(bucket).upload(name,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return db.storage.from(bucket).getPublicUrl(name).data.publicUrl}
+admin/admin.js:975:async function uploadBlob(bucket,blob,fileName){const {error}=await db.storage.from(bucket).upload(fileName,blob,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});if(error)throw error;return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl}
+admin/admin.js:977:  const {error}=await db.storage.from(bucket).upload(fileName,blob,{
+admin/admin.js:983:  return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
+admin/admin.js:985:async function removeFile(bucket,url){const p=storagePath(url,bucket);if(p){const {error}=await db.storage.from(bucket).remove([p]);if(error)throw error}}
+admin/admin.js.finance-typography-v2-1.bak:974:async function upload(bucket,file,prefix){const name=`${prefix}-${Date.now()}-${safeName(file.name)}`;const {error}=await db.storage.from(bucket).upload(name,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return db.storage.from(bucket).getPublicUrl(name).data.publicUrl}
+admin/admin.js.finance-typography-v2-1.bak:975:async function uploadBlob(bucket,blob,fileName){const {error}=await db.storage.from(bucket).upload(fileName,blob,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});if(error)throw error;return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl}
+admin/admin.js.finance-typography-v2-1.bak:977:  const {error}=await db.storage.from(bucket).upload(fileName,blob,{
+admin/admin.js.finance-typography-v2-1.bak:983:  return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
+admin/admin.js.finance-typography-v2-1.bak:985:async function removeFile(bucket,url){const p=storagePath(url,bucket);if(p){const {error}=await db.storage.from(bucket).remove([p]);if(error)throw error}}
+admin/admin.js.finance-typography-v2.bak:974:async function upload(bucket,file,prefix){const name=`${prefix}-${Date.now()}-${safeName(file.name)}`;const {error}=await db.storage.from(bucket).upload(name,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return db.storage.from(bucket).getPublicUrl(name).data.publicUrl}
+admin/admin.js.finance-typography-v2.bak:975:async function uploadBlob(bucket,blob,fileName){const {error}=await db.storage.from(bucket).upload(fileName,blob,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});if(error)throw error;return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl}
+admin/admin.js.finance-typography-v2.bak:977:  const {error}=await db.storage.from(bucket).upload(fileName,blob,{
+admin/admin.js.finance-typography-v2.bak:983:  return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
+admin/admin.js.finance-typography-v2.bak:985:async function removeFile(bucket,url){const p=storagePath(url,bucket);if(p){const {error}=await db.storage.from(bucket).remove([p]);if(error)throw error}}
+admin/admin.js.phase9b.bak:957:async function upload(bucket,file,prefix){const name=`${prefix}-${Date.now()}-${safeName(file.name)}`;const {error}=await db.storage.from(bucket).upload(name,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return db.storage.from(bucket).getPublicUrl(name).data.publicUrl}
+admin/admin.js.phase9b.bak:958:async function uploadBlob(bucket,blob,fileName){const {error}=await db.storage.from(bucket).upload(fileName,blob,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});if(error)throw error;return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl}
+admin/admin.js.phase9b.bak:960:  const {error}=await db.storage.from(bucket).upload(fileName,blob,{
+admin/admin.js.phase9b.bak:966:  return db.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
+admin/admin.js.phase9b.bak:968:async function removeFile(bucket,url){const p=storagePath(url,bucket);if(p){const {error}=await db.storage.from(bucket).remove([p]);if(error)throw error}}
+admin/profile-admin.js:65:  const {error}=await db.storage.from("profile-content").upload(storagePath,file,{upsert:false,contentType:file.type});
+admin/profile-admin.js:67:  const {data}=db.storage.from("profile-content").getPublicUrl(storagePath);
+admin/tv/PHASE4B_CMS_DASHBOARD.md:54:storage_bucket
+admin/tv/PHASE4B_CMS_DASHBOARD.md:55:storage_path
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:56:storage_bucket = tv-content
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:57:storage_path   = generated path
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:68:createSignedUrl(storage_path, 3600)
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:120:storage_bucket = tv-content
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:121:storage_path starts cms-slideshow/
+admin/tv-content.js:12:const STORAGE_BUCKET = "tv-content";
+admin/tv-content.js:66:          "id,title,content_type,source_type,source_id,storage_url,body_text,metadata,status,created_by,created_at,updated_at,storage_bucket,storage_path"
+admin/tv-content.js:114:        item.storage_bucket === STORAGE_BUCKET &&
+admin/tv-content.js:115:        item.storage_path
+admin/tv-content.js:118:          await db.storage
+admin/tv-content.js:119:            .from(STORAGE_BUCKET)
+admin/tv-content.js:120:            .createSignedUrl(
+admin/tv-content.js:121:              item.storage_path,
+admin/tv-content.js:137:            item.storage_url
+admin/tv-content.js:290:        item.storage_url
+admin/tv-content.js:469:      item?.storage_url
+admin/tv-content.js:479:      item?.storage_path
+admin/tv-content.js:480:        ? `Private Storage • ${item.storage_path}`
+admin/tv-content.js:631:      state.editing?.storage_bucket === STORAGE_BUCKET
+admin/tv-content.js:632:        ? state.editing.storage_path
+admin/tv-content.js:640:      storage_bucket:
+admin/tv-content.js:642:          ? state.editing?.storage_bucket || null
+admin/tv-content.js:644:      storage_path:
+admin/tv-content.js:646:          ? state.editing?.storage_path || null
+admin/tv-content.js:661:        storage_bucket:
+admin/tv-content.js:662:          STORAGE_BUCKET,
+admin/tv-content.js:663:        storage_path:
+admin/tv-content.js:671:      !storageFields.storage_path
+admin/tv-content.js:680:      ...storageFields,
+admin/tv-content.js:696:            "id,title,content_type,status,storage_bucket,storage_path,updated_at"
+admin/tv-content.js:705:            "id,title,content_type,status,storage_bucket,storage_path,updated_at"
+admin/tv-content.js:715:      result.data?.storage_bucket === STORAGE_BUCKET
+admin/tv-content.js:716:        ? result.data.storage_path
+admin/tv-content.js:781:    await db.storage
+admin/tv-content.js:782:      .from(STORAGE_BUCKET)
+admin/tv-content.js:802:    await db.storage
+admin/tv-content.js:803:      .from(STORAGE_BUCKET)
+admin/tv-content.js:909:    !state.editing?.storage_path
+admin/tv-content.js:969:    state.deleting.storage_bucket === STORAGE_BUCKET
+admin/tv-content.js:970:      ? state.deleting.storage_path
+admin/tv-dedicated-screens.js:171:    .select("id,title,content_type,source_type,source_id,storage_bucket,storage_path,status")
+admin/tv-dedicated-screens.js:198:  if (content.storage_bucket && content.storage_path) {
+admin/tv-dedicated-screens.js:199:    const { data, error } = await db.storage
+admin/tv-dedicated-screens.js:200:      .from(content.storage_bucket)
+admin/tv-dedicated-screens.js:201:      .createSignedUrl(content.storage_path, 60 * 60);
+admin/tv-dedicated-screens.js:214:  const { error } = await db.storage.from(bucket).remove([path]);
+admin/tv-dedicated-screens.js:242:      await removeStorageObject(oldContent.storage_bucket, oldContent.storage_path);
+admin/tv-dedicated-screens.js:256:  const { error: uploadError } = await db.storage
+admin/tv-dedicated-screens.js:280:      storage_bucket: DEDICATED_BUCKET,
+admin/tv-dedicated-screens.js:281:      storage_path: newPath,
+admin/tv-dedicated-screens.js:303:      oldContent.storage_bucket &&
+admin/tv-dedicated-screens.js:304:      oldContent.storage_path &&
+admin/tv-dedicated-screens.js:306:        oldContent.storage_bucket !== DEDICATED_BUCKET ||
+admin/tv-dedicated-screens.js:307:        oldContent.storage_path !== newPath
+admin/tv-dedicated-screens.js:310:      await removeStorageObject(oldContent.storage_bucket, oldContent.storage_path);
+tv-player/assets/js/device-session.js:5:    this.storage = storage;
+tv-player/assets/js/device-session.js:10:      const raw = this.storage.getItem(STORAGE_KEY);
+tv-player/assets/js/device-session.js:41:    this.storage.setItem(STORAGE_KEY, JSON.stringify(payload));
+tv-player/assets/js/device-session.js:50:    this.storage.removeItem(STORAGE_KEY);
+tv-player/assets/js/revision-ack-outbox.js:11:    this.storage = storage;
+tv-player/assets/js/revision-ack-outbox.js:78:    this.storage.removeItem(STORAGE_KEY);
+tv-player/assets/js/revision-ack-outbox.js:82:    const raw = this.storage.getItem(STORAGE_KEY);
+tv-player/assets/js/revision-ack-outbox.js:95:      this.storage.removeItem(STORAGE_KEY);
+tv-player/assets/js/revision-ack-outbox.js:98:    this.storage.setItem(STORAGE_KEY, JSON.stringify(items.slice(-MAX_ITEMS)));
+tv-player/assets/js/revision-store.js:13:    this.storage = storage;
+tv-player/assets/js/revision-store.js:53:    this.storage.setItem(CANDIDATE_KEY, serialized);
+tv-player/assets/js/revision-store.js:95:    this.storage.setItem(LKG_KEY, serialized);
+tv-player/assets/js/revision-store.js:96:    this.storage.removeItem(CANDIDATE_KEY);
+tv-player/assets/js/revision-store.js:106:    return safeStoredMeta(this.storage.getItem(CANDIDATE_KEY));
+tv-player/assets/js/revision-store.js:110:    return safeStoredMeta(this.storage.getItem(LKG_KEY));
+tv-player/assets/js/revision-store.js:114:    this.storage.removeItem(CANDIDATE_KEY);
+tv-player/assets/js/revision-store.js:118:    this.storage.removeItem(CANDIDATE_KEY);
+tv-player/assets/js/revision-store.js:119:    this.storage.removeItem(LKG_KEY);
+tv-player/assets/js/revision-store.js:123:    const raw = this.storage.getItem(key);
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:62:  add column if not exists storage_bucket text;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:65:  add column if not exists storage_path text;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:67:create index if not exists idx_tv_content_storage_path
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:68:  on public.tv_content(storage_bucket, storage_path);
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1228:  p_storage_path text
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1240:  if p_storage_path is null
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1241:     or btrim(p_storage_path) = ''
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1242:     or position(v_device_id::text || '/' in p_storage_path) <> 1 then
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1247:  set last_screenshot_path = p_storage_path,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1255:    'storage_path', p_storage_path,
+supabase/tv/phase2b/02_phase2b_verify.sql:63:      and column_name='storage_path'
+supabase/tv/phase2b/02_phase2b_verify.sql:65:    raise exception 'VERIFY FAILED: tv_content.storage_path missing.';
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:47:      and column_name='storage_path'
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:49:    execute 'select count(*) from public.tv_content where storage_path is not null'
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:54:        'ROLLBACK ABORTED: % content row(s) already use Phase 2B storage_path.',
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:99:drop index if exists public.idx_tv_content_storage_path;
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:120:  drop column if exists storage_path,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:121:  drop column if exists storage_bucket;
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:221:- `storage_bucket`
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:222:- `storage_path`
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:229:2. resolves `storage_bucket/storage_path`
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:56:  storage_bucket,
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:57:  storage_path,
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:62:where storage_bucket is not null
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:63:   or storage_path is not null
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:10:  storage_bucket,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:11:  storage_path,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:30:  storage_bucket,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:31:  storage_path,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:35:where storage_bucket = 'tv-content'
+supabase/tv/phase4d-dedicated-screens/00_audit_dedicated_screens_schema.sql:92:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/00_audit_dedicated_screens_schema.sql:93:  storage_path,
+supabase/tv/phase4d-dedicated-screens/06_preflight_dedicated_screen_source_type.sql:28:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/06_preflight_dedicated_screen_source_type.sql:29:  storage_path,
+supabase/tv/phase4d-dedicated-screens/08_verify_dedicated_screen_source_type.sql:27:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/08_verify_dedicated_screen_source_type.sql:28:  storage_path,
+supabase/tv/phase4d-dedicated-screens/10_verify_dedicated_media_acceptance.sql:2:select id,title,content_type,source_type,source_id,storage_bucket,storage_path,status,updated_at
+supabase/tv/phase4d-dedicated-screens/10_verify_dedicated_media_acceptance.sql:7:select a.state_code,a.enabled,a.content_id,c.title,c.content_type,c.source_type,c.source_id,c.storage_bucket,c.storage_path,c.status
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:11:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:12:  storage_path,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:25:  c.storage_bucket,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:26:  c.storage_path
+
+## 5. Existing audio MIME / validation references
+admin/admin.js:112:function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+admin/admin.js:924:  $$(".finance-report-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.financeReport===name));
+admin/admin.js:926:  $("#addKeuangan").classList.toggle("hidden",name!=="weekly");
+admin/admin.js:1005:$("#dataMode").onchange=toggleFinanceMode;
+admin/admin.js:1125:    toggleFinanceMode();
+admin/admin.js:1134:function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
+admin/admin.js:1224:    node.classList.toggle("poster-row-label-tight",size<MAX_SIZE);
+admin/admin.js:1410:window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
+admin/admin.js:1429:(async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();
+admin/admin.js.finance-typography-v2-1.bak:112:function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+admin/admin.js.finance-typography-v2-1.bak:924:  $$(".finance-report-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.financeReport===name));
+admin/admin.js.finance-typography-v2-1.bak:926:  $("#addKeuangan").classList.toggle("hidden",name!=="weekly");
+admin/admin.js.finance-typography-v2-1.bak:1005:$("#dataMode").onchange=toggleFinanceMode;
+admin/admin.js.finance-typography-v2-1.bak:1125:    toggleFinanceMode();
+admin/admin.js.finance-typography-v2-1.bak:1134:function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
+admin/admin.js.finance-typography-v2-1.bak:1224:    node.classList.toggle("poster-row-label-tight",size<MAX_SIZE);
+admin/admin.js.finance-typography-v2-1.bak:1410:window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
+admin/admin.js.finance-typography-v2-1.bak:1429:(async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();
+admin/admin.js.finance-typography-v2.bak:112:function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+admin/admin.js.finance-typography-v2.bak:924:  $$(".finance-report-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.financeReport===name));
+admin/admin.js.finance-typography-v2.bak:926:  $("#addKeuangan").classList.toggle("hidden",name!=="weekly");
+admin/admin.js.finance-typography-v2.bak:1005:$("#dataMode").onchange=toggleFinanceMode;
+admin/admin.js.finance-typography-v2.bak:1125:    toggleFinanceMode();
+admin/admin.js.finance-typography-v2.bak:1134:function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
+admin/admin.js.finance-typography-v2.bak:1381:window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
+admin/admin.js.finance-typography-v2.bak:1400:(async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();
+admin/admin.js.phase9b.bak:95:function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+admin/admin.js.phase9b.bak:907:  $$(".finance-report-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.financeReport===name));
+admin/admin.js.phase9b.bak:909:  $("#addKeuangan").classList.toggle("hidden",name!=="weekly");
+admin/admin.js.phase9b.bak:988:$("#dataMode").onchange=toggleFinanceMode;
+admin/admin.js.phase9b.bak:1108:    toggleFinanceMode();
+admin/admin.js.phase9b.bak:1117:function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
+admin/admin.js.phase9b.bak:1364:window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
+admin/admin.js.phase9b.bak:1383:(async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();
+admin/tv/PHASE4B_CMS_DASHBOARD.md:152:If a logged-in non-admin account is used, RLS should reject reads and the page
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:14:  audio/mpeg
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:15:  audio/mp4
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:16:  audio/ogg
+admin/tv/PHASE4C_A_PRIVATE_STORAGE_UPLOAD.md:37:4C-A uses only image MIME types:
+admin/tv/PHASE4D_A_DEDICATED_SCREENS_ARCHITECTURE_AUDIT.md:93:- audio/media linkage becomes awkward
+admin/tv-content.js:557:  $("#deleteBtn").classList.toggle(
+admin/tv-content.js:582:      node.classList.toggle(
+admin/tv-content.js:591:      node.classList.toggle(
+admin/tv-content.js:600:      node.classList.toggle(
+admin/tv-content.js:772:    extensionForMime(file.type);
+admin/tv-content.js:1023:function extensionForMime(type) {
+admin/tv-running-text.js:251:  $("#deleteBtn").classList.toggle("hidden", !item);
+admin/tv-theme-layout.css:112:.toggle-grid{
+admin/tv-theme-layout.css:343:  .toggle-grid{
+admin/tv-theme-layout.html:106:              <div class="toggle-grid">
+tv-player/assets/js/engine.js:94:  togglePause() {
+tv-player/assets/js/gateway-client.js:59:    if (body !== undefined && !requestHeaders.has("content-type")) {
+tv-player/assets/js/gateway-client.js:60:      requestHeaders.set("content-type", "application/json");
+tv-player/assets/js/player.js:40:  ramadanToggle: document.querySelector("#ramadanToggle"),
+tv-player/assets/js/player.js:44:  toggleDevPanel: document.querySelector("#toggleDevPanel"),
+tv-player/assets/js/player.js:124:refs.ramadanToggle.addEventListener("change", () => {
+tv-player/assets/js/player.js:125:  engine.setRamadanMode(refs.ramadanToggle.checked);
+tv-player/assets/js/player.js:129:  engine.togglePause();
+tv-player/assets/js/player.js:136:refs.toggleDevPanel.addEventListener("click", () => {
+tv-player/assets/js/player.js:137:  refs.devPanel.classList.toggle("is-collapsed");
+tv-player/assets/js/player.js:138:  refs.toggleDevPanel.textContent = refs.devPanel.classList.contains("is-collapsed")
+tv-player/assets/js/player.js:152:  refs.devPanel.classList.toggle("is-production-hidden", productionMode);
+tv-player/assets/js/player.js.phase3b2dc2.bak:32:  ramadanToggle: document.querySelector("#ramadanToggle"),
+tv-player/assets/js/player.js.phase3b2dc2.bak:36:  toggleDevPanel: document.querySelector("#toggleDevPanel"),
+tv-player/assets/js/player.js.phase3b2dc2.bak:81:refs.ramadanToggle.addEventListener("change", () => {
+tv-player/assets/js/player.js.phase3b2dc2.bak:82:  engine.setRamadanMode(refs.ramadanToggle.checked);
+tv-player/assets/js/player.js.phase3b2dc2.bak:86:  engine.togglePause();
+tv-player/assets/js/player.js.phase3b2dc2.bak:93:refs.toggleDevPanel.addEventListener("click", () => {
+tv-player/assets/js/player.js.phase3b2dc2.bak:94:  refs.devPanel.classList.toggle("is-collapsed");
+tv-player/assets/js/player.js.phase3b2dc2.bak:95:  refs.toggleDevPanel.textContent = refs.devPanel.classList.contains("is-collapsed")
+tv-player/assets/js/player.js.phase3b2dc2.bak:109:  refs.devPanel.classList.toggle("is-production-hidden", productionMode);
+tv-player/assets/js/ui.js:105:  refs.stateOverlay.classList.toggle("is-hidden", !definition.overlay);
+tv-player/assets/js/ui.js:116:  refs.tvStage.classList.toggle("running-text-hidden", !runningTextVisible);
+tv-player/assets/js/ui.js:119:  refs.ramadanToggle.checked = snapshot.ramadanMode;
+tv-player/assets/js/ui.js:153:  stateOverlay.classList.toggle("has-state-asset", Boolean(assetUrl));
+tv-player/assets/js/visual-config.js:45:  // Admin CMS will eventually persist these content-type choices.
+tv-player/index.html:83:        <button id="toggleDevPanel" type="button">Hide</button>
+tv-player/index.html:108:          <input id="ramadanToggle" type="checkbox">
+tv-player/index.html.phase3b2dc2.bak:82:        <button id="toggleDevPanel" type="button">Hide</button>
+tv-player/index.html.phase3b2dc2.bak:107:          <input id="ramadanToggle" type="checkbox">
+tv-player/MJHK_TV_Phase3A1_Visual_Contract.md:17:## 2. Slideshow content-type contract
+tv-player/MJHK_TV_Phase3B2D_B_Presentation_Adapter.md:72:- no content values logged
+tv-player/preview.html:83:        <button id="toggleDevPanel" type="button">Hide</button>
+tv-player/preview.html:108:          <input id="ramadanToggle" type="checkbox">
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:41:- logging without exposing database implementation
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:206:Content-Type: image/webp
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:211:2. validates image MIME + size
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:14:  allowed_mime_types,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:74:  allowed_mime_types,
+supabase/tv/phase4d-dedicated-screens/00_audit_dedicated_screens_schema.sql:107:  allowed_mime_types,
+scripts/apply-finance-typography-v2.js:51:    node.classList.toggle("poster-row-label-tight",size<MAX_SIZE);
+scripts/apply-phase9c5-desktop-navbar-polish.js:51:  .nav-dropdown-toggle {
+scripts/apply-phase9c5-navbar-polish.js:53:  #navLinks .nav-dropdown-toggle {
+scripts/apply-tv-phase3b1-device-auth-header.mjs:31:  'const CORS_ALLOW_HEADERS = "Content-Type, device-code, authorization";',
+scripts/apply-tv-phase3b1-device-auth-header.mjs:32:  'const CORS_ALLOW_HEADERS = "Content-Type, x-mjhk-device-code, authorization";'
+scripts/apply-tv-phase3b1-gateway-cors.mjs:43:  "X-Content-Type-Options": "nosniff",
+scripts/apply-tv-phase3b1-gateway-cors.mjs:57:const CORS_ALLOW_HEADERS = "Content-Type, device-code, authorization";
+scripts/apply-tv-phase3b1-gateway-cors.mjs:117:      "Content-Type": "application/json; charset=utf-8",`,
+scripts/apply-tv-phase3b1-gateway-cors.mjs:121:      "Content-Type": "application/json; charset=utf-8",`
+scripts/audit-tv-phase4da-dedicated-screens.sh:49:  'audio|beep|mp3|ogg|m4a|audio/mpeg|audio/ogg|audio/mp4|media/' \
+scripts/audit-tv-phase4dc3-custom-beep-audio.sh:23:echo "## 5. Existing audio MIME / validation references"
+scripts/audit-tv-phase4dc3-custom-beep-audio.sh:24:grep -RniE 'audio/|mp3|mpeg|wav|ogg|aac|m4a|webm|MIME|content-type|accept=.*audio' admin tv-player supabase scripts | head -220
+scripts/migrate-to-supabase.js:70:    headers:{"Content-Type":"application/json",Prefer:"return=representation"},
+scripts/migrate-to-supabase.js:82:    headers:{"Content-Type":ctype(local),"x-upsert":"false"},
+scripts/migrate-to-supabase.js:90:    headers:{"Content-Type":"application/json"},
+scripts/patch-payloads/phase4ca-private-storage-upload.js:546:  $("#deleteBtn").classList.toggle(
+scripts/patch-payloads/phase4ca-private-storage-upload.js:571:      node.classList.toggle(
+scripts/patch-payloads/phase4ca-private-storage-upload.js:580:      node.classList.toggle(
+scripts/patch-payloads/phase4ca-private-storage-upload.js:589:      node.classList.toggle(
+scripts/patch-payloads/phase4ca-private-storage-upload.js:760:    extensionForMime(file.type);
+scripts/patch-payloads/phase4ca-private-storage-upload.js:1010:function extensionForMime(type) {
+scripts/phase4db1-recovery/tv-theme-layout.css:112:.toggle-grid{
+scripts/phase4db1-recovery/tv-theme-layout.css:343:  .toggle-grid{
+scripts/phase4db1-recovery/tv-theme-layout.html:108:              <div class="toggle-grid">
+scripts/smoke-critical.sh:89:    -H "Content-Type: application/json" \
+scripts/smoke-greeting-v132.sh:13:    -H "Content-Type: application/json" \
+scripts/smoke-phase7d.sh:13:    -H "Content-Type: application/json" \
+scripts/smoke-phase9c5-mobile-nav.sh:20:grep -q 'nav-dropdown-toggle' <<< "$html" && grep -q 'nav-dropdown-menu' <<< "$html" \
+scripts/smoke-production.sh:54:check_header "$SITE/" "x-content-type-options" "nosniff" "nosniff aktif"
+scripts/smoke-production.sh:98:  -H "Content-Type: application/json" \
+scripts/smoke-tv-gateway-cors.sh:30:  -H "Access-Control-Request-Headers: authorization,device-code,content-type" \
+scripts/smoke-tv-gateway-revision-route.sh:25:  -H "Content-Type: application/json" \
+scripts/smoke-tv-gateway.sh:35:grep -Fqi "x-content-type-options: nosniff" <<<"$headers" \
+scripts/smoke-tv-gateway.sh:50:  -H "Content-Type: text/plain" \
+scripts/smoke-tv-gateway.sh:58:  -H "Content-Type: application/json" \
+scripts/tv-device-simulator.mjs:243:    headers["Content-Type"] = "application/json";
+scripts/tv-device-simulator.mjs:246:    headers["Content-Type"] = options.contentType || "application/octet-stream";
+scripts/verify-phase9c5.sh:28:grep -q 'id="navLinks"' index.html && grep -q 'nav-dropdown-toggle' index.html && grep -q 'nav-dropdown-menu' index.html \
+scripts/verify-tv-phase3b1-device-auth-header.sh:51:grep -Fq 'Content-Type, x-mjhk-device-code, authorization' "$WORKER" \
+scripts/verify-tv-phase3b1-device-auth-header.sh:55:if grep -Fq 'Content-Type, device-code, authorization' "$WORKER"; then
+scripts/verify-tv-phase3b1-gateway-cors.sh:24:grep -Fq 'Content-Type, x-mjhk-device-code, authorization' "$FILE" && pass "Auth/preflight headers lengkap" || fail "Auth/preflight headers tidak lengkap"
+scripts/verify-tv-phase3b1-gateway-cors.sh:28:grep -Fq '"X-Content-Type-Options": "nosniff"' "$FILE" && pass "nosniff tetap aktif" || fail "nosniff hilang"
+scripts/verify-tv-phase3b1-pack.sh:68:# Security guard: detect logging of secret-bearing values only.
+scripts/verify-tv-phase3b1-pack.sh:73:  fail "Potential device-token VALUE logging ditemukan"
+scripts/verify-tv-phase3b1-pack.sh:75:  pass "Tidak ada device-token VALUE logging pada Phase 3B.1"
+scripts/verify-tv-phase3b1-pairing-session.sh:62:  fail "Potential device-token logging ditemukan"
+scripts/verify-tv-phase3b1-pairing-session.sh:64:  pass "Tidak ada device-token VALUE logging"
+scripts/verify-tv-phase3b2b-revision-store.sh:84:  fail "Potential snapshot/token logging ditemukan"
+scripts/verify-tv-phase3b2b-revision-store.sh:86:  pass "Tidak ada snapshot/token value logging"
+scripts/verify-tv-phase3b2c-runtime-config.sh:81:  fail "Potential snapshot/token value logging ditemukan"
+scripts/verify-tv-phase3b2c-runtime-config.sh:83:  pass "Tidak ada snapshot/token value logging"
+scripts/verify-tv-phase3b2d-presentation-adapter.sh:83:  fail "Potential content-value logging ditemukan"
+scripts/verify-tv-phase3b2d-presentation-adapter.sh:85:  pass "Tidak ada content-value logging"
+scripts/verify-tv-phase3b2ed-revision-ack.sh:32:if grep -R -Eqi 'console\.(log|info|debug|warn|error)\([^)]*(deviceToken|device_token|Bearer|snapshot)' tv-player/assets/js/revision-ack*.js; then fail "Potential secret/content logging ditemukan"; else pass "ACK layer bebas secret/content value logging"; fi
+scripts/verify-tv-phase3cb-heartbeat.sh:91:  fail "Potential device credential logging ditemukan"
+scripts/verify-tv-phase3cb-heartbeat.sh:93:  pass "Heartbeat bebas credential logging"
+scripts/verify-tv-phase4ca-media-upload-ux.sh:41:  && pass "Allowed image MIME terpasang" \
+scripts/verify-tv-phase4ca-media-upload-ux.sh:42:  || fail "Allowed image MIME hilang"
+scripts/verify-tv-phase4ca-private-storage-upload.sh:81:  && pass "Image MIME allowlist sesuai bucket" \
+scripts/verify-tv-phase4ca-private-storage-upload.sh:82:  || fail "Image MIME allowlist tidak lengkap"
+
+## 6. Existing relevant schema/migrations
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:62:  add column if not exists storage_bucket text;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:65:  add column if not exists storage_path text;
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:67:create index if not exists idx_tv_content_storage_path
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:68:  on public.tv_content(storage_bucket, storage_path);
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:475:         from public.tv_audio_rules a),
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1228:  p_storage_path text
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1240:  if p_storage_path is null
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1241:     or btrim(p_storage_path) = ''
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1242:     or position(v_device_id::text || '/' in p_storage_path) <> 1 then
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1247:  set last_screenshot_path = p_storage_path,
+supabase/tv/phase2b/01_phase2b_secure_device_rpc.sql:1255:    'storage_path', p_storage_path,
+supabase/tv/phase2b/02_phase2b_verify.sql:63:      and column_name='storage_path'
+supabase/tv/phase2b/02_phase2b_verify.sql:65:    raise exception 'VERIFY FAILED: tv_content.storage_path missing.';
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:47:      and column_name='storage_path'
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:49:    execute 'select count(*) from public.tv_content where storage_path is not null'
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:54:        'ROLLBACK ABORTED: % content row(s) already use Phase 2B storage_path.',
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:99:drop index if exists public.idx_tv_content_storage_path;
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:120:  drop column if exists storage_path,
+supabase/tv/phase2b/99_phase2b_safe_rollback.sql:121:  drop column if exists storage_bucket;
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:221:- `storage_bucket`
+supabase/tv/phase2b/MJHK_TV_Phase2B_Architecture.md:222:- `storage_path`
+supabase/tv/phase2b/MJHK_TV_Phase2B_RPC_API_Contract.md:229:2. resolves `storage_bucket/storage_path`
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:56:  storage_bucket,
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:57:  storage_path,
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:62:where storage_bucket is not null
+supabase/tv/phase4c-content/03_audit_storage_contract.sql:63:   or storage_path is not null
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:10:  storage_bucket,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:11:  storage_path,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:30:  storage_bucket,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:31:  storage_path,
+supabase/tv/phase4c-content/04_verify_private_storage_upload.sql:35:where storage_bucket = 'tv-content'
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:29:  beep_adhan_count,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:30:  beep_iqamah_count,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:31:  beep_forbidden_count,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:32:  beep_isyraq_count,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:33:  beep_imsak_count,
+supabase/tv/phase4d-custom-beep-audio/00_audit_custom_beep_audio.sql:102:    or pg_get_functiondef(p.oid) ilike '%tv_audio_rules%'
+supabase/tv/phase4d-dedicated-screens/00_audit_dedicated_screens_schema.sql:92:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/00_audit_dedicated_screens_schema.sql:93:  storage_path,
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:9:--   3) beep_imsak_count
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:73:  add column if not exists beep_imsak_count smallint;
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:76:set beep_imsak_count = 5
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:77:where beep_imsak_count is null;
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:80:  alter column beep_imsak_count set default 5,
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:81:  alter column beep_imsak_count set not null;
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:89:      and conname = 'tv_system_settings_beep_imsak_count_check'
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:92:      add constraint tv_system_settings_beep_imsak_count_check
+supabase/tv/phase4d-dedicated-screens/02_align_dedicated_screen_sources.sql:93:      check (beep_imsak_count between 0 and 60);
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:39:    'beep_adhan_count',
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:40:    'beep_iqamah_count',
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:41:    'beep_forbidden_count',
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:42:    'beep_isyraq_count',
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:43:    'beep_imsak_count'
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:48:  beep_adhan_count,
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:49:  beep_iqamah_count,
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:50:  beep_forbidden_count,
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:51:  beep_isyraq_count,
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:52:  beep_imsak_count,
+supabase/tv/phase4d-dedicated-screens/03_verify_dedicated_screen_source_alignment.sql:64:  and conname = 'tv_system_settings_beep_imsak_count_check';
+supabase/tv/phase4d-dedicated-screens/04_acceptance_dedicated_screen_source_alignment.sql:18:    and column_name = 'beep_imsak_count'
+supabase/tv/phase4d-dedicated-screens/04_acceptance_dedicated_screen_source_alignment.sql:25:where beep_imsak_count < 0
+supabase/tv/phase4d-dedicated-screens/04_acceptance_dedicated_screen_source_alignment.sql:26:   or beep_imsak_count > 60;
+supabase/tv/phase4d-dedicated-screens/06_preflight_dedicated_screen_source_type.sql:28:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/06_preflight_dedicated_screen_source_type.sql:29:  storage_path,
+supabase/tv/phase4d-dedicated-screens/08_verify_dedicated_screen_source_type.sql:27:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/08_verify_dedicated_screen_source_type.sql:28:  storage_path,
+supabase/tv/phase4d-dedicated-screens/10_verify_dedicated_media_acceptance.sql:2:select id,title,content_type,source_type,source_id,storage_bucket,storage_path,status,updated_at
+supabase/tv/phase4d-dedicated-screens/10_verify_dedicated_media_acceptance.sql:7:select a.state_code,a.enabled,a.content_id,c.title,c.content_type,c.source_type,c.source_id,c.storage_bucket,c.storage_path,c.status
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:11:  storage_bucket,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:12:  storage_path,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:25:  c.storage_bucket,
+supabase/tv/phase4d-dedicated-screens/11_verify_dedicated_media_runtime.sql:26:  c.storage_path
+supabase/tv/phase4d-dedicated-screens/99_safe_rollback_source_alignment.sql:26:  where beep_imsak_count is distinct from 5;
+supabase/tv/phase4d-dedicated-screens/99_safe_rollback_source_alignment.sql:30:      'ROLLBACK ABORTED: beep_imsak_count has been customized.';
+supabase/tv/phase4d-dedicated-screens/99_safe_rollback_source_alignment.sql:43:  drop constraint if exists tv_system_settings_beep_imsak_count_check,
+supabase/tv/phase4d-dedicated-screens/99_safe_rollback_source_alignment.sql:44:  drop column if exists beep_imsak_count;
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:19:  beep_adhan_count,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:20:  beep_iqamah_count,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:21:  beep_forbidden_count,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:22:  beep_isyraq_count,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:23:  beep_imsak_count,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:58:  audio_url,
+supabase/tv/phase4d-prayer-settings/00_verify_phase4dc1_source.sql:60:from public.tv_audio_rules
+
+## 7. Player script/module topology
+tv-player/assets/js/player.js:1:import { TVStateEngine } from "./engine.js";
+tv-player/assets/js/player.js:2:import { TV_STATES } from "./states.js";
+tv-player/assets/js/player.js:3:import { SCENARIOS } from "./scenarios.js";
+tv-player/assets/js/player.js:4:import { VISUAL_CONFIG } from "./visual-config.js";
+tv-player/assets/js/player.js:5:import {
+tv-player/assets/js/player.js:13:import { createPresentationPlayerBridge } from "./presentation-player-bridge.js";
+tv-player/assets/js/player.js:14:import { startRevisionStartupSync } from "./revision-sync-startup.js";
+tv-player/assets/js/player.js:15:import { createRuntimeHeartbeat } from "./runtime-heartbeat.js";
+tv-player/assets/js/player.js:16:import { createRuntimeCommandPoller } from "./runtime-command-poller.js";
+tv-player/assets/js/player.js:17:import { createRuntimeCommandDispatcher } from "./runtime-command-dispatcher.js";
+tv-player/assets/js/player.js:18:import { attachRuntimeCommandCoordinator } from "./runtime-command-coordinator.js";
+tv-player/assets/js/player.js:19:import { createRuntimeOperationsSupervisor } from "./runtime-operations-supervisor.js";
+tv-player/assets/js/ui.js:1:import {
+tv-player/assets/js/ui.js:30:export function scaleStage(stage) {
+tv-player/assets/js/ui.js:35:export function applyVisualConfig(refs, config = VISUAL_CONFIG) {
+tv-player/assets/js/ui.js:72:export function setPrayerPanelPosition(refs, position) {
+tv-player/assets/js/ui.js:78:export function renderPrayerRows(container, ramadanMode, now = new Date()) {
+tv-player/assets/js/ui.js:90:export function renderState(snapshot, refs) {
+tv-player/assets/js/ui.js:127:export function updateClock(timeEl, dateEl, hijriEl) {
+
+## 8. Canonical CMS template anchors
+--- admin/tv-theme-layout.html
+7:  <link rel="stylesheet" href="tv-admin.css">
+11:  <aside class="sidebar">
+12:    <div class="brand">
+21:      <span class="menu-section-title">Konten</span>
+25:      <span class="menu-section-title">Tampilan</span>
+30:      <span class="menu-section-title">Operasional</span>
+40:  <main class="content">
+41:    <header class="topbar">
+48:      <div class="top-actions">
+50:        <button type="button" class="btn primary btn-save" id="saveBtn">Simpan Perubahan</button>
+215:  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+216:  <script src="../assets/js/supabase-client.js"></script>
+--- admin/tv-prayer-settings.html
+7:  <link rel="stylesheet" href="tv-admin.css">
+11:  <aside class="sidebar">
+12:    <div class="brand">
+21:      <span class="menu-section-title">Konten</span>
+25:      <span class="menu-section-title">Tampilan</span>
+30:      <span class="menu-section-title">Operasional</span>
+40:  <main class="content">
+41:    <header class="topbar">
+48:      <div class="top-actions">
+78:          <button type="button" class="btn primary btn-save" id="saveGlobalBtn">
+243:          <button type="button" class="btn primary btn-save" id="savePrayerRulesBtn">
+255:  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+256:  <script src="../assets/js/supabase-client.js"></script>
+--- admin/tv-dedicated-screens.html
+7:  <link rel="stylesheet" href="tv-admin.css">
+11:  <aside class="sidebar">
+12:    <div class="brand">
+19:      <span class="menu-section-title">Konten</span>
+22:      <span class="menu-section-title">Tampilan</span>
+26:      <span class="menu-section-title">Operasional</span>
+31:    <main class="content">
+32:      <header class="topbar">
+38:        <div class="top-actions">
+144:  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+145:  <script src="../assets/js/supabase-client.js"></script>
+
+=== END AUDIT ===

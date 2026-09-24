@@ -232,3 +232,138 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Phase 4D-C3 Custom Beep Audio */
+.beep-audio-boundary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.beep-audio-boundary span{
+  padding:6px 9px;
+  border-radius:999px;
+  background:#eaf2ed;
+  color:#225943;
+  font-size:11px;
+  font-weight:800;
+}
+
+.beep-audio-status{
+  margin-bottom:14px;
+  padding:11px 13px;
+  border-radius:10px;
+  border:1px solid #dfe8e3;
+}
+
+.beep-audio-status.is-success{
+  background:#eef6f1;
+  border-color:#d3e7da;
+  color:#235d42;
+}
+
+.beep-audio-status.is-error{
+  background:#fdecec;
+  border-color:#f0c8c8;
+  color:#8c2c2c;
+}
+
+.beep-audio-note{
+  margin-bottom:16px;
+  padding:11px 13px;
+  border-radius:10px;
+  background:#f7f8f7;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.beep-audio-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.beep-audio-card{
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:#fbfdfc;
+}
+
+.beep-audio-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  border-bottom:1px solid var(--border);
+  background:#f2f7f4;
+}
+
+.beep-audio-card-head > div{
+  display:grid;
+  gap:3px;
+}
+
+.beep-audio-card-head strong{
+  font-size:15px;
+}
+
+.beep-audio-card-head span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.beep-enable{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap;
+  font-size:12px;
+}
+
+.beep-audio-card-body{
+  display:grid;
+  gap:13px;
+  padding:14px;
+}
+
+.beep-current-file{
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+}
+
+.beep-current-file span,
+.beep-current-file small{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.beep-audio-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.beep-storage-meta{
+  overflow-wrap:anywhere;
+  color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:10px;
+}
+
+@media(max-width:900px){
+  .beep-audio-grid{
+    grid-template-columns:1fr;
+  }
+
+  .beep-audio-card-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
