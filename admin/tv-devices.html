@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Devices — MJHK TV CMS</title>
+  <link rel="stylesheet" href="tv-admin.css">
+  <link rel="stylesheet" href="tv-devices.css">
+  <link rel="stylesheet" href="tv-device-commands.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="../assets/images/logo-mjhk.png" alt="Logo MJHK">
+      <div><strong>Admin MJHK</strong><span>TV CMS</span></div>
+    </div>
+
+    <nav class="menu" aria-label="Navigasi Admin MJHK TV">
+      <a class="menu-link" href="index.html">← Dashboard Admin</a>
+      <a class="menu-link" href="tv.html">Dashboard TV</a>
+
+      <span class="menu-section-title">Konten</span>
+      <a class="menu-link" href="tv-content.html">Slideshow</a>
+      <a class="menu-link" href="tv-running-text.html">Running Text</a>
+
+      <span class="menu-section-title">Tampilan</span>
+      <a class="menu-link" href="tv-dedicated-screens.html">Dedicated Screens</a>
+      <a class="menu-link" href="tv-theme-layout.html">Theme &amp; Layout</a>
+      <a class="menu-link" href="tv-prayer-settings.html">Prayer Settings</a>
+
+      <span class="menu-section-title">Operasional</span>
+      <a class="menu-link active" href="tv-devices.html">Devices</a>
+      <button type="button" class="menu-link disabled" disabled>
+        Publish &amp; Revision <small>Phase 4F</small>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MJHK TV CMS · PHASE 4E-A</p>
+        <h1>Devices</h1>
+        <p id="sessionLabel" class="muted">Memuat sesi admin...</p>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="btn light" id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <div class="devices-page">
+      <section class="info-card phase-note">
+        <div>
+          <span class="phase-kicker">Devices Overview &amp; Display Profile</span>
+          <h2>Status perangkat dari telemetry runtime</h2>
+          <p>
+            Phase 4E-A hanya membaca status perangkat dan profil tampilan.
+            Pairing dan remote command tersedia sesuai lifecycle perangkat.
+          </p>
+        </div>
+        <span class="readonly-badge">Read-only</span>
+      </section>
+
+      <section class="summary-grid" aria-label="Ringkasan perangkat">
+        <article class="summary-card">
+          <span>Total Device</span>
+          <strong id="summaryTotal">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Online</span>
+          <strong id="summaryOnline">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Offline</span>
+          <strong id="summaryOffline">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Disabled</span>
+          <strong id="summaryDisabled">0</strong>
+        </article>
+      </section>
+
+      <div id="status" class="status" hidden></div>
+
+      <section id="registrationPanel" class="panel-card registration-card" hidden>
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">Phase 4E-B</p>
+            <h2>Register New Device</h2>
+          </div>
+          <button type="button" class="btn light" id="closeRegistrationBtn">Tutup</button>
+        </div>
+
+        <form id="registrationForm" class="registration-form">
+          <div class="form-grid-3">
+            <label class="form-field">
+              <span>Nama Device</span>
+              <input id="registerName" type="text" maxlength="120" required
+                placeholder="Contoh: TV Utama Ruang Shalat">
+            </label>
+
+            <label class="form-field">
+              <span>Display Profile</span>
+              <select id="registerProfile">
+                <option value="">Default Profile</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>Pairing TTL</span>
+              <select id="registerTtl">
+                <option value="5">5 menit</option>
+                <option value="10">10 menit</option>
+                <option value="15" selected>15 menit</option>
+                <option value="30">30 menit</option>
+                <option value="60">60 menit</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="registration-actions">
+            <p class="muted">
+              Device code dibuat otomatis. Pairing code hanya ditampilkan setelah registrasi berhasil.
+            </p>
+            <button type="submit" class="btn primary" id="submitRegistrationBtn">
+              Register &amp; Generate Pairing Code
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section id="pairingResultCard" class="panel-card pairing-result-card" hidden>
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">One-time Pairing Code</p>
+            <h2 id="pairingResultTitle">Pairing siap</h2>
+          </div>
+          <span class="pairing-live-badge">Tampilkan sekali</span>
+        </div>
+
+        <div class="pairing-result-body">
+          <div class="pairing-code-wrap">
+            <span class="pairing-code-label">PAIRING CODE</span>
+            <strong id="pairingResultCode" class="pairing-code">—</strong>
+            <button type="button" class="btn light" id="copyPairingBtn">Copy</button>
+          </div>
+
+          <dl class="pairing-meta">
+            <div><dt>Device</dt><dd id="pairingResultDevice">—</dd></div>
+            <div><dt>Device Code</dt><dd id="pairingResultDeviceCode">—</dd></div>
+            <div><dt>Berlaku Sampai</dt><dd id="pairingResultExpiry">—</dd></div>
+          </dl>
+
+          <p class="pairing-warning">
+            Masukkan kode ini pada TV. Kode hanya ditampilkan pada sesi ini dan akan kedaluwarsa sesuai TTL.
+          </p>
+
+          <button type="button" class="btn light" id="dismissPairingResultBtn">
+            Saya sudah menyimpan kode
+          </button>
+        </div>
+      </section>
+
+      <section class="devices-layout">
+        <article class="panel-card devices-list-card">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Registered Devices</p>
+              <h2>Device Overview</h2>
+            </div>
+            <div class="panel-head-actions">
+              <span id="loadState" class="muted">Memuat perangkat...</span>
+              <button type="button" class="btn primary" id="registerDeviceBtn">+ Register Device</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="devices-table">
+              <thead>
+                <tr>
+                  <th>Lifecycle</th>
+                  <th>Network</th>
+                  <th>Device</th>
+                  <th>Display Profile</th>
+                  <th>Runtime</th>
+                  <th>Last Seen</th>
+                </tr>
+              </thead>
+              <tbody id="deviceRows">
+                <tr>
+                  <td colspan="6" class="empty-cell">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <aside class="panel-card detail-card" aria-live="polite">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Selected Device</p>
+              <h2 id="detailTitle">Pilih perangkat</h2>
+            </div>
+            <span id="detailStatus" class="status-pill neutral">—</span>
+          </div>
+
+          <div id="detailEmpty" class="detail-empty">
+            Pilih salah satu device pada Device Overview untuk melihat identitas, runtime, pairing, display profile, dan administrasi.
+          </div>
+
+          <div id="detailBody" class="detail-body" hidden>
+            <section class="detail-section">
+              <h3>Identitas</h3>
+              <dl class="detail-grid">
+                <div><dt>Device Code</dt><dd id="detailCode">—</dd></div>
+                <div><dt>Enabled</dt><dd id="detailEnabled">—</dd></div>
+                <div><dt>Model</dt><dd id="detailModel">—</dd></div>
+                <div><dt>Android</dt><dd id="detailAndroid">—</dd></div>
+                <div><dt>App Version</dt><dd id="detailApp">—</dd></div>
+                <div><dt>Resolution</dt><dd id="detailResolution">—</dd></div>
+              </dl>
+            </section>
+
+            <section class="detail-section">
+              <h3>Runtime</h3>
+              <dl class="detail-grid">
+                <div><dt>Current State</dt><dd id="detailState">—</dd></div>
+                <div><dt>Current Content</dt><dd id="detailContent">—</dd></div>
+                <div><dt>Slide</dt><dd id="detailSlide">—</dd></div>
+                <div><dt>Remaining</dt><dd id="detailRemaining">—</dd></div>
+                <div><dt>Muted</dt><dd id="detailMuted">—</dd></div>
+                <div><dt>Last Sync</dt><dd id="detailLastSync">—</dd></div>
+                <div><dt>Last Seen</dt><dd id="detailLastSeen">—</dd></div>
+                <div><dt>Last Screenshot</dt><dd id="detailScreenshot">—</dd></div>
+              </dl>
+            </section>
+
+            <section class="detail-section pairing-section">
+              <div class="section-title-row">
+                <h3>Registration &amp; Pairing</h3>
+                <span id="pairingStatusBadge" class="status-pill neutral">—</span>
+              </div>
+
+              <dl class="detail-grid pairing-summary-grid">
+                <div><dt>Pairing Status</dt><dd id="pairingSessionState">—</dd></div>
+                <div><dt>Paired At</dt><dd id="pairingClaimedAt">—</dd></div>
+                <div id="pairingExpiryRow"><dt>Code Expires</dt><dd id="pairingExpiresAt">—</dd></div>
+                <div><dt>Latest Pairing</dt><dd id="pairingLatestAt">—</dd></div>
+              </dl>
+
+              <p id="pairingContextNote" class="pairing-context-note"></p>
+
+              <button type="button" class="btn primary pairing-main-action" id="togglePairingControlsBtn">
+                Pair Ulang
+              </button>
+
+              <div id="pairingControls" class="pairing-controls" hidden>
+                <label class="form-field compact">
+                  <span>Pairing TTL</span>
+                  <select id="pairingTtl">
+                    <option value="5">5 menit</option>
+                    <option value="10">10 menit</option>
+                    <option value="15" selected>15 menit</option>
+                    <option value="30">30 menit</option>
+                    <option value="60">60 menit</option>
+                  </select>
+                </label>
+
+                <label class="danger-check">
+                  <input id="invalidateTokenCheck" type="checkbox">
+                  <span>
+                    Paksa pairing ulang device
+                    <small>Credential device saat ini akan langsung tidak berlaku. TV harus memasukkan pairing code baru.</small>
+                  </span>
+                </label>
+
+                <div class="pairing-control-actions">
+                  <button type="button" class="btn light" id="cancelPairingBtn">Batal</button>
+                  <button type="button" class="btn primary" id="generatePairingBtn">Buat Kode Pairing Baru</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="detail-section profile-section">
+              <div class="section-title-row">
+                <h3>Display Profile</h3>
+                <span class="readonly-badge small">Source only</span>
+              </div>
+              <dl class="detail-grid">
+                <div><dt>Profile</dt><dd id="profileName">—</dd></div>
+                <div><dt>Default</dt><dd id="profileDefault">—</dd></div>
+                <div><dt>Prayer Panel</dt><dd id="profilePrayerSide">—</dd></div>
+                <div><dt>Slide Duration</dt><dd id="profileSlideDuration">—</dd></div>
+                <div><dt>Running Speed</dt><dd id="profileRunningSpeed">—</dd></div>
+                <div><dt>Header</dt><dd id="profileHeader">—</dd></div>
+              </dl>
+              <p class="profile-note">
+                Display Profile digunakan sebagai sumber konfigurasi saat revision dipublish.
+              </p>
+            </section>
+
+            <section class="detail-section administration-section">
+              <div class="section-title-row">
+                <h3>Device Administration</h3>
+                <span class="admin-risk-badge">Security</span>
+              </div>
+              <p class="administration-note">
+                Revoke menghentikan kepercayaan CMS terhadap device tanpa menghapus histori perangkat.
+              </p>
+              <button type="button" class="btn danger" id="revokeDeviceBtn"
+                title="Hentikan kepercayaan CMS terhadap device ini">
+                Revoke Device
+              </button>
+              <p class="audit-pending-note">
+                Revoke akan memutus credential aktif device. Riwayat perangkat tetap tersimpan.
+              </p>
+            </section>
+
+            <section id="errorSection" class="detail-section error-section" hidden>
+              <h3>Last Error</h3>
+              <p id="detailError">—</p>
+              <span id="detailErrorAt" class="muted">—</span>
+            </section>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="tv-devices.js"></script>
+
+    <!-- MJHK_PHASE4EB_REVOKE_DEVICE_V1 -->
+    <dialog id="revokeDeviceDialog" class="device-dialog revoke-device-dialog">
+      <form id="revokeDeviceForm" class="device-dialog-card">
+        <div class="device-dialog-head">
+          <div>
+            <div class="eyebrow">DEVICE ADMINISTRATION</div>
+            <h3 id="revokeDeviceDialogTitle">Revoke Device</h3>
+          </div>
+          <button type="button" class="btn ghost compact" id="cancelRevokeDeviceTopBtn">Tutup</button>
+        </div>
+
+        <div class="device-dialog-body">
+          <p class="revoke-warning">
+            Device akan langsung kehilangan akses ke CMS. Credential aktif dan
+            pairing code yang belum digunakan akan dinonaktifkan. Riwayat device
+            tetap disimpan.
+          </p>
+
+          <label class="field-label" for="revokeDeviceReason">Alasan revoke</label>
+          <textarea
+            id="revokeDeviceReason"
+            class="device-revoke-reason"
+            rows="4"
+            maxlength="500"
+            required
+            placeholder="Contoh: TV diganti perangkat baru"></textarea>
+
+          <div class="revoke-reason-examples">
+            Contoh: TV diganti perangkat baru, perangkat rusak, credential dicurigai,
+            atau device testing tidak digunakan lagi.
+          </div>
+
+          <div id="revokeDeviceError" class="device-action-error" hidden></div>
+        </div>
+
+        <div class="device-dialog-actions">
+          <button type="button" class="btn" id="cancelRevokeDeviceBtn">Batal</button>
+          <button type="submit" class="btn danger" id="confirmRevokeDeviceBtn">
+            Revoke Device
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="tv-device-commands.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+.remote-commands-card{
+  padding:18px 16px;
+  border-top:1px solid #dfe8e3;
+  background:#fff;
+}
+.remote-commands-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
+}
+.remote-commands-kicker{
+  font-size:10px;
+  line-height:1.2;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  font-weight:800;
+  color:#6e7c75;
+}
+.remote-commands-head h3{
+  margin:4px 0 0;
+  font-size:15px;
+  color:#17382e;
+}
+.remote-commands-phase{
+  flex:none;
+  border:1px solid #cfdcd5;
+  background:#f7faf8;
+  color:#577067;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:9px;
+  font-weight:800;
+}
+.remote-commands-copy{
+  margin:0 0 12px;
+  font-size:11px;
+  line-height:1.45;
+  color:#66746e;
+}
+.remote-command-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.remote-command-btn{
+  border:0;
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.remote-command-btn.primary{
+  background:#19703f;
+  color:#fff;
+}
+.remote-command-btn.warning{
+  background:#fff5d9;
+  color:#755415;
+  border:1px solid #ead79d;
+}
+.remote-command-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.remote-command-feedback{
+  margin-top:10px;
+  border-radius:7px;
+  padding:9px 10px;
+  font-size:10px;
+  line-height:1.4;
+  background:#eef4f1;
+  color:#435b51;
+}
+.remote-command-feedback[data-kind="success"]{
+  background:#e9f6ed;
+  color:#246b3d;
+}
+.remote-command-feedback[data-kind="warning"]{
+  background:#fff5d9;
+  color:#755415;
+}
+.remote-command-feedback[data-kind="error"]{
+  background:#fdecea;
+  color:#9b342b;
+}
+.remote-command-history-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:16px;
+  margin-bottom:8px;
+  font-size:11px;
+  color:#233c33;
+}
+.remote-command-refresh{
+  border:1px solid #d6e0db;
+  background:#fff;
+  color:#365449;
+  border-radius:7px;
+  padding:5px 8px;
+  font-size:9px;
+  font-weight:700;
+  cursor:pointer;
+}
+.remote-command-history{
+  display:grid;
+  gap:7px;
+}
+.remote-command-row{
+  border:1px solid #e1e9e5;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#fbfcfb;
+}
+.remote-command-row-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:10px;
+  color:#203c32;
+}
+.remote-command-status{
+  border-radius:999px;
+  padding:3px 7px;
+  font-size:8px;
+  line-height:1.2;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+.remote-command-status.pending{
+  background:#fff5d9;
+  color:#795812;
+}
+.remote-command-status.delivered{
+  background:#eaf2ff;
+  color:#2f5d9b;
+}
+.remote-command-status.done{
+  background:#e7f6ec;
+  color:#246b3d;
+}
+.remote-command-status.failed{
+  background:#fdecea;
+  color:#963128;
+}
+.remote-command-status.expired,
+.remote-command-status.unknown{
+  background:#eef1ef;
+  color:#68746f;
+}
+.remote-command-meta{
+  display:grid;
+  gap:2px;
+  margin-top:6px;
+  font-size:9px;
+  color:#74817b;
+}
+.remote-command-error{
+  margin-top:6px;
+  font-size:9px;
+  line-height:1.35;
+  color:#963128;
+}
+.remote-command-empty{
+  border:1px dashed #dbe4df;
+  border-radius:8px;
+  padding:12px 10px;
+  text-align:center;
+  color:#7b8882;
+  font-size:10px;
+}
+@media(max-width:1100px){
+  .remote-command-actions{
+    grid-template-columns:1fr;
+  }
+}

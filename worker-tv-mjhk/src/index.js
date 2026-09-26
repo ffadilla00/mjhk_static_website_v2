@@ -17,7 +17,13 @@ const SECURITY_HEADERS = {
 // MJHK_PHASE3B1_CORS_V1
 const CORS_ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:5501",
+  "http://127.0.0.1:5502",
+  "http://127.0.0.1:5503",
   "http://localhost:5501",
+  "http://localhost:5502",
+  "http://localhost:5503",
+  "https://www.mj-harapankita.or.id",
+  "https://mj-harapankita.or.id",
 ]);
 
 const CORS_ALLOW_METHODS = "GET, POST, OPTIONS";
