@@ -16,13 +16,46 @@
 <button data-tab="kajian">Kegiatan, Kajian & Dakwah</button>
 <button data-tab="media">Media YouTube</button>
 <button data-tab="keuangan">Keuangan</button>
+<button data-tab="ramadhan">Aspirasi Ramadhan</button>
 <a href="profile.html" class="menu-link">Profile Masjid</a>
 </div>
 </aside>
 <main class="main">
 <div class="top"><div><h1 id="pageTitle">Dashboard</h1><p id="adminIdentity">Memuat sesi...</p></div><div><a href="../index.html" class="btn light">Lihat Website</a> <button class="btn light" id="logoutBtn">Logout</button></div></div>
 <section class="view" id="view-dashboard">
-<div class="stats"><div class="stat"><span>Agenda Kegiatan, Kajian & Dakwah</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div></div>
+<div class="stats"><div class="stat"><span>Agenda Kegiatan, Kajian & Dakwah</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div><div class="stat"><span>Aspirasi Ramadhan</span><strong id="statAspirasi">0</strong></div></div>
+</section>
+<section class="view hidden" id="view-ramadhan">
+  <div class="panel-head ramadhan-admin-head">
+    <div>
+      <h2>Aspirasi Ramadhan 1448 H</h2>
+      <p class="section-help">Tinjau prioritas, usulan, dan kesiapan partisipasi jamaah.</p>
+    </div>
+    <button type="button" class="btn primary" id="exportRamadhanCsv">Unduh CSV</button>
+  </div>
+
+  <div class="ramadhan-admin-stats">
+    <div class="mini-stat"><span>Total aspirasi</span><strong id="ramadhanTotal">0</strong></div>
+    <div class="mini-stat"><span>Belum ditinjau</span><strong id="ramadhanBaru">0</strong></div>
+    <div class="mini-stat"><span>Bersedia berpartisipasi</span><strong id="ramadhanPartisipan">0</strong></div>
+    <div class="mini-stat"><span>Masuk hari ini</span><strong id="ramadhanHariIni">0</strong></div>
+  </div>
+
+  <div class="panel ramadhan-filter-panel">
+    <div class="ramadhan-filters">
+      <div class="field"><label for="ramadhanStatusFilter">Status</label><select id="ramadhanStatusFilter"><option value="">Semua status</option><option value="baru">Baru</option><option value="dibaca">Dibaca</option><option value="ditindaklanjuti">Ditindaklanjuti</option><option value="selesai">Selesai</option></select></div>
+      <div class="field"><label for="ramadhanPartisipasiFilter">Partisipasi</label><select id="ramadhanPartisipasiFilter"><option value="">Semua jawaban</option><option value="relawan">Relawan</option><option value="donatur">Donatur</option><option value="relawan_dan_donatur">Relawan dan donatur</option><option value="mungkin">Mungkin</option><option value="belum">Belum dapat berpartisipasi</option></select></div>
+      <div class="field ramadhan-search-field"><label for="ramadhanSearch">Pencarian</label><input id="ramadhanSearch" type="search" placeholder="Nama, WhatsApp, atau isi masukan"></div>
+    </div>
+    <p class="ramadhan-admin-state" id="ramadhanAdminState" aria-live="polite">Memuat aspirasi...</p>
+  </div>
+
+  <div class="panel table-wrap">
+    <table class="ramadhan-admin-table">
+      <thead><tr><th>Waktu</th><th>Prioritas Program</th><th>Perlu Ditingkatkan</th><th>Partisipasi</th><th>Kontak</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="ramadhanRows"><tr><td colspan="7" class="loading-row">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
 </section>
 <section class="view hidden" id="view-kajian">
 <div class="panel-head"><div><h2>Kegiatan, Kajian & Dakwah</h2><p class="section-help">Kelola agenda resmi MJHK dalam satu modul tanpa mengubah arsip kajian lama.</p></div><button class="btn primary" id="addKajian">+ Tambah Agenda</button></div>
@@ -360,11 +393,29 @@
 <div class="modal hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
 <div class="modal-card"><h2 id="confirmTitle">Konfirmasi hapus</h2><p id="confirmMessage">Data yang dihapus tidak dapat dikembalikan.</p><div class="modal-actions"><button class="btn light" id="cancelDelete">Batal</button><button class="btn danger" id="confirmDelete">Hapus</button></div></div>
 </div>
+<div class="modal hidden" id="ramadhanReviewModal" role="dialog" aria-modal="true" aria-labelledby="ramadhanReviewTitle">
+  <div class="modal-card ramadhan-review-card">
+    <div class="ramadhan-review-head">
+      <div><h2 id="ramadhanReviewTitle">Tinjau Aspirasi</h2><p id="ramadhanReviewMeta"></p></div>
+      <button type="button" class="btn light" id="closeRamadhanReview">Tutup</button>
+    </div>
+    <div class="ramadhan-review-content" id="ramadhanReviewContent"></div>
+    <form id="ramadhanReviewForm">
+      <input type="hidden" id="ramadhanReviewId">
+      <div class="form-grid">
+        <div class="field"><label for="ramadhanReviewStatus">Status tindak lanjut</label><select id="ramadhanReviewStatus"><option value="baru">Baru</option><option value="dibaca">Dibaca</option><option value="ditindaklanjuti">Ditindaklanjuti</option><option value="selesai">Selesai</option></select></div>
+        <div class="field full"><label for="ramadhanReviewNote">Catatan internal DKM</label><textarea id="ramadhanReviewNote" maxlength="2000" placeholder="Catatan ini hanya terlihat oleh admin."></textarea></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn light" id="cancelRamadhanReview">Batal</button><button type="submit" class="btn green">Simpan Tinjauan</button></div>
+    </form>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="../assets/js/supabase-client.js"></script>
 <script src="admin.js"></script>
+<script src="ramadhan-admin.js"></script>
 </body>
 </html>

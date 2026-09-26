@@ -109,7 +109,7 @@ function reportStatusText(row){
 
 function toast(message,type="info"){const node=document.createElement("div");node.className=`toast ${type}`;node.textContent=message;$("#toastRegion").appendChild(node);setTimeout(()=>node.remove(),4500)}
 function setBusy(form,busy){const button=form.querySelector('button[type="submit"]');if(!button)return;if(busy){button.dataset.label=button.textContent;button.textContent="Memproses..."}else button.textContent=button.dataset.label||"Simpan";button.disabled=busy;form.querySelectorAll("button, input, select, textarea").forEach(control=>{if(control!==button)control.disabled=busy})}
-function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan",ramadhan:"Aspirasi Ramadhan"}[t]}
 $$(".menu button").forEach(b=>b.onclick=()=>{
   tab(b.dataset.tab);
   if(b.dataset.tab==="keuangan")setFinanceReportTab("weekly");

@@ -33,7 +33,7 @@ button,input,select,textarea{font:inherit}
 .primary{background:var(--gold);color:#20271f}
 .green{background:var(--green);color:#fff}
 .light{background:#e9efeb;color:var(--green-dark)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
 .stat,.panel{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px}
 .stat span{color:var(--muted)}
 .stat strong{display:block;font-size:34px;color:var(--green-dark);margin-top:5px}
@@ -77,6 +77,30 @@ textarea{min-height:90px}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
 .danger{background:#9b2c24;color:#fff}
 .loading-row{text-align:center;color:var(--muted);padding:24px}
+.ramadhan-admin-head .section-help{margin-bottom:0}
+.ramadhan-admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.ramadhan-filter-panel{margin-bottom:16px}
+.ramadhan-filters{display:grid;grid-template-columns:220px 260px minmax(260px,1fr);gap:12px;align-items:end}
+.ramadhan-search-field{min-width:0}
+.ramadhan-admin-state{margin:12px 0 0;color:var(--muted);font-size:13px}
+.ramadhan-admin-state.error{color:#9b2c24}
+.ramadhan-admin-table{min-width:1120px}
+.ramadhan-admin-table td:nth-child(2),.ramadhan-admin-table td:nth-child(3){min-width:220px;line-height:1.55}
+.ramadhan-pill-list{display:flex;flex-wrap:wrap;gap:5px}
+.ramadhan-pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef4f0;color:var(--green-dark);font-size:11px;font-weight:700}
+.ramadhan-status{display:inline-block;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.ramadhan-status.baru{background:#fff2cf;color:#7b5c00}
+.ramadhan-status.dibaca{background:#e7eff8;color:#27547b}
+.ramadhan-status.ditindaklanjuti{background:#e7f4ec;color:#17633f}
+.ramadhan-status.selesai{background:#eaeef1;color:#40525f}
+.ramadhan-review-card{width:min(820px,100%);max-height:92vh;overflow:auto}
+.ramadhan-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.ramadhan-review-head h2{margin:0}
+.ramadhan-review-head p{margin:6px 0 0}
+.ramadhan-review-content{display:grid;gap:12px;margin-bottom:20px}
+.ramadhan-review-item{padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:#f8faf9}
+.ramadhan-review-item strong{display:block;margin-bottom:6px;color:var(--green-dark);font-size:13px}
+.ramadhan-review-item p{margin:0;color:#37463f;line-height:1.6;white-space:pre-wrap}
 .finance-mode-block{margin-top:12px}
 .finance-summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
 .mini-stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
@@ -131,6 +155,7 @@ textarea{min-height:90px}
   .form-grid{grid-template-columns:1fr}
   .full{grid-column:auto}
   .top{align-items:flex-start;flex-direction:column}
+  .ramadhan-admin-stats,.ramadhan-filters{grid-template-columns:1fr}
 }
 
 
