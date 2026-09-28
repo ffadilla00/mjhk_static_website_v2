@@ -16,13 +16,46 @@
 <button data-tab="kajian">Kegiatan, Kajian & Dakwah</button>
 <button data-tab="media">Media YouTube</button>
 <button data-tab="keuangan">Keuangan</button>
+<button data-tab="ramadhan">Aspirasi Ramadhan</button>
 <a href="profile.html" class="menu-link">Profile Masjid</a>
 </div>
 </aside>
 <main class="main">
 <div class="top"><div><h1 id="pageTitle">Dashboard</h1><p id="adminIdentity">Memuat sesi...</p></div><div><a href="../index.html" class="btn light">Lihat Website</a> <button class="btn light" id="logoutBtn">Logout</button></div></div>
 <section class="view" id="view-dashboard">
-<div class="stats"><div class="stat"><span>Agenda Kegiatan, Kajian & Dakwah</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div></div>
+<div class="stats"><div class="stat"><span>Agenda Kegiatan, Kajian & Dakwah</span><strong id="statKajian">0</strong></div><div class="stat"><span>Video YouTube</span><strong id="statMedia">0</strong></div><div class="stat"><span>Laporan Keuangan</span><strong id="statKeuangan">0</strong></div><div class="stat"><span>Aspirasi Ramadhan</span><strong id="statAspirasi">0</strong></div></div>
+</section>
+<section class="view hidden" id="view-ramadhan">
+  <div class="panel-head ramadhan-admin-head">
+    <div>
+      <h2>Aspirasi Ramadhan 1448 H</h2>
+      <p class="section-help">Tinjau prioritas, usulan, dan kesiapan partisipasi jamaah.</p>
+    </div>
+    <button type="button" class="btn primary" id="exportRamadhanCsv">Unduh CSV</button>
+  </div>
+
+  <div class="ramadhan-admin-stats">
+    <div class="mini-stat"><span>Total aspirasi</span><strong id="ramadhanTotal">0</strong></div>
+    <div class="mini-stat"><span>Belum ditinjau</span><strong id="ramadhanBaru">0</strong></div>
+    <div class="mini-stat"><span>Bersedia berpartisipasi</span><strong id="ramadhanPartisipan">0</strong></div>
+    <div class="mini-stat"><span>Masuk hari ini</span><strong id="ramadhanHariIni">0</strong></div>
+  </div>
+
+  <div class="panel ramadhan-filter-panel">
+    <div class="ramadhan-filters">
+      <div class="field"><label for="ramadhanStatusFilter">Status</label><select id="ramadhanStatusFilter"><option value="">Semua status</option><option value="baru">Baru</option><option value="dibaca">Dibaca</option><option value="ditindaklanjuti">Ditindaklanjuti</option><option value="selesai">Selesai</option></select></div>
+      <div class="field"><label for="ramadhanPartisipasiFilter">Partisipasi</label><select id="ramadhanPartisipasiFilter"><option value="">Semua jawaban</option><option value="relawan">Relawan</option><option value="donatur">Donatur</option><option value="relawan_dan_donatur">Relawan dan donatur</option><option value="mungkin">Mungkin</option><option value="belum">Belum dapat berpartisipasi</option></select></div>
+      <div class="field ramadhan-search-field"><label for="ramadhanSearch">Pencarian</label><input id="ramadhanSearch" type="search" placeholder="Nama, WhatsApp, atau isi masukan"></div>
+    </div>
+    <p class="ramadhan-admin-state" id="ramadhanAdminState" aria-live="polite">Memuat aspirasi...</p>
+  </div>
+
+  <div class="panel table-wrap">
+    <table class="ramadhan-admin-table">
+      <thead><tr><th>Waktu</th><th>Prioritas Program</th><th>Perlu Ditingkatkan</th><th>Partisipasi</th><th>Kontak</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="ramadhanRows"><tr><td colspan="7" class="loading-row">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
 </section>
 <section class="view hidden" id="view-kajian">
 <div class="panel-head"><div><h2>Kegiatan, Kajian & Dakwah</h2><p class="section-help">Kelola agenda resmi MJHK dalam satu modul tanpa mengubah arsip kajian lama.</p></div><button class="btn primary" id="addKajian">+ Tambah Agenda</button></div>
@@ -49,6 +82,15 @@
     <option value="seminar">Seminar</option>
     <option value="pelatihan">Pelatihan</option>
   </select>
+</div>
+
+<div class="field full">
+  <label>Metode Poster</label>
+  <select id="posterMode" required>
+    <option value="template">Template Otomatis</option>
+    <option value="legacy">Upload Poster Manual</option>
+  </select>
+  <small class="file-help">Template otomatis menghasilkan poster Full HD 1920 × 1080. Mode manual tetap tersedia untuk poster lama atau desain khusus.</small>
 </div>
 
 <div class="field full">
@@ -89,7 +131,28 @@
   </select>
 </div>
 
-<div class="field full">
+<div class="field full agenda-template-fields" id="agendaTemplateFields">
+  <div class="agenda-template-grid">
+    <div class="field">
+      <label>Preset Poster</label>
+      <select id="templatePreset">
+        <option value="quran">Tafsir &amp; Al-Qur'an</option>
+        <option value="kitab">Kajian Kitab / Kajian Umum</option>
+        <option value="kegiatan">Kegiatan &amp; Dakwah</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sumber Kutipan</label>
+      <input id="sumberKutipan" placeholder="Contoh: QS. Al-Baqarah: 186">
+    </div>
+    <div class="field full">
+      <label>Kutipan</label>
+      <textarea id="kutipan" placeholder="Tulis kutipan singkat yang akan ditampilkan pada poster."></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="field full agenda-legacy-fields hidden" id="agendaLegacyFields">
   <label>Poster</label>
   <input type="file" id="posterFile" accept="image/jpeg,image/png">
   <div class="upload-preview hidden" id="posterPreviewWrap">
@@ -98,6 +161,70 @@
   </div>
   <small class="file-help">Format JPG/PNG, maksimal 5 MB.</small>
 </div>
+</div>
+
+<div class="agenda-template-preview" id="agendaTemplatePreview">
+  <div class="agenda-preview-head">
+    <div>
+      <h3>Preview Poster Full HD</h3>
+      <p>Preview ditampilkan pada skala 50%. File yang tersimpan tetap berukuran 1920 × 1080.</p>
+    </div>
+    <button type="button" class="btn light" id="refreshAgendaPreview">Refresh Preview</button>
+  </div>
+  <div class="agenda-poster-stage">
+    <article class="agenda-auto-poster preset-quran" id="agendaPosterPreview">
+      <div class="agenda-poster-overlay"></div>
+      <header class="agenda-poster-header">
+        <div class="agenda-brand">
+          <img src="../assets/images/logo-mjhk.png" alt="Logo Masjid Jami' Harapan Kita">
+          <div>
+            <strong>MASJID JAMI' HARAPAN KITA</strong>
+            <span>Kegiatan, Kajian &amp; Dakwah</span>
+          </div>
+        </div>
+        <div class="agenda-preset-label" id="agendaPreviewPreset">TAFSIR &amp; AL-QUR'AN</div>
+      </header>
+
+      <div class="agenda-poster-content">
+        <section class="agenda-poster-main">
+          <div class="agenda-event-kicker" id="agendaPreviewJudul">KAJIAN RUTIN</div>
+          <h2 id="agendaPreviewTema">TAFSIR AL-QUR'AN</h2>
+          <div class="agenda-speaker-label">Bersama</div>
+          <div class="agenda-speaker" id="agendaPreviewPenceramah">NAMA PENCERAMAH</div>
+          <div class="agenda-schedule-grid">
+            <div class="agenda-info-card">
+              <span>TANGGAL</span>
+              <strong id="agendaPreviewTanggal">Tanggal kegiatan</strong>
+            </div>
+            <div class="agenda-info-card">
+              <span>WAKTU</span>
+              <strong id="agendaPreviewWaktu">Waktu kegiatan</strong>
+            </div>
+            <div class="agenda-info-card agenda-location-card">
+              <span>LOKASI</span>
+              <strong id="agendaPreviewLokasi">Masjid Jami' Harapan Kita</strong>
+            </div>
+          </div>
+        </section>
+
+        <aside class="agenda-poster-side">
+          <div class="agenda-quote-card">
+            <span class="agenda-quote-mark">“</span>
+            <p id="agendaPreviewKutipan">Mari hadir dan raih ilmu yang bermanfaat.</p>
+            <strong id="agendaPreviewSumber">Kutipan kajian</strong>
+          </div>
+          <div class="agenda-qris-card">
+            <img src="../assets/images/qris-mjhk.jpg" alt="QRIS Masjid Jami' Harapan Kita">
+          </div>
+        </aside>
+      </div>
+
+      <footer class="agenda-poster-footer">
+        <div><span>Salurkan Infak &amp; Sedekah terbaik melalui Rekening Bank BSI:</span> <strong>7197058042 a/n Masjid Jami' Harapan Kita</strong></div>
+        <span>atau melalui QRIS berikut</span>
+      </footer>
+    </article>
+  </div>
 </div>
 
 <div class="form-actions">
@@ -146,7 +273,7 @@
   <button type="button" class="finance-report-tab" data-finance-report="monthly">Bulanan</button>
   <button type="button" class="finance-report-tab" data-finance-report="yearly">Tahunan</button>
 </div>
-<div class="panel hidden" id="keuanganFormWrap"><form id="keuanganForm"><input type="hidden" id="keuanganId"><input type="hidden" id="keuanganImageLama">
+<div class="panel hidden" id="keuanganFormWrap"><form id="keuanganForm"><input type="hidden" id="keuanganId"><input type="hidden" id="keuanganImageLama"><input type="hidden" id="keuanganImageLamaPage2">
 <div class="form-grid">
 <div class="field"><label>Mode Data</label><select id="dataMode"><option value="structured">Structured</option><option value="legacy">Legacy Upload Gambar</option></select></div>
 <div class="field"><label>Status</label><select id="keuanganStatus"><option value="publish">Publish</option><option value="draft">Draft</option></select></div>
@@ -192,42 +319,73 @@
 
 <div class="detail-block">
 <div class="detail-head"><h3>Preview Poster</h3><button type="button" class="btn light" id="refreshFinancePreview">Refresh Preview</button></div>
-<div class="notice">Preview ini akan dipakai untuk generate JPG otomatis ke bucket laporan-keuangan saat data disimpan.</div>
-<div class="poster-scale-note">Canvas export: 1920 × 1080, rasio 16:9.</div>
+<div class="notice">Dua preview ini akan dibuat menjadi dua JPG otomatis di bucket laporan-keuangan saat data disimpan.</div>
+<div class="poster-scale-note">Setiap halaman diekspor pada 1920 × 1080, rasio 16:9.</div>
+<div class="finance-preview-tabs" role="tablist" aria-label="Halaman preview laporan keuangan">
+  <button type="button" class="finance-preview-tab active" data-finance-preview-page="1" aria-selected="true">Halaman 1: Pemasukan</button>
+  <button type="button" class="finance-preview-tab" data-finance-preview-page="2" aria-selected="false">Halaman 2: Pengeluaran</button>
+</div>
 <div class="finance-poster-stage">
-<div id="financePosterPreview" class="finance-poster">
+<div id="financePosterPreviewPage1" class="finance-poster finance-poster-split" data-finance-poster-page="1">
   <div class="poster-side">
     <div class="poster-brand-logo"><img src="../assets/images/logo-mjhk.png" alt="Logo MJHK"></div>
     <div class="poster-brand-title">MASJID JAMI' HARAPAN KITA</div>
     <div class="poster-brand-tagline">Transparansi Keuangan. Amanah. Untuk Kemakmuran Masjid dan Umat.</div>
+    <div class="poster-page-marker">HALAMAN 1 DARI 2</div>
   </div>
   <div class="poster-main">
     <div class="poster-header-row">
       <div>
         <div class="poster-kicker">LAPORAN KEUANGAN PEKANAN</div>
-        <div class="poster-period-badge" id="previewPeriodText">Periode belum dipilih</div>
+        <div class="poster-period-badge" id="previewPeriodTextPage1">Periode belum dipilih</div>
       </div>
       <div class="poster-publish-box">
         <span>Tanggal Publikasi</span>
-        <strong id="previewPublishDate">-</strong>
+        <strong id="previewPublishDatePage1">-</strong>
       </div>
     </div>
     <div class="poster-top-stats">
-      <div class="poster-stat-card"><span>Saldo Awal</span><strong id="previewSaldoAwal">Rp 0</strong></div>
-      <div class="poster-stat-card"><span>Total Pemasukan</span><strong id="previewIncomeTotal">Rp 0</strong></div>
-      <div class="poster-stat-card"><span>Total Pengeluaran</span><strong id="previewExpenseTotal">Rp 0</strong></div>
+      <div class="poster-stat-card"><span>Saldo Awal</span><strong id="previewSaldoAwalPage1">Rp 0</strong></div>
+      <div class="poster-stat-card"><span>Total Pemasukan</span><strong id="previewIncomeTotalPage1">Rp 0</strong></div>
+      <div class="poster-stat-card"><span>Total Pengeluaran</span><strong id="previewExpenseTotalPage1">Rp 0</strong></div>
     </div>
-    <div class="poster-columns">
+    <div class="poster-single-column">
       <div class="poster-box">
-        <div class="poster-box-head">PEMASUKAN</div>
+        <div class="poster-box-head"><span>RINCIAN PEMASUKAN</span><span id="previewIncomeSubtotalPage1">Rp 0</span></div>
         <div class="poster-list" id="previewIncomeList"></div>
       </div>
+    </div>
+  </div>
+</div>
+<div id="financePosterPreviewPage2" class="finance-poster finance-poster-split" data-finance-poster-page="2" hidden>
+  <div class="poster-side">
+    <div class="poster-brand-logo"><img src="../assets/images/logo-mjhk.png" alt="Logo MJHK"></div>
+    <div class="poster-brand-title">MASJID JAMI' HARAPAN KITA</div>
+    <div class="poster-brand-tagline">Transparansi Keuangan. Amanah. Untuk Kemakmuran Masjid dan Umat.</div>
+    <div class="poster-page-marker">HALAMAN 2 DARI 2</div>
+  </div>
+  <div class="poster-main">
+    <div class="poster-header-row">
+      <div>
+        <div class="poster-kicker">LAPORAN KEUANGAN PEKANAN</div>
+        <div class="poster-period-badge" id="previewPeriodTextPage2">Periode belum dipilih</div>
+      </div>
+      <div class="poster-publish-box">
+        <span>Tanggal Publikasi</span>
+        <strong id="previewPublishDatePage2">-</strong>
+      </div>
+    </div>
+    <div class="poster-single-column">
       <div class="poster-box">
-        <div class="poster-box-head">PENGELUARAN</div>
+        <div class="poster-box-head"><span>RINCIAN PENGELUARAN</span><span id="previewExpenseSubtotalPage2">Rp 0</span></div>
         <div class="poster-list" id="previewExpenseList"></div>
       </div>
     </div>
-    <div class="poster-footer-row">
+    <div class="poster-footer-summary">
+      <div class="poster-balance-box">
+        <span>Total Pengeluaran</span>
+        <strong id="previewExpenseTotalPage2">Rp 0</strong>
+      </div>
       <div class="poster-balance-box">
         <span>Saldo Kas Saat Ini</span>
         <strong id="previewFinalBalance">Rp 0</strong>
@@ -360,11 +518,29 @@
 <div class="modal hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
 <div class="modal-card"><h2 id="confirmTitle">Konfirmasi hapus</h2><p id="confirmMessage">Data yang dihapus tidak dapat dikembalikan.</p><div class="modal-actions"><button class="btn light" id="cancelDelete">Batal</button><button class="btn danger" id="confirmDelete">Hapus</button></div></div>
 </div>
+<div class="modal hidden" id="ramadhanReviewModal" role="dialog" aria-modal="true" aria-labelledby="ramadhanReviewTitle">
+  <div class="modal-card ramadhan-review-card">
+    <div class="ramadhan-review-head">
+      <div><h2 id="ramadhanReviewTitle">Tinjau Aspirasi</h2><p id="ramadhanReviewMeta"></p></div>
+      <button type="button" class="btn light" id="closeRamadhanReview">Tutup</button>
+    </div>
+    <div class="ramadhan-review-content" id="ramadhanReviewContent"></div>
+    <form id="ramadhanReviewForm">
+      <input type="hidden" id="ramadhanReviewId">
+      <div class="form-grid">
+        <div class="field"><label for="ramadhanReviewStatus">Status tindak lanjut</label><select id="ramadhanReviewStatus"><option value="baru">Baru</option><option value="dibaca">Dibaca</option><option value="ditindaklanjuti">Ditindaklanjuti</option><option value="selesai">Selesai</option></select></div>
+        <div class="field full"><label for="ramadhanReviewNote">Catatan internal DKM</label><textarea id="ramadhanReviewNote" maxlength="2000" placeholder="Catatan ini hanya terlihat oleh admin."></textarea></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn light" id="cancelRamadhanReview">Batal</button><button type="submit" class="btn green">Simpan Tinjauan</button></div>
+    </form>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="../assets/js/supabase-client.js"></script>
 <script src="admin.js"></script>
+<script src="ramadhan-admin.js"></script>
 </body>
 </html>

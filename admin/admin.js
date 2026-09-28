@@ -109,7 +109,7 @@ function reportStatusText(row){
 
 function toast(message,type="info"){const node=document.createElement("div");node.className=`toast ${type}`;node.textContent=message;$("#toastRegion").appendChild(node);setTimeout(()=>node.remove(),4500)}
 function setBusy(form,busy){const button=form.querySelector('button[type="submit"]');if(!button)return;if(busy){button.dataset.label=button.textContent;button.textContent="Memproses..."}else button.textContent=button.dataset.label||"Simpan";button.disabled=busy;form.querySelectorAll("button, input, select, textarea").forEach(control=>{if(control!==button)control.disabled=busy})}
-function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan"}[t]}
+function tab(t){$$(".view").forEach(v=>v.classList.add("hidden"));$("#view-"+t).classList.remove("hidden");$$(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));$("#pageTitle").textContent={dashboard:"Dashboard",kajian:"Kegiatan, Kajian & Dakwah",media:"Media YouTube",keuangan:"Laporan Keuangan",ramadhan:"Aspirasi Ramadhan"}[t]}
 $$(".menu button").forEach(b=>b.onclick=()=>{
   tab(b.dataset.tab);
   if(b.dataset.tab==="keuangan")setFinanceReportTab("weekly");
@@ -985,6 +985,88 @@ async function uploadBinaryBlob(bucket,blob,fileName,contentType){
 async function removeFile(bucket,url){const p=storagePath(url,bucket);if(p){const {error}=await db.storage.from(bucket).remove([p]);if(error)throw error}}
 function yid(u){const m=(u||"").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);return m?m[1]:""}
 
+const AGENDA_PRESETS={
+  quran:"TAFSIR & AL-QUR'AN",
+  kitab:"KAJIAN KITAB / KAJIAN UMUM",
+  kegiatan:"KEGIATAN & DAKWAH"
+};
+
+function fitAgendaText(node,maxSize,minSize){
+  if(!node)return;
+  let size=maxSize;
+  node.style.fontSize=`${size}px`;
+  while(size>minSize&&(node.scrollHeight>node.clientHeight+1||node.scrollWidth>node.clientWidth+1)){
+    size-=1;
+    node.style.fontSize=`${size}px`;
+  }
+}
+
+function renderAgendaPosterPreview(){
+  const poster=$("#agendaPosterPreview");
+  if(!poster)return;
+  const preset=AGENDA_PRESETS[$("#templatePreset").value]?$("#templatePreset").value:"quran";
+  poster.classList.remove("preset-quran","preset-kitab","preset-kegiatan");
+  poster.classList.add(`preset-${preset}`);
+
+  $("#agendaPreviewPreset").textContent=AGENDA_PRESETS[preset];
+  $("#agendaPreviewJudul").textContent=$("#judul").value.trim()||"KAJIAN RUTIN";
+  $("#agendaPreviewTema").textContent=$("#tema").value.trim()||"TEMA / MATERI KAJIAN";
+  $("#agendaPreviewPenceramah").textContent=$("#penceramah").value.trim()||"NAMA PENCERAMAH";
+  $("#agendaPreviewTanggal").textContent=$("#tanggal").value?fmtDate($("#tanggal").value):"Tanggal kegiatan";
+  $("#agendaPreviewWaktu").textContent=$("#waktu").value.trim()||"Waktu kegiatan";
+  $("#agendaPreviewLokasi").textContent=$("#lokasi").value.trim()||"Masjid Jami' Harapan Kita";
+  $("#agendaPreviewKutipan").textContent=$("#kutipan").value.trim()||"Mari hadir dan raih ilmu yang bermanfaat.";
+  $("#agendaPreviewSumber").textContent=$("#sumberKutipan").value.trim()||"Kutipan kajian";
+
+  requestAnimationFrame(()=>{
+    fitAgendaText($("#agendaPreviewJudul"),17,11);
+    fitAgendaText($("#agendaPreviewTema"),43,23);
+    fitAgendaText($("#agendaPreviewPenceramah"),24,13);
+    fitAgendaText($("#agendaPreviewTanggal"),21,15);
+    fitAgendaText($("#agendaPreviewWaktu"),21,15);
+    fitAgendaText($("#agendaPreviewLokasi"),21,15);
+    fitAgendaText($("#agendaPreviewKutipan"),18,12.5);
+    fitAgendaText($("#agendaPreviewSumber"),12,9);
+  });
+}
+
+function toggleAgendaPosterMode(){
+  const templateMode=$("#posterMode").value==="template";
+  $("#agendaTemplateFields").classList.toggle("hidden",!templateMode);
+  $("#agendaTemplatePreview").classList.toggle("hidden",!templateMode);
+  $("#agendaLegacyFields").classList.toggle("hidden",templateMode);
+  $("#templatePreset").required=templateMode;
+  $("#tema").required=templateMode;
+  if(templateMode)renderAgendaPosterPreview();
+}
+
+async function waitForAgendaPosterImages(node){
+  const images=[...node.querySelectorAll("img")];
+  await Promise.all(images.map(async image=>{
+    if(image.complete&&image.naturalWidth)return;
+    if(image.decode){try{await image.decode();return}catch(err){/* fallback ke event load */}}
+    await new Promise((resolve,reject)=>{
+      image.addEventListener("load",resolve,{once:true});
+      image.addEventListener("error",()=>reject(new Error(`Aset poster gagal dimuat: ${image.src}`)),{once:true});
+    });
+  }));
+}
+
+async function buildAgendaPosterBlob(){
+  renderAgendaPosterPreview();
+  const node=$("#agendaPosterPreview");
+  await waitForAgendaPosterImages(node);
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  const canvas=await window.html2canvas(node,{backgroundColor:"#0b3d31",scale:2,useCORS:true,width:960,height:540});
+  return await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.94));
+}
+
+function makeAgendaPosterName(){
+  const date=$("#tanggal").value||"tanpa-tanggal";
+  const preset=$("#templatePreset").value||"quran";
+  return `generated/agenda-${date}-${preset}-${Date.now()}.jpg`;
+}
+
 function updatePeriodPreview(){const a=$("#periodeAwal").value,b=$("#periodeAkhir").value;$("#periodPreview").textContent=a&&b?fmtPeriod(a,b):"Pilih periode awal dan periode akhir.";renderFinancePreview();updateContinuityCheck()}
 $("#periodeAwal").onchange=()=>{
   const a=$("#periodeAwal").value;
@@ -1004,6 +1086,16 @@ $("#saldoAwal").oninput=()=>{
 $("#keuanganCatatan").oninput=renderFinancePreview;
 $("#dataMode").onchange=toggleFinanceMode;
 $("#refreshFinancePreview").onclick=renderFinancePreview;
+$$(".finance-preview-tab").forEach(button=>{
+  button.onclick=()=>setFinancePreviewPage(button.dataset.financePreviewPage);
+});
+$("#posterMode").onchange=toggleAgendaPosterMode;
+$("#refreshAgendaPreview").onclick=renderAgendaPosterPreview;
+["kategoriUtama","jenisAgenda","judul","tema","penceramah","lokasi","tanggal","waktu","templatePreset","kutipan","sumberKutipan"].forEach(id=>{
+  const input=$("#"+id);
+  input.addEventListener("input",renderAgendaPosterPreview);
+  input.addEventListener("change",renderAgendaPosterPreview);
+});
 $("#posterFile").onchange=()=>{const file=$("#posterFile").files[0];if(validateFile(file))showPreview(file,"#posterPreviewWrap","#posterPreview","#posterPreviewMeta");else{$("#posterFile").value="";clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta")}};
 $("#keuanganImage").onchange=()=>{const file=$("#keuanganImage").files[0];if(validateFile(file))showPreview(file,"#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta");else{$("#keuanganImage").value="";clearPreview("#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta")}};
 
@@ -1115,8 +1207,13 @@ function openF(n){
     $("#posterLama").value="";
     $("#kategoriUtama").value="kajian";
     $("#jenisAgenda").value="kajian";
+    $("#posterMode").value="template";
+    $("#templatePreset").value="quran";
+    $("#lokasi").value="Masjid Jami' Harapan Kita";
     $("#kajianStatus").value="publish";
     clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta");
+    toggleAgendaPosterMode();
+    renderAgendaPosterPreview();
   }
 
   if(n==="keuangan"){
@@ -1134,12 +1231,14 @@ $("#addKajian").onclick=()=>openF("kajian");$("#addMedia").onclick=()=>openF("me
 function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
 function resetFinanceForm(){
   $("#keuanganImageLama").value="";
+  $("#keuanganImageLamaPage2").value="";
   $("#dataMode").value="structured";
   $("#incomeRows").innerHTML="";
   $("#expenseRows").innerHTML="";
   addDetailRow("pemasukan");
   addDetailRow("pengeluaran");
   clearPreview("#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta");
+  setFinancePreviewPage(1);
 }
 function setDefaultDetailDates(dateValue){[...document.querySelectorAll(".detail-date")].forEach(input=>{if(!input.value)input.value=dateValue||""})}
 function addDetailRow(jenis,data={}){
@@ -1204,8 +1303,8 @@ function updateFinanceTotals(){
 function fitPosterRowLabels(list){
   if(!list)return;
 
-  const MAX_SIZE=15.5;
-  const MIN_SIZE=12.5;
+  const MAX_SIZE=25.5;
+  const MIN_SIZE=18;
   const STEP=.5;
 
   list.querySelectorAll(".poster-row-label").forEach(node=>{
@@ -1251,23 +1350,40 @@ function renderPosterList(kind,details){
 }
 // Phase Finance Typography v2.0 END
 
+function setFinancePreviewPage(page){
+  const selected=String(page)==="2"?"2":"1";
+  $$('[data-finance-poster-page]').forEach(node=>{
+    node.hidden=node.dataset.financePosterPage!==selected;
+  });
+  $$(".finance-preview-tab").forEach(button=>{
+    const active=button.dataset.financePreviewPage===selected;
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-selected",String(active));
+  });
+  const list=$(selected==="1"?"#previewIncomeList":"#previewExpenseList");
+  if(list)requestAnimationFrame(()=>fitPosterRowLabels(list));
+}
+
 function renderFinancePreview(){
   if($("#dataMode").value!=="structured")return;
   const details=safeCollectDetails();
   const {income,expense,saldoAwal,balance}=calcTotalsFromDetails(details);
-  $("#previewPeriodText").textContent=$("#periodeAwal").value&&$("#periodeAkhir").value?`Periode: ${fmtPeriod($("#periodeAwal").value,$("#periodeAkhir").value)}`:"Periode belum dipilih";
-  $("#previewPublishDate").textContent=$("#publishDate").value?fmtDate($("#publishDate").value):"-";
-  $("#previewSaldoAwal").textContent=rupiah(saldoAwal);
-  $("#previewIncomeTotal").textContent=rupiah(income);
-  $("#previewExpenseTotal").textContent=rupiah(expense);
+  const period=$("#periodeAwal").value&&$("#periodeAkhir").value?`Periode: ${fmtPeriod($("#periodeAwal").value,$("#periodeAkhir").value)}`:"Periode belum dipilih";
+  const publishDate=$("#publishDate").value?fmtDate($("#publishDate").value):"-";
+  ["#previewPeriodTextPage1","#previewPeriodTextPage2"].forEach(selector=>$(selector).textContent=period);
+  ["#previewPublishDatePage1","#previewPublishDatePage2"].forEach(selector=>$(selector).textContent=publishDate);
+  $("#previewSaldoAwalPage1").textContent=rupiah(saldoAwal);
+  $("#previewIncomeTotalPage1").textContent=rupiah(income);
+  $("#previewExpenseTotalPage1").textContent=rupiah(expense);
+  $("#previewIncomeSubtotalPage1").textContent=rupiah(income);
+  $("#previewExpenseSubtotalPage2").textContent=rupiah(expense);
+  $("#previewExpenseTotalPage2").textContent=rupiah(expense);
   $("#previewFinalBalance").textContent=rupiah(balance);
   $("#previewCatatan").textContent=$("#keuanganCatatan").value.trim()||"Belum ada catatan tambahan.";
   renderPosterList("pemasukan",details);
   renderPosterList("pengeluaran",details);
 }
-async function buildFinancePosterBlob(){
-  renderFinancePreview();
-  const node=$("#financePosterPreview");
+async function captureFinancePosterBlob(node){
   const canvas=await window.html2canvas(node,{backgroundColor:"#f7f2e7",scale:2,useCORS:true,width:960,height:540});
   const finalCanvas=document.createElement("canvas");
   finalCanvas.width=1920;finalCanvas.height=1080;
@@ -1275,31 +1391,59 @@ async function buildFinancePosterBlob(){
   ctx.drawImage(canvas,0,0,1920,1080);
   return await new Promise(resolve=>finalCanvas.toBlob(resolve,"image/jpeg",0.92));
 }
-function makeFinancePosterName(){
+async function buildFinancePosterBlobs(){
+  renderFinancePreview();
+  const active=$(".finance-preview-tab.active")?.dataset.financePreviewPage||"1";
+  const blobs=[];
+  for(const page of ["1","2"]){
+    setFinancePreviewPage(page);
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const node=$(page==="1"?"#financePosterPreviewPage1":"#financePosterPreviewPage2");
+    const list=$(page==="1"?"#previewIncomeList":"#previewExpenseList");
+    fitPosterRowLabels(list);
+    const blob=await captureFinancePosterBlob(node);
+    if(!blob)throw new Error(`Gagal membuat JPG laporan halaman ${page}.`);
+    blobs.push(blob);
+  }
+  setFinancePreviewPage(active);
+  return blobs;
+}
+function makeFinancePosterName(page,timestamp){
   const a=$("#periodeAwal").value||"tanpa-awal",b=$("#periodeAkhir").value||"tanpa-akhir";
-  return `generated/laporan-structured-${a}-${b}-${Date.now()}.jpg`;
+  return `generated/laporan-structured-${a}-${b}-page-${page}-${timestamp}.jpg`;
 }
 
 $("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarget;setBusy(form,true);try{
-  const id=+$("#kajianId").value||null,file=$("#posterFile").files[0];
-  if(!validateFile(file))return;
+  const id=+$("#kajianId").value||null;
+  const mode=$("#posterMode").value;
+  const file=$("#posterFile").files[0];
+  const oldPoster=$("#posterLama").value||null;
+  let poster=oldPoster;
+  let uploadedPoster=null;
 
-  let poster=$("#posterLama").value||null;
-  if(file){
-    const old=poster;
-    poster=await upload("poster-kajian",file,"agenda");
-    if(old)await removeFile("poster-kajian",old);
+  if(mode==="template"){
+    if(!$("#tema").value.trim())throw new Error("Tema / Materi wajib diisi untuk membuat poster otomatis.");
+    const blob=await buildAgendaPosterBlob();
+    if(!blob)throw new Error("Gagal membuat JPG poster agenda.");
+    uploadedPoster=await uploadBlob("poster-kajian",blob,makeAgendaPosterName());
+    poster=uploadedPoster;
+  }else{
+    if(!validateFile(file))return;
+    if(!oldPoster&&!file)throw new Error("File poster wajib diupload untuk mode manual.");
+    if(file){
+      uploadedPoster=await upload("poster-kajian",file,"agenda");
+      poster=uploadedPoster;
+    }
   }
 
   const kategoriUtama=$("#kategoriUtama").value;
   const jenisAgenda=$("#jenisAgenda").value;
-
   const payload={
     kategori_utama:kategoriUtama,
     jenis_agenda:jenisAgenda,
 
     // Kolom legacy "jenis" tetap diisi agar public website lama
-    // tetap kompatibel sampai Phase public migration berikutnya.
+    // tetap kompatibel dan tetap membaca poster_url yang sama.
     jenis:agendaLabel(jenisAgenda),
 
     judul:$("#judul").value.trim(),
@@ -1309,6 +1453,10 @@ $("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarge
     tanggal:$("#tanggal").value||null,
     waktu:$("#waktu").value.trim()||null,
     poster_url:poster,
+    poster_mode:mode,
+    template_preset:mode==="template"?$("#templatePreset").value:null,
+    kutipan:mode==="template"?$("#kutipan").value.trim()||null:null,
+    sumber_kutipan:mode==="template"?$("#sumberKutipan").value.trim()||null:null,
     status:$("#kajianStatus").value
   };
 
@@ -1316,13 +1464,24 @@ $("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarge
     ?await db.from("kajian").update(payload).eq("id",id)
     :await db.from("kajian").insert(payload);
 
-  if(error)throw error;
+  if(error){
+    if(uploadedPoster)await removeFile("poster-kajian",uploadedPoster).catch(()=>null);
+    throw error;
+  }
+  if(uploadedPoster&&oldPoster&&oldPoster!==uploadedPoster){
+    await removeFile("poster-kajian",oldPoster).catch(()=>null);
+  }
 
   closeF("kajian");
-  toast(id?"Agenda berhasil diperbarui.":"Agenda berhasil ditambahkan.","success");
+  toast(id?"Agenda dan poster berhasil diperbarui.":"Agenda dan poster berhasil ditambahkan.","success");
   await loadAll();
 }catch(err){
-  toast(err.message,"error");
+  const message=String(err?.message||err);
+  if(message.toLowerCase().includes("poster_mode")||message.toLowerCase().includes("template_preset")){
+    toast("Kolom template agenda belum tersedia. Jalankan SQL migrasi Agenda Poster Template terlebih dahulu.","error");
+  }else{
+    toast(message,"error");
+  }
 }finally{
   setBusy(form,false);
 }};
@@ -1334,10 +1493,12 @@ async function saveLegacyFinance(id){
   if(!id&&!file)throw new Error("File laporan wajib diupload.");
   if(!validateFile(file))return;
   let image=$("#keuanganImageLama").value||null;
+  const oldPage2=$("#keuanganImageLamaPage2").value||null;
   if(file){image=await upload("laporan-keuangan",file,"laporan")}
-  const payload={periode_awal:a,periode_akhir:b,tanggal_publish:$("#publishDate").value,image_url:image,status:$("#keuanganStatus").value,data_mode:"legacy",saldo_awal:null,total_pemasukan:null,total_pengeluaran:null,saldo_akhir:null,catatan:null};
+  const payload={periode_awal:a,periode_akhir:b,tanggal_publish:$("#publishDate").value,image_url:image,image_url_page_2:null,status:$("#keuanganStatus").value,data_mode:"legacy",saldo_awal:null,total_pemasukan:null,total_pengeluaran:null,saldo_akhir:null,catatan:null};
   const {error}=id?await db.from("keuangan").update(payload).eq("id",id):await db.from("keuangan").insert(payload);if(error)throw error;
   if(file&&id){const old=$("#keuanganImageLama").value||null;if(old&&old!==image)await removeFile("laporan-keuangan",old)}
+  if(id&&oldPage2)await removeFile("laporan-keuangan",oldPage2).catch(()=>null);
 }
 async function saveStructuredFinance(id){
   const a=$("#periodeAwal").value,b=$("#periodeAkhir").value;
@@ -1348,12 +1509,16 @@ async function saveStructuredFinance(id){
   const totals=calcTotalsFromDetails(details);
   if(totals.balance<0)throw new Error("Saldo akhir tidak boleh negatif.");
   const oldImage=$("#keuanganImageLama").value||null;
-  const posterBlob=await buildFinancePosterBlob();
-  if(!posterBlob)throw new Error("Gagal membuat preview JPG laporan.");
-  let newImage;
+  const oldImagePage2=$("#keuanganImageLamaPage2").value||null;
+  const [posterPage1Blob,posterPage2Blob]=await buildFinancePosterBlobs();
+  const timestamp=Date.now();
+  let newImage=null,newImagePage2=null;
   try{
-    newImage=await uploadBlob("laporan-keuangan",posterBlob,makeFinancePosterName());
+    newImage=await uploadBlob("laporan-keuangan",posterPage1Blob,makeFinancePosterName(1,timestamp));
+    newImagePage2=await uploadBlob("laporan-keuangan",posterPage2Blob,makeFinancePosterName(2,timestamp));
   }catch(err){
+    if(newImage)await removeFile("laporan-keuangan",newImage).catch(()=>null);
+    if(newImagePage2)await removeFile("laporan-keuangan",newImagePage2).catch(()=>null);
     if(String(err?.message||"").toLowerCase().includes("row-level security")){
       throw new Error("Upload poster ditolak oleh Storage RLS. Jalankan SQL hotfix Phase 2.1 lalu coba simpan kembali.");
     }
@@ -1364,6 +1529,7 @@ async function saveStructuredFinance(id){
     periode_akhir:b,
     tanggal_publish:$("#publishDate").value,
     image_url:newImage,
+    image_url_page_2:newImagePage2,
     status:$("#keuanganStatus").value,
     data_mode:"structured",
     saldo_awal:totals.saldoAwal,
@@ -1382,6 +1548,7 @@ async function saveStructuredFinance(id){
   const insertDetails=details.map((x,index)=>({keuangan_id:headerId,tanggal_transaksi:x.tanggal_transaksi,jenis:x.jenis,kategori:x.kategori,uraian:x.uraian,nominal:x.nominal,urutan:x.urutan||index+1}));
   const {error:insError}=await db.from("keuangan_detail").insert(insertDetails);if(insError)throw insError;
   if(id&&oldImage&&oldImage!==newImage)await removeFile("laporan-keuangan",oldImage).catch(()=>null);
+  if(id&&oldImagePage2&&oldImagePage2!==newImagePage2)await removeFile("laporan-keuangan",oldImagePage2).catch(()=>null);
 }
 
 $("#keuanganForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarget;setBusy(form,true);try{
@@ -1403,11 +1570,17 @@ window.editK=id=>{
   $("#tanggal").value=x.tanggal||"";
   $("#waktu").value=x.waktu||"";
   $("#kajianStatus").value=x.status||"publish";
+  $("#posterMode").value=x.poster_mode||"legacy";
+  $("#templatePreset").value=x.template_preset||"quran";
+  $("#kutipan").value=x.kutipan||"";
+  $("#sumberKutipan").value=x.sumber_kutipan||"";
   $("#posterLama").value=x.poster_url||"";
   showStoredPreview(x.poster_url,"#posterPreviewWrap","#posterPreview","#posterPreviewMeta");
+  toggleAgendaPosterMode();
+  renderAgendaPosterPreview();
 };
 window.editM=id=>{const x=mediaData.find(x=>x.id===id);openF("media");$("#mediaId").value=x.id;$("#mediaJudul").value=x.judul||"";$("#mediaKategori").value=x.kategori||"";$("#youtubeUrl").value=x.youtube_url||"";$("#mediaTanggal").value=x.tanggal||"";$("#mediaStatus").value=x.status||"publish"};
-window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
+window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan");openingBalanceTouched=true;$("#keuanganId").value=x.id;$("#periodeAwal").value=x.periode_awal||"";$("#periodeAkhir").value=x.periode_akhir||"";$("#publishDate").value=x.tanggal_publish||"";$("#keuanganStatus").value=x.status||"publish";$("#keuanganImageLama").value=x.image_url||"";$("#keuanganImageLamaPage2").value=x.image_url_page_2||"";$("#dataMode").value=x.data_mode||"legacy";toggleFinanceMode();
   if((x.data_mode||"legacy")==="structured"){
     $("#saldoAwal").value=x.saldo_awal??"";$("#keuanganCatatan").value=x.catatan||"";$("#incomeRows").innerHTML="";$("#expenseRows").innerHTML="";
     const {data,error}=await db.from("keuangan_detail").select("*").eq("keuangan_id",x.id).order("jenis",{ascending:true}).order("urutan",{ascending:true}).order("tanggal_transaksi",{ascending:true});
@@ -1423,7 +1596,7 @@ window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan"
 function askDelete(message){return new Promise(resolve=>{pendingDelete=resolve;$("#confirmMessage").textContent=message;$("#confirmModal").classList.remove("hidden")})}
 function finishDelete(answer){$("#confirmModal").classList.add("hidden");if(pendingDelete){pendingDelete(answer);pendingDelete=null}}
 $("#cancelDelete").onclick=()=>finishDelete(false);$("#confirmDelete").onclick=()=>finishDelete(true);
-async function deleteRecord(kind,id,button){if(!await askDelete("Data ini akan dihapus dan tidak dapat dikembalikan."))return;try{if(button)button.disabled=true;let x,error;if(kind==="kajian"){x=kajianData.find(x=>x.id===id);({error}=await db.from("kajian").delete().eq("id",id))}else if(kind==="media"){({error}=await db.from("media").delete().eq("id",id))}else{x=keuanganData.find(x=>x.id===id);({error}=await db.from("keuangan").delete().eq("id",id))}if(error)throw error;if(kind==="kajian"&&x&&x.poster_url)await removeFile("poster-kajian",x.poster_url);if(kind==="keuangan"&&x&&x.image_url)await removeFile("laporan-keuangan",x.image_url);toast("Data berhasil dihapus.","success");await loadAll()}catch(err){toast(err.message,"error")}finally{if(button)button.disabled=false}}
+async function deleteRecord(kind,id,button){if(!await askDelete("Data ini akan dihapus dan tidak dapat dikembalikan."))return;try{if(button)button.disabled=true;let x,error;if(kind==="kajian"){x=kajianData.find(x=>x.id===id);({error}=await db.from("kajian").delete().eq("id",id))}else if(kind==="media"){({error}=await db.from("media").delete().eq("id",id))}else{x=keuanganData.find(x=>x.id===id);({error}=await db.from("keuangan").delete().eq("id",id))}if(error)throw error;if(kind==="kajian"&&x&&x.poster_url)await removeFile("poster-kajian",x.poster_url);if(kind==="keuangan"&&x&&x.image_url)await removeFile("laporan-keuangan",x.image_url);if(kind==="keuangan"&&x&&x.image_url_page_2)await removeFile("laporan-keuangan",x.image_url_page_2);toast("Data berhasil dihapus.","success");await loadAll()}catch(err){toast(err.message,"error")}finally{if(button)button.disabled=false}}
 window.deleteKajian=(id,button)=>deleteRecord("kajian",id,button);window.deleteMedia=(id,button)=>deleteRecord("media",id,button);window.deleteFinance=(id,button)=>deleteRecord("keuangan",id,button);
 
 (async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();
