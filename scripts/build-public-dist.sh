@@ -27,6 +27,7 @@ copy_required "index.html"
 copy_required "assets"
 copy_required "profile"
 copy_required "admin"
+copy_required "ramadhan"
 
 [ -f robots.txt ] && cp robots.txt "$DIST/robots.txt"
 [ -f sitemap.xml ] && cp sitemap.xml "$DIST/sitemap.xml"

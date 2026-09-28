@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Dashboard publik Aspirasi Ramadhan 1448 H Masjid Jami' Harapan Kita">
+  <link rel="canonical" href="https://www.mj-harapankita.or.id/ramadhan/dashboard/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Masjid Jami' Harapan Kita">
+  <meta property="og:title" content="Dashboard Aspirasi Ramadhan 1448 H | MJHK">
+  <meta property="og:description" content="Lihat ringkasan aspirasi jamaah untuk Program Ramadhan 1448 H MJHK.">
+  <meta property="og:url" content="https://www.mj-harapankita.or.id/ramadhan/dashboard/">
+  <meta property="og:image" content="https://www.mj-harapankita.or.id/assets/images/hero-masjid.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Dashboard Aspirasi Ramadhan 1448 H | Masjid Jami' Harapan Kita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/ramadhan-dashboard.css">
+</head>
+<body>
+  <nav class="dashboard-nav">
+    <div class="container dashboard-nav-inner">
+      <a href="../../index.html" class="dashboard-brand">
+        <img src="../../assets/images/logo-mjhk.png" alt="Logo MJHK">
+        <div><strong>Masjid Jami' Harapan Kita</strong><span>Semarak Ramadhan Penuh Arti</span></div>
+      </a>
+      <div class="dashboard-nav-actions">
+        <a href="../">Isi Aspirasi</a>
+        <a href="../../index.html">Beranda</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="dashboard-hero">
+    <div class="container dashboard-hero-inner">
+      <div>
+        <span class="eyebrow">TRANSPARANSI ASPIRASI 1448 H</span>
+        <h1>Dashboard Aspirasi Ramadhan</h1>
+        <p>Ringkasan pilihan dan usulan jamaah ditampilkan secara anonim sebagai bahan penyusunan Program Semarak Ramadhan Penuh Arti.</p>
+      </div>
+      <a class="hero-button" href="../">Sampaikan Aspirasi</a>
+    </div>
+  </header>
+
+  <main class="container dashboard-main">
+    <section class="dashboard-toolbar" aria-label="Kontrol pembaruan data">
+      <div>
+        <strong>Data aspirasi jamaah</strong>
+        <p id="lastUpdated">Memuat pembaruan terakhir...</p>
+      </div>
+      <button id="refreshDashboard" type="button">Perbarui Data</button>
+    </section>
+
+    <div class="dashboard-alert" id="dashboardAlert" role="alert" hidden></div>
+
+    <section class="dashboard-stats" aria-label="Statistik utama">
+      <article><span>Total aspirasi</span><strong id="totalAspirasi">0</strong></article>
+      <article><span>Masuk hari ini</span><strong id="masukHariIni">0</strong></article>
+      <article><span>Bersedia berpartisipasi</span><strong id="bersediaBerpartisipasi">0</strong></article>
+      <article><span>Usulan kegiatan baru</span><strong id="totalUsulanBaru">0</strong></article>
+    </section>
+
+    <section class="dashboard-grid" aria-label="Ringkasan hasil aspirasi">
+      <article class="dashboard-panel">
+        <div class="panel-heading"><span>Prioritas Jamaah</span><h2>Program paling diharapkan</h2></div>
+        <div class="ranking-list" id="programRanking"><p class="loading-text">Memuat data...</p></div>
+      </article>
+
+      <article class="dashboard-panel">
+        <div class="panel-heading"><span>Evaluasi Program</span><h2>Hal yang perlu ditingkatkan</h2></div>
+        <div class="ranking-list" id="improvementRanking"><p class="loading-text">Memuat data...</p></div>
+      </article>
+    </section>
+
+    <section class="dashboard-panel participation-panel">
+      <div class="panel-heading"><span>Kolaborasi Jamaah</span><h2>Kesediaan berpartisipasi</h2></div>
+      <div class="participation-grid" id="participationRanking"><p class="loading-text">Memuat data...</p></div>
+    </section>
+
+    <section class="dashboard-panel suggestion-panel" aria-labelledby="suggestionTitle">
+      <div class="suggestion-heading">
+        <div class="panel-heading">
+          <span>Suara Jamaah</span>
+          <h2 id="suggestionTitle">Usulan kegiatan baru</h2>
+        </div>
+        <p>Identitas dan kontak pengirim tidak ditampilkan.</p>
+      </div>
+      <div class="suggestion-list" id="suggestionList"><p class="loading-text">Memuat data...</p></div>
+    </section>
+
+    <section class="privacy-panel">
+      <strong>Privasi jamaah tetap dijaga</strong>
+      <p>Dashboard hanya menampilkan data program dan usulan secara anonim. Nama, nomor WhatsApp, status peninjauan, dan catatan internal DKM tidak tersedia pada halaman ini.</p>
+    </section>
+  </main>
+
+  <footer class="dashboard-footer"><div class="container">© 2026 Masjid Jami' Harapan Kita</div></footer>
+
+  <noscript><div class="noscript">JavaScript harus aktif untuk melihat Dashboard Aspirasi Ramadhan.</div></noscript>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="../../assets/js/supabase-client.js"></script>
+  <script src="../../assets/js/ramadhan-dashboard.js"></script>
+</body>
+</html>
