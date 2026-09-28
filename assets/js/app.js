@@ -45,6 +45,53 @@ function fmtPeriod(a,b){
   return `${da} ${M[ma-1]} ${ya} sampai ${dbb} ${M[mb-1]} ${yb}`;
 }
 
+function financePosterPages(row,period,{auto=false}={}){
+  const pages=[row.image_url,row.image_url_page_2].filter(Boolean);
+  if(!pages.length)return '<p class="section-state is-empty">Poster laporan belum tersedia.</p>';
+  const controls=pages.length>1?`
+    <div class="finance-page-controls" aria-label="Navigasi halaman poster">
+      <button type="button" data-finance-page-prev aria-label="Tampilkan halaman sebelumnya">‹</button>
+      <span data-finance-page-label>Halaman 1 dari ${pages.length}</span>
+      <button type="button" data-finance-page-next aria-label="Tampilkan halaman berikutnya">›</button>
+    </div>`:"";
+  return `<div class="finance-poster-pages" data-finance-pages data-page-one="${esc(pages[0])}" data-page-two="${esc(pages[1]||"")}" data-page-index="0"${auto?' data-auto-rotate="true"':""}>
+    <img class="finance-poster-image" data-lightbox src="${esc(pages[0])}" alt="Laporan keuangan ${esc(period)}, halaman 1 dari ${pages.length}">
+    ${controls}
+  </div>`;
+}
+
+function bindFinancePosterPages(){
+  $$("[data-finance-pages]").forEach(container=>{
+    if(container.dataset.bound==="1")return;
+    container.dataset.bound="1";
+    const pages=[container.dataset.pageOne,container.dataset.pageTwo].filter(Boolean);
+    const image=container.querySelector(".finance-poster-image");
+    const label=container.querySelector("[data-finance-page-label]");
+    if(!image||pages.length<2)return;
+
+    const show=nextIndex=>{
+      const index=(nextIndex+pages.length)%pages.length;
+      container.dataset.pageIndex=String(index);
+      image.src=pages[index];
+      image.alt=image.alt.replace(/halaman \d+ dari \d+$/,`halaman ${index+1} dari ${pages.length}`);
+      if(label)label.textContent=`Halaman ${index+1} dari ${pages.length}`;
+    };
+
+    container.querySelector("[data-finance-page-prev]")?.addEventListener("click",()=>show(Number(container.dataset.pageIndex||0)-1));
+    container.querySelector("[data-finance-page-next]")?.addEventListener("click",()=>show(Number(container.dataset.pageIndex||0)+1));
+
+    if(container.dataset.autoRotate==="true"){
+      let timer=setInterval(()=>show(Number(container.dataset.pageIndex||0)+1),12000);
+      const pause=()=>{clearInterval(timer);timer=null};
+      const resume=()=>{if(!timer)timer=setInterval(()=>show(Number(container.dataset.pageIndex||0)+1),12000)};
+      container.addEventListener("mouseenter",pause);
+      container.addEventListener("mouseleave",resume);
+      container.addEventListener("focusin",pause);
+      container.addEventListener("focusout",resume);
+    }
+  });
+}
+
 function shareIcon(){
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.8 2.8 0 0 0 0-1.39l7.05-4.12A2.99 2.99 0 1 0 15 5c0 .23.03.46.08.67L8.03 9.79a3 3 0 1 0 0 4.42l7.12 4.16c-.04.2-.07.41-.07.63a2.92 2.92 0 1 0 2.92-2.92Z"/></svg>`;
 }
@@ -204,7 +251,7 @@ async function renderKeuangan(){
   const latestShareText=`Laporan Keuangan Pekanan\nPeriode ${latestPeriod}\nMasjid Jami' Harapan Kita`;
 
   latest.innerHTML=`<div class="finance-feature" id="${esc(latestTarget)}">
-    <img data-lightbox src="${esc(latestRow.image_url)}" alt="Laporan keuangan ${esc(latestPeriod)}">
+    ${financePosterPages(latestRow,latestPeriod,{auto:true})}
     <div class="finance-caption">
       <div><span class="badge">Laporan Terbaru</span><br><strong>${esc(latestPeriod)}</strong></div>
       <div class="finance-actions">
@@ -218,10 +265,10 @@ async function renderKeuangan(){
     const period=fmtPeriod(x.periode_awal,x.periode_akhir);
     const shareText=`Laporan Keuangan Pekanan\nPeriode ${period}\nMasjid Jami' Harapan Kita`;
     return `<div class="history-card" id="${esc(targetId)}">
-      <img data-lightbox src="${esc(x.image_url)}" alt="Laporan keuangan ${esc(period)}">
-      <div>
+      ${financePosterPages(x,period)}
+      <div class="finance-history-body">
         <strong>${esc(period)}</strong>
-        <span>Laporan keuangan</span>
+        <span>${x.image_url_page_2?'Laporan keuangan, 2 halaman':'Laporan keuangan'}</span>
         <div class="finance-actions">
           <button type="button" class="share-btn" data-share data-share-target="${esc(targetId)}" data-share-title="Laporan Keuangan MJHK" data-share-text="${esc(shareText)}">${shareIcon()}Bagikan</button>
         </div>
@@ -229,6 +276,7 @@ async function renderKeuangan(){
     </div>`;
   }).join("");
 
+  bindFinancePosterPages();
   bindLightbox();
   bindShareButtons();
 }

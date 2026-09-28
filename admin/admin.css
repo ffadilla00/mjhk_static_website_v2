@@ -1042,3 +1042,645 @@ textarea{min-height:90px}
   margin-left:0;
 }
 /* Finance Typography v2.1 END */
+
+/* Finance Poster Two Page CR START */
+.finance-preview-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.finance-preview-tab{
+  border:1px solid #cfded5;
+  border-radius:999px;
+  background:#fff;
+  color:var(--green-dark);
+  padding:9px 14px;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.finance-preview-tab.active{
+  border-color:var(--green-dark);
+  background:var(--green-dark);
+  color:#fff;
+}
+
+.finance-poster-split{
+  grid-template-columns:156px 1fr;
+}
+
+.finance-poster-split .poster-side{
+  padding:17px 14px;
+  gap:13px;
+}
+
+.finance-poster-split .poster-brand-logo{
+  width:96px;
+  height:96px;
+}
+
+.finance-poster-split .poster-brand-title{
+  font-size:20px;
+  line-height:1.05;
+}
+
+.finance-poster-split .poster-brand-tagline{
+  font-size:12.5px;
+  line-height:1.35;
+}
+
+.poster-page-marker{
+  margin-top:auto;
+  width:100%;
+  border:1px solid rgba(255,255,255,.45);
+  border-radius:999px;
+  padding:7px 5px;
+  color:#fff;
+  font-size:11.5px;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.3px;
+}
+
+.finance-poster-split .poster-main{
+  padding:14px 17px 12px;
+  gap:8px;
+}
+
+.finance-poster-split .poster-kicker{
+  font-size:28px;
+}
+
+.finance-poster-split .poster-period-badge{
+  margin-top:6px;
+  padding:6px 12px;
+  font-size:13.5px;
+}
+
+.finance-poster-split .poster-publish-box{
+  min-width:145px;
+  padding:8px 10px;
+}
+
+.finance-poster-split .poster-publish-box strong{
+  font-size:14.5px;
+}
+
+.finance-poster-split .poster-top-stats{
+  gap:7px;
+}
+
+.finance-poster-split .poster-stat-card{
+  padding:8px 10px;
+}
+
+.finance-poster-split .poster-stat-card span{
+  font-size:11px;
+}
+
+.finance-poster-split .poster-stat-card strong{
+  margin-top:4px;
+  font-size:19px;
+}
+
+.poster-single-column{
+  display:flex;
+  flex:1;
+  min-height:0;
+}
+
+.poster-single-column .poster-box{
+  flex:1;
+  min-width:0;
+}
+
+.finance-poster-split .poster-box-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:9px 14px;
+  font-size:20px;
+}
+
+.finance-poster-split .poster-box-head span:last-child{
+  flex:0 0 auto;
+  color:#f3cf68;
+  font-size:19px;
+}
+
+.finance-poster-split .poster-list{
+  padding:7px 14px 8px;
+  gap:0;
+}
+
+.finance-poster-split .poster-row{
+  gap:14px;
+  padding:5px 0;
+  font-size:25.5px;
+  line-height:1.08;
+}
+
+.finance-poster-split .poster-row strong{
+  margin-left:0;
+  font-size:25.5px;
+  line-height:1.08;
+}
+
+.finance-poster-split .poster-more{
+  font-size:14px;
+  font-weight:800;
+}
+
+.poster-footer-summary{
+  display:grid;
+  grid-template-columns:190px 210px 1fr;
+  gap:8px;
+}
+
+.poster-footer-summary .poster-balance-box,
+.poster-footer-summary .poster-note-box{
+  min-width:0;
+  padding:8px 10px;
+}
+
+.poster-footer-summary .poster-balance-box span{
+  font-size:11px;
+}
+
+.poster-footer-summary .poster-balance-box strong{
+  margin-top:4px;
+  font-size:19px;
+}
+
+.poster-footer-summary .poster-note-title{
+  margin-bottom:3px;
+  font-size:12px;
+}
+
+.poster-footer-summary .poster-note-box p{
+  display:-webkit-box;
+  overflow:hidden;
+  margin:0;
+  font-size:10.5px;
+  line-height:1.25;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+/* Finance Poster Two Page CR END */
+
+/* Finance Poster Two Page Readability Hotfix v1.1 START */
+.finance-poster-split .poster-publish-box span{
+  color:#111;
+  font-size:16px;
+  font-weight:700;
+}
+
+.finance-poster-split .poster-publish-box strong{
+  margin-top:5px;
+  font-size:20px;
+  font-weight:900;
+}
+
+.finance-poster-split .poster-stat-card span{
+  color:#111;
+  font-size:15.5px;
+  font-weight:700;
+}
+
+.finance-poster-split .poster-stat-card strong{
+  margin-top:5px;
+  font-size:22.5px;
+  font-weight:900;
+}
+
+.poster-footer-summary .poster-balance-box span{
+  color:#111;
+  font-size:14.5px;
+  font-weight:700;
+}
+
+.poster-footer-summary .poster-balance-box strong{
+  margin-top:4px;
+  font-size:22px;
+  font-weight:900;
+}
+
+.poster-footer-summary .poster-note-title{
+  color:#111;
+  font-size:16.5px;
+  font-weight:900;
+}
+
+.poster-footer-summary .poster-note-box p{
+  color:#111;
+  font-size:14px;
+  font-weight:600;
+  line-height:1.2;
+}
+/* Finance Poster Two Page Readability Hotfix v1.1 END */
+
+/* Agenda Poster Template CR START */
+.agenda-template-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  padding:16px;
+  border:1px solid #d8e3de;
+  border-radius:14px;
+  background:#f7faf8;
+}
+
+.agenda-template-grid .field{
+  min-width:0;
+}
+
+.agenda-preview-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin:22px 0 12px;
+}
+
+.agenda-preview-head h3{
+  margin:0 0 4px;
+  color:#173f33;
+}
+
+.agenda-preview-head p{
+  margin:0;
+  color:#475569;
+  font-size:13px;
+}
+
+.agenda-poster-stage{
+  max-width:100%;
+  overflow:auto;
+  padding:12px;
+  border:1px solid #d7dfda;
+  border-radius:14px;
+  background:#e8eeeb;
+}
+
+.agenda-auto-poster{
+  --agenda-primary:#0c513d;
+  --agenda-secondary:#d3a62b;
+  --agenda-ink:#102d25;
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  flex-direction:column;
+  width:960px;
+  height:540px;
+  overflow:hidden;
+  color:#fff;
+  font-family:"Arial","Helvetica",sans-serif;
+  background:#0b3d31 url("../assets/images/hero-masjid.jpg") center/cover no-repeat;
+}
+
+.agenda-auto-poster::before,
+.agenda-auto-poster::after{
+  position:absolute;
+  z-index:-1;
+  content:"";
+  pointer-events:none;
+}
+
+.agenda-auto-poster::before{
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(5,36,29,.97) 0%,rgba(8,57,45,.92) 58%,rgba(5,34,28,.78) 100%);
+}
+
+.agenda-auto-poster::after{
+  right:-80px;
+  bottom:-165px;
+  width:430px;
+  height:430px;
+  border:2px solid rgba(255,255,255,.13);
+  border-radius:50%;
+  box-shadow:0 0 0 34px rgba(255,255,255,.045),0 0 0 68px rgba(255,255,255,.03);
+}
+
+.agenda-auto-poster.preset-quran{
+  --agenda-primary:#0c513d;
+  --agenda-secondary:#d3a62b;
+  --agenda-ink:#102d25;
+}
+
+.agenda-auto-poster.preset-kitab{
+  --agenda-primary:#315b45;
+  --agenda-secondary:#d7b96c;
+  --agenda-ink:#254536;
+  background-color:#315b45;
+}
+
+.agenda-auto-poster.preset-kitab::before{
+  background:
+    linear-gradient(90deg,rgba(24,52,39,.98) 0%,rgba(54,91,69,.94) 60%,rgba(239,228,196,.28) 100%),
+    repeating-linear-gradient(45deg,rgba(255,244,206,.05) 0 2px,transparent 2px 20px);
+}
+
+.agenda-auto-poster.preset-kegiatan{
+  --agenda-primary:#075a68;
+  --agenda-secondary:#f0b03b;
+  --agenda-ink:#083f48;
+  background-position:center 56%;
+}
+
+.agenda-auto-poster.preset-kegiatan::before{
+  background:linear-gradient(90deg,rgba(3,47,55,.97) 0%,rgba(5,83,94,.91) 58%,rgba(3,49,58,.8) 100%);
+}
+
+.agenda-poster-overlay{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.24));
+}
+
+.agenda-poster-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:68px;
+  padding:10px 28px;
+  border-bottom:1px solid rgba(255,255,255,.24);
+  background:rgba(0,0,0,.17);
+}
+
+.agenda-brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.agenda-brand img{
+  width:48px;
+  height:48px;
+  object-fit:cover;
+  border:2px solid rgba(255,255,255,.9);
+  border-radius:50%;
+  background:#fff;
+}
+
+.agenda-brand strong,
+.agenda-brand span{
+  display:block;
+}
+
+.agenda-brand strong{
+  font-size:17px;
+  letter-spacing:.7px;
+}
+
+.agenda-brand span{
+  margin-top:2px;
+  color:#f3f6f4;
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+
+.agenda-preset-label{
+  padding:8px 15px;
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:999px;
+  color:#fff;
+  background:rgba(0,0,0,.17);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1.1px;
+}
+
+.agenda-poster-content{
+  display:grid;
+  flex:1;
+  grid-template-columns:minmax(0,1fr) 198px;
+  gap:22px;
+  min-height:0;
+  padding:19px 28px 15px;
+}
+
+.agenda-poster-main{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+.agenda-event-kicker{
+  overflow:hidden;
+  max-width:620px;
+  height:26px;
+  color:#ffe298;
+  font-size:17px;
+  font-weight:900;
+  line-height:26px;
+  letter-spacing:2.1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.agenda-poster-main h2{
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  width:100%;
+  height:96px;
+  margin:2px 0 5px;
+  color:#fff;
+  font-size:43px;
+  font-weight:950;
+  line-height:.98;
+  letter-spacing:-.8px;
+  text-shadow:0 3px 13px rgba(0,0,0,.28);
+  text-transform:uppercase;
+}
+
+.agenda-speaker-label{
+  color:#dbe8e3;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+}
+
+.agenda-speaker{
+  overflow:hidden;
+  height:35px;
+  margin-top:1px;
+  color:#fff;
+  font-size:24px;
+  font-weight:900;
+  line-height:35px;
+  white-space:nowrap;
+}
+
+.agenda-schedule-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:auto;
+}
+
+.agenda-info-card{
+  min-width:0;
+  min-height:65px;
+  padding:8px 13px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:9px;
+  background:rgba(255,255,255,.13);
+}
+
+.agenda-info-card span,
+.agenda-info-card strong{
+  display:block;
+}
+
+.agenda-info-card span{
+  margin-bottom:4px;
+  color:#ffe29a;
+  font-size:12.5px;
+  font-weight:900;
+  letter-spacing:1.45px;
+}
+
+.agenda-info-card strong{
+  overflow:hidden;
+  height:32px;
+  color:#fff;
+  font-size:21px;
+  font-weight:900;
+  line-height:1.1;
+}
+
+.agenda-location-card{
+  grid-column:1 / -1;
+  min-height:57px;
+}
+
+.agenda-location-card strong{
+  height:25px;
+  white-space:nowrap;
+}
+
+.agenda-poster-side{
+  display:grid;
+  grid-template-rows:minmax(0,1fr) 211px;
+  gap:9px;
+  min-height:0;
+}
+
+.agenda-quote-card{
+  position:relative;
+  overflow:hidden;
+  min-height:0;
+  padding:13px 14px 11px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:12px;
+  background:rgba(255,255,255,.94);
+  color:var(--agenda-ink);
+}
+
+.agenda-quote-mark{
+  position:absolute;
+  top:-12px;
+  right:9px;
+  color:rgba(211,166,43,.24);
+  font-family:Georgia,serif;
+  font-size:70px;
+  line-height:1;
+}
+
+.agenda-quote-card p{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  height:91px;
+  margin:0 0 7px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:18px;
+  font-weight:800;
+  font-style:italic;
+  line-height:1.18;
+}
+
+.agenda-quote-card strong{
+  display:block;
+  overflow:hidden;
+  color:var(--agenda-primary);
+  font-size:12px;
+  font-weight:900;
+  line-height:1.1;
+  white-space:nowrap;
+}
+
+.agenda-qris-card{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding:6px;
+  border:2px solid #fff;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 5px 18px rgba(0,0,0,.21);
+}
+
+.agenda-qris-card img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+
+.agenda-poster-footer{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  min-height:62px;
+  padding:7px 28px;
+  color:#14221d;
+  background:#fff4d7;
+  font-size:14.5px;
+  font-weight:800;
+  line-height:1.15;
+  text-align:center;
+}
+
+.agenda-poster-footer strong{
+  color:#7f4f00;
+  font-size:17px;
+  font-weight:950;
+}
+
+.agenda-poster-footer > span{
+  color:#111;
+  font-size:13.5px;
+  font-weight:900;
+}
+
+@media(max-width:760px){
+  .agenda-template-grid{
+    grid-template-columns:1fr;
+  }
+  .agenda-template-grid .field.full{
+    grid-column:auto;
+  }
+  .agenda-preview-head{
+    align-items:stretch;
+    flex-direction:column;
+  }
+}
+/* Agenda Poster Template CR END */
