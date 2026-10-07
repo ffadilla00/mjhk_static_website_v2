@@ -10,13 +10,15 @@
   const programLabels = {
     pra_ramadhan:"Pra Ramadhan",tarawih_witir:"Tarawih dan Witir",kultum_kajian:"Kultum dan Kajian",
     tadarus:"Tadarus Al-Qur'an",ifthar_tajil:"Ifthar atau Ta'jil",pesantren_anak:"Pesantren Anak",
-    itikaf_10_malam:"I'tikaf dan 10 Malam Terakhir",santunan_ziswaf:"Santunan dan ZISWAF",
+    itikaf_10_malam:"I'tikaf dan 10 Malam Terakhir",santunan_ziswaf:"Santunan dan ZISWAF (data lama)",
+    zakat_infaq_fidyah:"Zakat Fitrah, Infak, dan Fidyah",santunan_yatim_dhuafa:"Santunan Yatim dan Dhuafa",
     takbir_idul_fitri:"Malam Takbir dan Idul Fitri",halal_bihalal:"Halal bi Halal",lainnya:"Lainnya"
   };
   const improvementLabels = {
     kenyamanan_ibadah:"Kenyamanan Ibadah",kualitas_kajian:"Kualitas Kajian",anak_remaja:"Anak dan Remaja",
     tajil_buka_puasa:"Ta'jil atau Buka Puasa",kebersihan_fasilitas:"Kebersihan dan Fasilitas",
     informasi_kegiatan:"Informasi Kegiatan",pengelolaan_ziswaf:"Pengelolaan ZISWAF",
+    kualitas_imam_khatib_tarawih:"Kualitas Imam dan Khatib Tarawih",kualitas_mc_tarawih:"Kualitas MC Tarawih",
     sepuluh_malam_terakhir:"Sepuluh Malam Terakhir",tidak_ada:"Tidak Ada",lainnya:"Lainnya"
   };
   const participationLabels = {
@@ -131,6 +133,7 @@
       const pills = document.createElement("div");
       pills.className = "pill-list";
       addPills(pills, item.program_prioritas, programLabels);
+      addPills(pills, item.program_dipertahankan_pilihan, programLabels, "retained");
       addPills(pills, item.area_peningkatan, improvementLabels, "improvement");
       card.append(meta, text, pills);
       container.append(card);
@@ -147,6 +150,7 @@
       : "Belum ada aspirasi yang masuk.";
     renderRanking("programRanking", payload.prioritas_program, programLabels);
     renderRanking("improvementRanking", payload.area_peningkatan, improvementLabels);
+    renderRanking("retainedProgramRanking", payload.program_dipertahankan, programLabels);
     renderParticipation(payload.partisipasi);
     renderSuggestions(payload.usulan_baru);
   }

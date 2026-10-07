@@ -45,6 +45,10 @@ begin
     raise exception 'FAIL: payload dashboard public tidak valid';
   end if;
 
+  if not (payload ? 'program_dipertahankan') then
+    raise exception 'FAIL: payload dashboard belum memuat program yang perlu dipertahankan';
+  end if;
+
   if payload::text ~ '"(nama|whatsapp|catatan_internal|reviewed_by|reviewed_at)"[[:space:]]*:' then
     raise exception 'FAIL: payload dashboard public memuat field privat';
   end if;

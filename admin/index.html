@@ -52,8 +52,8 @@
 
   <div class="panel table-wrap">
     <table class="ramadhan-admin-table">
-      <thead><tr><th>Waktu</th><th>Prioritas Program</th><th>Perlu Ditingkatkan</th><th>Partisipasi</th><th>Kontak</th><th>Status</th><th>Aksi</th></tr></thead>
-      <tbody id="ramadhanRows"><tr><td colspan="7" class="loading-row">Memuat data...</td></tr></tbody>
+      <thead><tr><th>Waktu</th><th>Prioritas Program</th><th>Perlu Dipertahankan</th><th>Perlu Ditingkatkan</th><th>Partisipasi</th><th>Kontak</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="ramadhanRows"><tr><td colspan="8" class="loading-row">Memuat data...</td></tr></tbody>
     </table>
   </div>
 </section>
@@ -64,6 +64,7 @@
 <form id="kajianForm">
 <input type="hidden" id="kajianId">
 <input type="hidden" id="posterLama">
+<input type="hidden" id="speakerPhotoLama">
 
 <div class="form-grid">
 <div class="field">
@@ -142,12 +143,52 @@
       </select>
     </div>
     <div class="field">
+      <label>Konten Sisi Kanan</label>
+      <select id="templateContentMode">
+        <option value="default">Default (Kutipan + QRIS)</option>
+        <option value="speaker_photo">Upload Foto Pemateri/Ustadz</option>
+      </select>
+      <small class="file-help">Pilih foto untuk menggantikan kotak kutipan dan QRIS pada poster.</small>
+    </div>
+    <div class="field agenda-quote-field">
       <label>Sumber Kutipan</label>
       <input id="sumberKutipan" placeholder="Contoh: QS. Al-Baqarah: 186">
     </div>
-    <div class="field full">
+    <div class="field full agenda-quote-field">
       <label>Kutipan</label>
       <textarea id="kutipan" placeholder="Tulis kutipan singkat yang akan ditampilkan pada poster."></textarea>
+    </div>
+    <div class="field full agenda-speaker-photo-fields hidden" id="agendaSpeakerPhotoFields">
+      <label>Foto Pemateri / Ustadz</label>
+      <div class="speaker-photo-upload">
+        <div class="speaker-photo-form-preview" id="speakerPhotoPreviewWrap">
+          <div class="speaker-photo-placeholder" id="speakerPhotoPlaceholder" aria-hidden="true">
+            <span>👤</span>
+            <strong>Belum ada foto</strong>
+          </div>
+          <canvas class="hidden" id="speakerPhotoPreview" width="396" height="736" role="img" aria-label="Area crop foto pemateri atau ustadz"></canvas>
+          <div class="speaker-crop-grid hidden" id="speakerCropGrid" aria-hidden="true"></div>
+        </div>
+        <div class="speaker-photo-upload-actions">
+          <label class="btn light speaker-photo-picker" for="speakerPhotoFile">Pilih / Ganti Foto</label>
+          <input class="visually-hidden" type="file" id="speakerPhotoFile" accept="image/jpeg,image/png,image/webp">
+          <button type="button" class="btn light hidden" id="removeSpeakerPhoto">Hapus Foto</button>
+          <small class="file-help" id="speakerPhotoMeta">Format JPG, PNG, atau WebP. Maksimal 5 MB. Foto portrait disarankan.</small>
+          <div class="speaker-crop-controls hidden" id="speakerCropControls">
+            <div class="speaker-zoom-head">
+              <label for="speakerPhotoZoom">Zoom foto</label>
+              <output id="speakerPhotoZoomValue" for="speakerPhotoZoom">100%</output>
+            </div>
+            <input type="range" id="speakerPhotoZoom" min="1" max="3" step="0.05" value="1">
+            <div class="speaker-crop-buttons">
+              <button type="button" class="btn light" id="speakerZoomOut" aria-label="Perkecil foto">−</button>
+              <button type="button" class="btn light" id="resetSpeakerCrop">Reset Crop</button>
+              <button type="button" class="btn light" id="speakerZoomIn" aria-label="Perbesar foto">+</button>
+            </div>
+            <small class="file-help">Geser foto langsung pada area crop. Gunakan slider untuk memperbesar atau memperkecil.</small>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -208,20 +249,30 @@
         </section>
 
         <aside class="agenda-poster-side">
-          <div class="agenda-quote-card">
-            <span class="agenda-quote-mark">“</span>
-            <p id="agendaPreviewKutipan">Mari hadir dan raih ilmu yang bermanfaat.</p>
-            <strong id="agendaPreviewSumber">Kutipan kajian</strong>
+          <div class="agenda-default-side" id="agendaDefaultSide">
+            <div class="agenda-quote-card">
+              <span class="agenda-quote-mark">“</span>
+              <p id="agendaPreviewKutipan">Mari hadir dan raih ilmu yang bermanfaat.</p>
+              <strong id="agendaPreviewSumber">Kutipan kajian</strong>
+            </div>
+            <div class="agenda-qris-card">
+              <img src="../assets/images/qris-mjhk.jpg" alt="QRIS Masjid Jami' Harapan Kita">
+            </div>
           </div>
-          <div class="agenda-qris-card">
-            <img src="../assets/images/qris-mjhk.jpg" alt="QRIS Masjid Jami' Harapan Kita">
+          <div class="agenda-speaker-photo-card hidden" id="agendaSpeakerPhotoCard">
+            <canvas class="hidden" id="agendaPreviewSpeakerPhoto" width="396" height="736" role="img" aria-label="Foto pemateri atau ustadz"></canvas>
+            <div class="agenda-speaker-photo-empty" id="agendaSpeakerPhotoEmpty">
+              <span>FOTO</span>
+              <strong>PEMATERI / USTADZ</strong>
+            </div>
           </div>
         </aside>
       </div>
 
       <footer class="agenda-poster-footer">
-        <div><span>Salurkan Infak &amp; Sedekah terbaik melalui Rekening Bank BSI:</span> <strong>7197058042 a/n Masjid Jami' Harapan Kita</strong></div>
-        <span>atau melalui QRIS berikut</span>
+        <span class="agenda-footer-lead">Salurkan Infak &amp; Sedekah terbaik melalui Rekening Bank BSI</span>
+        <strong>7197058042 a/n Masjid Jami' Harapan Kita</strong>
+        <span class="agenda-footer-qris" id="agendaFooterQris">atau melalui QRIS di samping</span>
       </footer>
     </article>
   </div>

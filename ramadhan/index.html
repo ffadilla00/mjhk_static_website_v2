@@ -79,7 +79,8 @@
             <label class="choice"><input type="checkbox" name="program_prioritas" value="ifthar_tajil"><span>Ifthar atau ta'jil</span></label>
             <label class="choice"><input type="checkbox" name="program_prioritas" value="pesantren_anak"><span>Pesantren Ramadhan untuk anak</span></label>
             <label class="choice"><input type="checkbox" name="program_prioritas" value="itikaf_10_malam"><span>I'tikaf, qiyamul lail, muhasabah, dan sahur bersama</span></label>
-            <label class="choice"><input type="checkbox" name="program_prioritas" value="santunan_ziswaf"><span>Santunan anak yatim dan ZISWAF</span></label>
+            <label class="choice"><input type="checkbox" name="program_prioritas" value="zakat_infaq_fidyah"><span>Zakat Fitrah, Infak, dan Fidyah</span></label>
+            <label class="choice"><input type="checkbox" name="program_prioritas" value="santunan_yatim_dhuafa"><span>Santunan Yatim dan Dhuafa</span></label>
             <label class="choice"><input type="checkbox" name="program_prioritas" value="takbir_idul_fitri"><span>Malam takbir dan Shalat Idul Fitri</span></label>
             <label class="choice"><input type="checkbox" name="program_prioritas" value="halal_bihalal"><span>Halal bi Halal pengurus DKM</span></label>
             <label class="choice"><input type="checkbox" name="program_prioritas" value="lainnya"><span>Lainnya</span></label>
@@ -98,6 +99,8 @@
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="kebersihan_fasilitas"><span>Kebersihan dan fasilitas</span></label>
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="informasi_kegiatan"><span>Informasi kegiatan</span></label>
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="pengelolaan_ziswaf"><span>Pengelolaan ZISWAF</span></label>
+            <label class="choice"><input type="checkbox" name="area_peningkatan" value="kualitas_imam_khatib_tarawih"><span>Kualitas imam dan khatib salat Tarawih</span></label>
+            <label class="choice"><input type="checkbox" name="area_peningkatan" value="kualitas_mc_tarawih"><span>Kualitas MC salat Tarawih</span></label>
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="sepuluh_malam_terakhir"><span>Kegiatan sepuluh malam terakhir</span></label>
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="tidak_ada"><span>Tidak ada</span></label>
             <label class="choice"><input type="checkbox" name="area_peningkatan" value="lainnya"><span>Lainnya</span></label>
@@ -105,11 +108,25 @@
           <div class="conditional-field" id="peningkatanLainnyaWrap" hidden><label for="peningkatanLainnya">Tuliskan hal lainnya</label><input id="peningkatanLainnya" maxlength="200" placeholder="Hal lain yang perlu ditingkatkan"></div>
         </fieldset>
 
-        <div class="question-block">
-          <label class="question-title" for="programDipertahankan"><span>3</span><strong>Program sebelumnya apa yang perlu dipertahankan?</strong></label>
-          <p class="question-help">Jawaban singkat. Opsional.</p>
-          <textarea id="programDipertahankan" maxlength="500" rows="3" placeholder="Tuliskan program yang menurut Anda perlu dipertahankan"></textarea>
-        </div>
+        <fieldset class="question-block" data-question="dipertahankan">
+          <legend><span>3</span><strong>Program sebelumnya apa yang perlu dipertahankan? <em>Wajib</em></strong></legend>
+          <div class="question-help"><span>Pilih paling banyak 5.</span><span id="dipertahankanCounter">0/5 dipilih</span></div>
+          <div class="option-grid">
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="pra_ramadhan"><span>Program pra Ramadhan, seperti Nisfu Sya'ban, kerja bakti, dan Tarhib Ramadhan</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="tarawih_witir"><span>Shalat Tarawih dan Witir</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="kultum_kajian"><span>Kultum dan kajian Ramadhan, termasuk Nuzulul Qur'an</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="tadarus"><span>Tadarus Al-Qur'an</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="ifthar_tajil"><span>Ifthar atau ta'jil</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="pesantren_anak"><span>Pesantren Ramadhan untuk anak</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="itikaf_10_malam"><span>I'tikaf, qiyamul lail, muhasabah, dan sahur bersama</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="zakat_infaq_fidyah"><span>Zakat Fitrah, Infak, dan Fidyah</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="santunan_yatim_dhuafa"><span>Santunan Yatim dan Dhuafa</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="takbir_idul_fitri"><span>Malam takbir dan Shalat Idul Fitri</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="halal_bihalal"><span>Halal bi Halal pengurus DKM</span></label>
+            <label class="choice"><input type="checkbox" name="program_dipertahankan_pilihan" value="lainnya"><span>Lainnya</span></label>
+          </div>
+          <div class="conditional-field" id="dipertahankanLainnyaWrap" hidden><label for="dipertahankanLainnya">Tuliskan program lainnya</label><input id="dipertahankanLainnya" maxlength="200" placeholder="Nama program yang perlu dipertahankan"></div>
+        </fieldset>
 
         <div class="question-block">
           <label class="question-title" for="usulanBaru"><span>4</span><strong>Apa usulan kegiatan baru untuk Ramadhan 1448 H?</strong></label>

@@ -9,13 +9,15 @@
   const programLabels = {
     pra_ramadhan:"Pra Ramadhan",tarawih_witir:"Tarawih dan Witir",kultum_kajian:"Kultum dan Kajian",
     tadarus:"Tadarus Al-Qur'an",ifthar_tajil:"Ifthar atau Ta'jil",pesantren_anak:"Pesantren Anak",
-    itikaf_10_malam:"I'tikaf dan 10 Malam Terakhir",santunan_ziswaf:"Santunan dan ZISWAF",
+    itikaf_10_malam:"I'tikaf dan 10 Malam Terakhir",santunan_ziswaf:"Santunan dan ZISWAF (data lama)",
+    zakat_infaq_fidyah:"Zakat Fitrah, Infak, dan Fidyah",santunan_yatim_dhuafa:"Santunan Yatim dan Dhuafa",
     takbir_idul_fitri:"Malam Takbir dan Idul Fitri",halal_bihalal:"Halal bi Halal",lainnya:"Lainnya"
   };
   const improvementLabels = {
     kenyamanan_ibadah:"Kenyamanan Ibadah",kualitas_kajian:"Kualitas Kajian",anak_remaja:"Anak dan Remaja",
     tajil_buka_puasa:"Ta'jil atau Buka Puasa",kebersihan_fasilitas:"Kebersihan dan Fasilitas",
     informasi_kegiatan:"Informasi Kegiatan",pengelolaan_ziswaf:"Pengelolaan ZISWAF",
+    kualitas_imam_khatib_tarawih:"Kualitas Imam dan Khatib Tarawih",kualitas_mc_tarawih:"Kualitas MC Tarawih",
     sepuluh_malam_terakhir:"Sepuluh Malam Terakhir",tidak_ada:"Tidak Ada",lainnya:"Lainnya"
   };
   const participationLabels = {
@@ -46,6 +48,12 @@
     return (values || []).map(value => value === "lainnya" && otherText ? `Lainnya: ${otherText}` : (dictionary[value] || value));
   }
 
+  function retainedLabels(item) {
+    const selected = labels(item.program_dipertahankan_pilihan, programLabels, item.program_dipertahankan_lainnya);
+    if (selected.length) return selected;
+    return item.program_dipertahankan ? [`Jawaban lama: ${item.program_dipertahankan}`] : [];
+  }
+
   function addPills(cell, values) {
     const wrap = document.createElement("div");
     wrap.className = "ramadhan-pill-list";
@@ -66,9 +74,10 @@
       if (status && item.status !== status) return false;
       if (participation && item.partisipasi !== participation) return false;
       if (!query) return true;
-      const searchable = [item.nama,item.whatsapp,item.program_dipertahankan,item.usulan_baru,item.saran_lain,item.program_lainnya,item.peningkatan_lainnya]
+      const searchable = [item.nama,item.whatsapp,item.program_dipertahankan,item.program_dipertahankan_lainnya,item.usulan_baru,item.saran_lain,item.program_lainnya,item.peningkatan_lainnya]
         .concat(labels(item.program_prioritas, programLabels, item.program_lainnya))
         .concat(labels(item.area_peningkatan, improvementLabels, item.peningkatan_lainnya))
+        .concat(retainedLabels(item))
         .join(" ").toLowerCase();
       return searchable.includes(query);
     });
@@ -89,7 +98,7 @@
     if (!visible.length) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
-      cell.colSpan = 7;
+      cell.colSpan = 8;
       cell.className = "loading-row";
       cell.textContent = data.length ? "Tidak ada aspirasi yang cocok dengan filter." : "Belum ada aspirasi yang masuk.";
       row.appendChild(cell);
@@ -105,6 +114,12 @@
       const programsCell = document.createElement("td");
       addPills(programsCell, labels(item.program_prioritas, programLabels, item.program_lainnya));
       row.appendChild(programsCell);
+
+      const retainedProgramsCell = document.createElement("td");
+      const retained = retainedLabels(item);
+      if (retained.length) addPills(retainedProgramsCell, retained);
+      else retainedProgramsCell.textContent = "-";
+      row.appendChild(retainedProgramsCell);
 
       const improvementsCell = document.createElement("td");
       addPills(improvementsCell, labels(item.area_peningkatan, improvementLabels, item.peningkatan_lainnya));
@@ -142,10 +157,10 @@
 
   async function load() {
     setState("Memuat aspirasi...");
-    rows.innerHTML = '<tr><td colspan="7" class="loading-row">Memuat data...</td></tr>';
+    rows.innerHTML = '<tr><td colspan="8" class="loading-row">Memuat data...</td></tr>';
     const { data: result, error } = await db.from("aspirasi_ramadhan").select("*").order("created_at", {ascending:false}).limit(1000);
     if (error) {
-      rows.innerHTML = '<tr><td colspan="7" class="loading-row">Data belum dapat dimuat.</td></tr>';
+      rows.innerHTML = '<tr><td colspan="8" class="loading-row">Data belum dapat dimuat.</td></tr>';
       setState("Data aspirasi belum tersedia. Pastikan SQL modul Ramadhan sudah dijalankan di Supabase.", true);
       throw error;
     }
@@ -177,7 +192,7 @@
     content.replaceChildren(
       reviewItem("Program yang paling diharapkan", labels(item.program_prioritas, programLabels, item.program_lainnya).join(", ")),
       reviewItem("Hal yang perlu ditingkatkan", labels(item.area_peningkatan, improvementLabels, item.peningkatan_lainnya).join(", ")),
-      reviewItem("Program yang perlu dipertahankan", item.program_dipertahankan),
+      reviewItem("Program yang perlu dipertahankan", retainedLabels(item).join(", ")),
       reviewItem("Usulan kegiatan baru", item.usulan_baru),
       reviewItem("Kesediaan berpartisipasi", participationLabels[item.partisipasi] || item.partisipasi),
       reviewItem("Saran atau masukan lain", item.saran_lain)
@@ -227,13 +242,13 @@
   }
 
   function exportCsv() {
-    const header = ["Waktu","Nama","WhatsApp","Prioritas Program","Program Lainnya","Perlu Ditingkatkan","Peningkatan Lainnya","Program Dipertahankan","Usulan Baru","Partisipasi","Saran Lain","Status","Catatan Internal"];
+    const header = ["Waktu","Nama","WhatsApp","Prioritas Program","Program Lainnya","Perlu Ditingkatkan","Peningkatan Lainnya","Program Dipertahankan","Program Dipertahankan Lainnya","Usulan Baru","Partisipasi","Saran Lain","Status","Catatan Internal"];
     const lines = [header.map(csvCell).join(",")];
     filteredData().forEach(item => lines.push([
       formatDate(item.created_at),item.nama,item.whatsapp,
       labels(item.program_prioritas,programLabels,item.program_lainnya),item.program_lainnya,
       labels(item.area_peningkatan,improvementLabels,item.peningkatan_lainnya),item.peningkatan_lainnya,
-      item.program_dipertahankan,item.usulan_baru,participationLabels[item.partisipasi] || item.partisipasi,
+      retainedLabels(item),item.program_dipertahankan_lainnya,item.usulan_baru,participationLabels[item.partisipasi] || item.partisipasi,
       item.saran_lain,statusLabels[item.status] || item.status,item.catatan_internal
     ].map(csvCell).join(",")));
     const blob = new Blob(["\ufeff" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
