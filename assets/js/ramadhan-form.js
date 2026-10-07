@@ -13,8 +13,10 @@
 
   const programChecks = [...form.querySelectorAll('input[name="program_prioritas"]')];
   const improvementChecks = [...form.querySelectorAll('input[name="area_peningkatan"]')];
+  const retainedProgramChecks = [...form.querySelectorAll('input[name="program_dipertahankan_pilihan"]')];
   const programOther = programChecks.find(input => input.value === "lainnya");
   const improvementOther = improvementChecks.find(input => input.value === "lainnya");
+  const retainedProgramOther = retainedProgramChecks.find(input => input.value === "lainnya");
   const noImprovement = improvementChecks.find(input => input.value === "tidak_ada");
 
   function checkedValues(name) {
@@ -48,6 +50,7 @@
 
   bindLimitedGroup(programChecks, 5, "programCounter");
   bindLimitedGroup(improvementChecks, 3, "peningkatanCounter");
+  bindLimitedGroup(retainedProgramChecks, 5, "dipertahankanCounter");
 
   programOther.addEventListener("change", () => {
     const wrap = document.getElementById("programLainnyaWrap");
@@ -59,6 +62,12 @@
     const wrap = document.getElementById("peningkatanLainnyaWrap");
     wrap.hidden = !improvementOther.checked;
     if (!improvementOther.checked) document.getElementById("peningkatanLainnya").value = "";
+  });
+
+  retainedProgramOther.addEventListener("change", () => {
+    const wrap = document.getElementById("dipertahankanLainnyaWrap");
+    wrap.hidden = !retainedProgramOther.checked;
+    if (!retainedProgramOther.checked) document.getElementById("dipertahankanLainnya").value = "";
   });
 
   improvementChecks.forEach(input => input.addEventListener("change", () => {
@@ -76,9 +85,11 @@
   function validate() {
     const programs = checkedValues("program_prioritas");
     const improvements = checkedValues("area_peningkatan");
+    const retainedPrograms = checkedValues("program_dipertahankan_pilihan");
     const participation = form.querySelector('input[name="partisipasi"]:checked')?.value;
     const programOtherText = normalize(document.getElementById("programLainnya").value, 200);
     const improvementOtherText = normalize(document.getElementById("peningkatanLainnya").value, 200);
+    const retainedProgramOtherText = normalize(document.getElementById("dipertahankanLainnya").value, 200);
     const whatsapp = normalize(document.getElementById("whatsapp").value, 20);
 
     if (!programs.length) return "Pilih minimal satu program yang paling Anda harapkan.";
@@ -88,6 +99,9 @@
     if (improvements.length > 3) return "Pilihan hal yang perlu ditingkatkan maksimal tiga.";
     if (improvements.includes("tidak_ada") && improvements.length > 1) return "Pilihan Tidak ada tidak dapat digabungkan dengan pilihan lainnya.";
     if (improvements.includes("lainnya") && !improvementOtherText) return "Tuliskan hal lainnya yang perlu ditingkatkan.";
+    if (!retainedPrograms.length) return "Pilih minimal satu program sebelumnya yang perlu dipertahankan.";
+    if (retainedPrograms.length > 5) return "Pilihan program yang perlu dipertahankan maksimal lima.";
+    if (retainedPrograms.includes("lainnya") && !retainedProgramOtherText) return "Tuliskan program lainnya yang perlu dipertahankan.";
     if (!participation) return "Pilih jawaban kesediaan berpartisipasi.";
     if (whatsapp && !/^[0-9+() .-]{8,20}$/.test(whatsapp)) return "Periksa kembali format nomor WhatsApp.";
     return "";
@@ -127,12 +141,13 @@
 
     const payload = {
       submission_token: requestId(),
-      form_version: "1448h-v1",
+      form_version: "1448h-v2",
       program_prioritas: checkedValues("program_prioritas"),
       program_lainnya: normalize(document.getElementById("programLainnya").value, 200),
       area_peningkatan: checkedValues("area_peningkatan"),
       peningkatan_lainnya: normalize(document.getElementById("peningkatanLainnya").value, 200),
-      program_dipertahankan: normalize(document.getElementById("programDipertahankan").value, 500),
+      program_dipertahankan_pilihan: checkedValues("program_dipertahankan_pilihan"),
+      program_dipertahankan_lainnya: normalize(document.getElementById("dipertahankanLainnya").value, 200),
       usulan_baru: normalize(document.getElementById("usulanBaru").value, 500),
       partisipasi: form.querySelector('input[name="partisipasi"]:checked').value,
       saran_lain: normalize(document.getElementById("saranLain").value, 1000),

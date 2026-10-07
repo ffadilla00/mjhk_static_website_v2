@@ -2,7 +2,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const db=window.mjhkSupabase;
 const MONTHS=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 const MAX_FILE_SIZE=5*1024*1024;
-let kajianData=[],mediaData=[],keuanganData=[],monthlyFinanceData=[],yearlyFinanceData=[],monthlyCategoryData=[],yearlyCategoryData=[],financeDetailReportData=[],continuityData=[],periodicReportData=[],pendingDelete=null,pendingPeriodicReport=null,periodicPreviewUrl=null,openingBalanceTouched=false;
+let kajianData=[],mediaData=[],keuanganData=[],monthlyFinanceData=[],yearlyFinanceData=[],monthlyCategoryData=[],yearlyCategoryData=[],financeDetailReportData=[],continuityData=[],periodicReportData=[],pendingDelete=null,pendingPeriodicReport=null,periodicPreviewUrl=null,openingBalanceTouched=false,speakerPhotoRemoved=false;
 
 
 function escHTML(value){
@@ -22,6 +22,13 @@ function setMetaLines(target,lines){
 }
 
 function fmtDate(s){if(!s)return"";const[y,m,d]=s.split("-").map(Number);return `${d} ${MONTHS[m-1]} ${y}`}
+function fmtAgendaDate(s){
+  if(!s)return "";
+  const [year,month,day]=s.split("-").map(Number);
+  const dayNames=["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const dayName=dayNames[new Date(Date.UTC(year,month-1,day)).getUTCDay()];
+  return `${dayName}, ${fmtDate(s)}`;
+}
 function fmtPeriod(a,b){if(!a||!b)return"";const[ya,ma,da]=a.split("-").map(Number),[yb,mb,db]=b.split("-").map(Number);if(ya===yb&&ma===mb)return `${da} sampai ${db} ${MONTHS[mb-1]} ${yb}`;if(ya===yb)return `${da} ${MONTHS[ma-1]} sampai ${db} ${MONTHS[mb-1]} ${yb}`;return `${da} ${MONTHS[ma-1]} ${ya} sampai ${db} ${MONTHS[mb-1]} ${yb}`}
 function rupiah(v){const n=Number(v||0);return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n)}
 function monthLabel(monthDate){
@@ -969,6 +976,18 @@ function showPreview(file,wrap,img,meta){if(!file){clearPreview(wrap,img,meta);r
 function storageFileName(url){if(!url)return"";const clean=url.split(/[?#]/)[0],encoded=clean.slice(clean.lastIndexOf("/")+1);try{return decodeURIComponent(encoded)}catch(err){return encoded}}
 function showStoredPreview(url,wrap,img,meta){if(!url){clearPreview(wrap,img,meta);return}$(img).src=url;const name=storageFileName(url);setMetaLines($(meta),["Sumber: Supabase Storage",...(name?[`Nama file: ${name}`]:[])]);$(wrap).classList.remove("hidden")}
 function validateFile(file){if(!file)return true;if(!["image/jpeg","image/png"].includes(file.type)){toast("File harus berformat JPG atau PNG.","error");return false}if(file.size>MAX_FILE_SIZE){toast("Ukuran file maksimal 5 MB.","error");return false}return true}
+function validateSpeakerPhotoFile(file){
+  if(!file)return true;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+    toast("Foto pemateri harus berformat JPG, PNG, atau WebP.","error");
+    return false;
+  }
+  if(file.size>MAX_FILE_SIZE){
+    toast("Ukuran foto pemateri maksimal 5 MB.","error");
+    return false;
+  }
+  return true;
+}
 function safeName(n){return n.toLowerCase().replace(/[^a-z0-9._-]+/g,"-")}
 function storagePath(url,bucket){if(!url)return"";const marker=`/storage/v1/object/public/${bucket}/`,i=url.indexOf(marker);return i>=0?decodeURIComponent(url.slice(i+marker.length)):""}
 async function upload(bucket,file,prefix){const name=`${prefix}-${Date.now()}-${safeName(file.name)}`;const {error}=await db.storage.from(bucket).upload(name,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return db.storage.from(bucket).getPublicUrl(name).data.publicUrl}
@@ -990,6 +1009,15 @@ const AGENDA_PRESETS={
   kitab:"KAJIAN KITAB / KAJIAN UMUM",
   kegiatan:"KEGIATAN & DAKWAH"
 };
+const SPEAKER_CROP_WIDTH=594;
+const SPEAKER_CROP_HEIGHT=1104;
+let speakerCropImage=null;
+let speakerCropZoom=1;
+let speakerCropOffsetX=0;
+let speakerCropOffsetY=0;
+let speakerCropDirty=false;
+let speakerCropLoadPromise=Promise.resolve();
+let speakerCropPointer=null;
 
 function fitAgendaText(node,maxSize,minSize){
   if(!node)return;
@@ -1001,9 +1029,160 @@ function fitAgendaText(node,maxSize,minSize){
   }
 }
 
+function setSpeakerCropVisibility(hasSource){
+  $("#speakerPhotoPreview").classList.toggle("hidden",!hasSource);
+  $("#agendaPreviewSpeakerPhoto").classList.toggle("hidden",!hasSource);
+  $("#speakerPhotoPlaceholder").classList.toggle("hidden",hasSource);
+  $("#agendaSpeakerPhotoEmpty").classList.toggle("hidden",hasSource);
+  $("#speakerCropGrid").classList.toggle("hidden",!hasSource);
+  $("#speakerCropControls").classList.toggle("hidden",!hasSource);
+  $("#removeSpeakerPhoto").classList.toggle("hidden",!hasSource);
+}
+
+function clearSpeakerCropCanvas(canvas){
+  const context=canvas.getContext("2d");
+  context.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function speakerCropGeometry(width,height){
+  if(!speakerCropImage)return null;
+  const naturalWidth=speakerCropImage.naturalWidth||speakerCropImage.width;
+  const naturalHeight=speakerCropImage.naturalHeight||speakerCropImage.height;
+  const baseScale=Math.max(width/naturalWidth,height/naturalHeight);
+  const scale=baseScale*speakerCropZoom;
+  const drawWidth=naturalWidth*scale;
+  const drawHeight=naturalHeight*scale;
+  const extraX=Math.max(0,(drawWidth-width)/2);
+  const extraY=Math.max(0,(drawHeight-height)/2);
+  return {
+    drawWidth,
+    drawHeight,
+    x:(width-drawWidth)/2+(speakerCropOffsetX*extraX),
+    y:(height-drawHeight)/2+(speakerCropOffsetY*extraY),
+    extraX,
+    extraY
+  };
+}
+
+function drawSpeakerCrop(canvas){
+  clearSpeakerCropCanvas(canvas);
+  if(!speakerCropImage)return;
+  const geometry=speakerCropGeometry(canvas.width,canvas.height);
+  const context=canvas.getContext("2d");
+  context.imageSmoothingEnabled=true;
+  context.imageSmoothingQuality="high";
+  context.drawImage(speakerCropImage,geometry.x,geometry.y,geometry.drawWidth,geometry.drawHeight);
+}
+
+function renderSpeakerCrop(){
+  drawSpeakerCrop($("#speakerPhotoPreview"));
+  drawSpeakerCrop($("#agendaPreviewSpeakerPhoto"));
+  $("#speakerPhotoZoom").value=String(speakerCropZoom);
+  $("#speakerPhotoZoomValue").textContent=`${Math.round(speakerCropZoom*100)}%`;
+}
+
+function resetSpeakerCropState(markDirty=false){
+  speakerCropZoom=1;
+  speakerCropOffsetX=0;
+  speakerCropOffsetY=0;
+  speakerCropDirty=markDirty;
+  renderSpeakerCrop();
+}
+
+function setSpeakerPhotoPreview(source,metaText="",options={}){
+  if(!source){
+    speakerCropImage=null;
+    speakerCropDirty=false;
+    speakerCropLoadPromise=Promise.resolve();
+    clearSpeakerCropCanvas($("#speakerPhotoPreview"));
+    clearSpeakerCropCanvas($("#agendaPreviewSpeakerPhoto"));
+    setSpeakerCropVisibility(false);
+    $("#speakerPhotoMeta").textContent=metaText||"Format JPG, PNG, atau WebP. Maksimal 5 MB. Foto portrait disarankan.";
+    return speakerCropLoadPromise;
+  }
+
+  const image=new Image();
+  image.crossOrigin="anonymous";
+  speakerCropLoadPromise=new Promise((resolve,reject)=>{
+    image.onload=()=>{
+      speakerCropImage=image;
+      speakerCropZoom=1;
+      speakerCropOffsetX=0;
+      speakerCropOffsetY=0;
+      speakerCropDirty=Boolean(options.dirty);
+      setSpeakerCropVisibility(true);
+      $("#speakerPhotoMeta").textContent=metaText||"Foto siap diatur. Geser posisi dan sesuaikan zoom sebelum disimpan.";
+      renderSpeakerCrop();
+      resolve();
+    };
+    image.onerror=()=>{
+      speakerCropImage=null;
+      setSpeakerCropVisibility(false);
+      reject(new Error("Foto pemateri gagal dimuat untuk proses crop."));
+    };
+  });
+  image.src=source;
+  return speakerCropLoadPromise;
+}
+
+function readImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=()=>reject(new Error("Foto pemateri gagal dibaca."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function previewSpeakerPhotoFile(file){
+  if(!file){
+    setSpeakerPhotoPreview(null);
+    return;
+  }
+  const source=await readImageFile(file);
+  speakerPhotoRemoved=false;
+  await setSpeakerPhotoPreview(
+    source,
+    `File lokal: ${file.name} (${(file.size/(1024*1024)).toFixed(2)} MB)`,
+    {dirty:true}
+  );
+  renderAgendaPosterPreview();
+}
+
+function buildSpeakerPhotoBlob(){
+  if(!speakerCropImage)return Promise.reject(new Error("Foto pemateri belum siap diproses."));
+  const canvas=document.createElement("canvas");
+  canvas.width=SPEAKER_CROP_WIDTH;
+  canvas.height=SPEAKER_CROP_HEIGHT;
+  drawSpeakerCrop(canvas);
+  return new Promise((resolve,reject)=>{
+    try{
+      canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Hasil crop foto gagal dibuat.")),"image/jpeg",0.92);
+    }catch(err){
+      reject(new Error("Hasil crop foto gagal dibuat. Periksa akses file foto."));
+    }
+  });
+}
+
+function makeSpeakerPhotoName(){
+  const date=$("#tanggal").value||"tanpa-tanggal";
+  return `speaker/speaker-cropped-${date}-${Date.now()}.jpg`;
+}
+
+function applyAgendaContentMode(){
+  const photoMode=$("#templateContentMode").value==="speaker_photo";
+  $$(".agenda-quote-field").forEach(field=>field.classList.toggle("hidden",photoMode));
+  $("#agendaSpeakerPhotoFields").classList.toggle("hidden",!photoMode);
+  $("#agendaDefaultSide").classList.toggle("hidden",photoMode);
+  $("#agendaSpeakerPhotoCard").classList.toggle("hidden",!photoMode);
+  $("#agendaFooterQris").classList.toggle("hidden",photoMode);
+  $("#agendaPosterPreview").classList.toggle("has-speaker-photo",photoMode);
+}
+
 function renderAgendaPosterPreview(){
   const poster=$("#agendaPosterPreview");
   if(!poster)return;
+  applyAgendaContentMode();
   const preset=AGENDA_PRESETS[$("#templatePreset").value]?$("#templatePreset").value:"quran";
   poster.classList.remove("preset-quran","preset-kitab","preset-kegiatan");
   poster.classList.add(`preset-${preset}`);
@@ -1012,7 +1191,7 @@ function renderAgendaPosterPreview(){
   $("#agendaPreviewJudul").textContent=$("#judul").value.trim()||"KAJIAN RUTIN";
   $("#agendaPreviewTema").textContent=$("#tema").value.trim()||"TEMA / MATERI KAJIAN";
   $("#agendaPreviewPenceramah").textContent=$("#penceramah").value.trim()||"NAMA PENCERAMAH";
-  $("#agendaPreviewTanggal").textContent=$("#tanggal").value?fmtDate($("#tanggal").value):"Tanggal kegiatan";
+  $("#agendaPreviewTanggal").textContent=$("#tanggal").value?fmtAgendaDate($("#tanggal").value):"Hari, tanggal kegiatan";
   $("#agendaPreviewWaktu").textContent=$("#waktu").value.trim()||"Waktu kegiatan";
   $("#agendaPreviewLokasi").textContent=$("#lokasi").value.trim()||"Masjid Jami' Harapan Kita";
   $("#agendaPreviewKutipan").textContent=$("#kutipan").value.trim()||"Mari hadir dan raih ilmu yang bermanfaat.";
@@ -1037,11 +1216,14 @@ function toggleAgendaPosterMode(){
   $("#agendaLegacyFields").classList.toggle("hidden",templateMode);
   $("#templatePreset").required=templateMode;
   $("#tema").required=templateMode;
-  if(templateMode)renderAgendaPosterPreview();
+  if(templateMode){
+    applyAgendaContentMode();
+    renderAgendaPosterPreview();
+  }
 }
 
 async function waitForAgendaPosterImages(node){
-  const images=[...node.querySelectorAll("img")];
+  const images=[...node.querySelectorAll("img")].filter(image=>image.getAttribute("src"));
   await Promise.all(images.map(async image=>{
     if(image.complete&&image.naturalWidth)return;
     if(image.decode){try{await image.decode();return}catch(err){/* fallback ke event load */}}
@@ -1090,12 +1272,78 @@ $$(".finance-preview-tab").forEach(button=>{
   button.onclick=()=>setFinancePreviewPage(button.dataset.financePreviewPage);
 });
 $("#posterMode").onchange=toggleAgendaPosterMode;
+$("#templateContentMode").onchange=renderAgendaPosterPreview;
 $("#refreshAgendaPreview").onclick=renderAgendaPosterPreview;
 ["kategoriUtama","jenisAgenda","judul","tema","penceramah","lokasi","tanggal","waktu","templatePreset","kutipan","sumberKutipan"].forEach(id=>{
   const input=$("#"+id);
   input.addEventListener("input",renderAgendaPosterPreview);
   input.addEventListener("change",renderAgendaPosterPreview);
 });
+function setSpeakerCropZoom(value){
+  if(!speakerCropImage)return;
+  speakerCropZoom=Math.min(3,Math.max(1,Number(value)||1));
+  speakerCropDirty=true;
+  renderSpeakerCrop();
+}
+
+const speakerCropViewport=$("#speakerPhotoPreviewWrap");
+speakerCropViewport.onpointerdown=event=>{
+  if(!speakerCropImage)return;
+  event.preventDefault();
+  speakerCropPointer={id:event.pointerId,x:event.clientX,y:event.clientY};
+  speakerCropViewport.setPointerCapture(event.pointerId);
+  speakerCropViewport.classList.add("is-dragging");
+};
+speakerCropViewport.onpointermove=event=>{
+  if(!speakerCropPointer||speakerCropPointer.id!==event.pointerId||!speakerCropImage)return;
+  event.preventDefault();
+  const dx=event.clientX-speakerCropPointer.x;
+  const dy=event.clientY-speakerCropPointer.y;
+  speakerCropPointer.x=event.clientX;
+  speakerCropPointer.y=event.clientY;
+  const rect=speakerCropViewport.getBoundingClientRect();
+  const geometry=speakerCropGeometry(rect.width,rect.height);
+  if(geometry.extraX>0)speakerCropOffsetX=Math.min(1,Math.max(-1,speakerCropOffsetX+(dx/geometry.extraX)));
+  if(geometry.extraY>0)speakerCropOffsetY=Math.min(1,Math.max(-1,speakerCropOffsetY+(dy/geometry.extraY)));
+  speakerCropDirty=true;
+  renderSpeakerCrop();
+};
+function stopSpeakerCropDrag(event){
+  if(!speakerCropPointer||speakerCropPointer.id!==event.pointerId)return;
+  if(speakerCropViewport.hasPointerCapture(event.pointerId))speakerCropViewport.releasePointerCapture(event.pointerId);
+  speakerCropPointer=null;
+  speakerCropViewport.classList.remove("is-dragging");
+}
+speakerCropViewport.onpointerup=stopSpeakerCropDrag;
+speakerCropViewport.onpointercancel=stopSpeakerCropDrag;
+$("#speakerPhotoZoom").oninput=event=>setSpeakerCropZoom(event.target.value);
+$("#speakerZoomOut").onclick=()=>setSpeakerCropZoom(speakerCropZoom-0.1);
+$("#speakerZoomIn").onclick=()=>setSpeakerCropZoom(speakerCropZoom+0.1);
+$("#resetSpeakerCrop").onclick=()=>{
+  if(!speakerCropImage)return;
+  resetSpeakerCropState(true);
+};
+$("#speakerPhotoFile").onchange=async()=>{
+  const input=$("#speakerPhotoFile");
+  const file=input.files[0];
+  if(!validateSpeakerPhotoFile(file)){
+    input.value="";
+    return;
+  }
+  try{
+    await previewSpeakerPhotoFile(file);
+  }catch(err){
+    input.value="";
+    setSpeakerPhotoPreview(null);
+    toast(err.message,"error");
+  }
+};
+$("#removeSpeakerPhoto").onclick=()=>{
+  speakerPhotoRemoved=true;
+  $("#speakerPhotoFile").value="";
+  setSpeakerPhotoPreview(null);
+  renderAgendaPosterPreview();
+};
 $("#posterFile").onchange=()=>{const file=$("#posterFile").files[0];if(validateFile(file))showPreview(file,"#posterPreviewWrap","#posterPreview","#posterPreviewMeta");else{$("#posterFile").value="";clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta")}};
 $("#keuanganImage").onchange=()=>{const file=$("#keuanganImage").files[0];if(validateFile(file))showPreview(file,"#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta");else{$("#keuanganImage").value="";clearPreview("#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta")}};
 
@@ -1205,13 +1453,17 @@ function openF(n){
 
   if(n==="kajian"){
     $("#posterLama").value="";
+    $("#speakerPhotoLama").value="";
+    speakerPhotoRemoved=false;
     $("#kategoriUtama").value="kajian";
     $("#jenisAgenda").value="kajian";
     $("#posterMode").value="template";
     $("#templatePreset").value="quran";
+    $("#templateContentMode").value="default";
     $("#lokasi").value="Masjid Jami' Harapan Kita";
     $("#kajianStatus").value="publish";
     clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta");
+    setSpeakerPhotoPreview(null);
     toggleAgendaPosterMode();
     renderAgendaPosterPreview();
   }
@@ -1225,7 +1477,7 @@ function openF(n){
     renderFinancePreview();
   }
 }
-function closeF(n){$("#"+n+"FormWrap").classList.add("hidden");if(n==="kajian")clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta");if(n==="keuangan"){clearPreview("#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta");resetFinanceForm()}} window.closeF=closeF;
+function closeF(n){$("#"+n+"FormWrap").classList.add("hidden");if(n==="kajian"){clearPreview("#posterPreviewWrap","#posterPreview","#posterPreviewMeta");setSpeakerPhotoPreview(null);speakerPhotoRemoved=false}if(n==="keuangan"){clearPreview("#keuanganPreviewWrap","#keuanganPreview","#keuanganPreviewMeta");resetFinanceForm()}} window.closeF=closeF;
 $("#addKajian").onclick=()=>openF("kajian");$("#addMedia").onclick=()=>openF("media");$("#addKeuangan").onclick=()=>openF("keuangan");
 
 function toggleFinanceMode(){const mode=$("#dataMode").value;$("#structuredFields").classList.toggle("hidden",mode!=="structured");$("#legacyFields").classList.toggle("hidden",mode!=="legacy");$("#saldoAwal").closest(".field").classList.toggle("hidden",mode!=="structured");$("#keuanganCatatan").closest(".field").classList.toggle("hidden",mode!=="structured");updateContinuityCheck()}
@@ -1413,16 +1665,45 @@ function makeFinancePosterName(page,timestamp){
   return `generated/laporan-structured-${a}-${b}-page-${page}-${timestamp}.jpg`;
 }
 
-$("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarget;setBusy(form,true);try{
+$("#kajianForm").onsubmit=async e=>{
+  e.preventDefault();
+  const form=e.currentTarget;
+  let uploadedPoster=null;
+  let uploadedSpeakerPhoto=null;
+  let saved=false;
+  setBusy(form,true);
+  try{
   const id=+$("#kajianId").value||null;
   const mode=$("#posterMode").value;
   const file=$("#posterFile").files[0];
   const oldPoster=$("#posterLama").value||null;
+  const contentMode=mode==="template"?$("#templateContentMode").value:"default";
+  const speakerPhotoFile=$("#speakerPhotoFile").files[0];
+  const oldSpeakerPhoto=$("#speakerPhotoLama").value||null;
+  let speakerPhoto=speakerPhotoRemoved?null:oldSpeakerPhoto;
   let poster=oldPoster;
-  let uploadedPoster=null;
 
   if(mode==="template"){
     if(!$("#tema").value.trim())throw new Error("Tema / Materi wajib diisi untuk membuat poster otomatis.");
+    if(contentMode==="speaker_photo"){
+      if(!validateSpeakerPhotoFile(speakerPhotoFile))return;
+      if(!speakerPhotoFile&&!speakerPhoto)throw new Error("Foto pemateri / ustadz wajib dipilih untuk mode foto.");
+      if(speakerPhotoFile&&!speakerCropImage)await previewSpeakerPhotoFile(speakerPhotoFile);
+      await speakerCropLoadPromise;
+      if(!speakerCropImage)throw new Error("Foto pemateri belum siap diproses.");
+      if(speakerPhotoFile||speakerCropDirty){
+        const croppedSpeakerBlob=await buildSpeakerPhotoBlob();
+        uploadedSpeakerPhoto=await uploadBinaryBlob(
+          "poster-kajian",
+          croppedSpeakerBlob,
+          makeSpeakerPhotoName(),
+          "image/jpeg"
+        );
+        speakerPhoto=uploadedSpeakerPhoto;
+      }
+    }else{
+      speakerPhoto=null;
+    }
     const blob=await buildAgendaPosterBlob();
     if(!blob)throw new Error("Gagal membuat JPG poster agenda.");
     uploadedPoster=await uploadBlob("poster-kajian",blob,makeAgendaPosterName());
@@ -1457,6 +1738,8 @@ $("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarge
     template_preset:mode==="template"?$("#templatePreset").value:null,
     kutipan:mode==="template"?$("#kutipan").value.trim()||null:null,
     sumber_kutipan:mode==="template"?$("#sumberKutipan").value.trim()||null:null,
+    template_content_mode:contentMode,
+    speaker_photo_url:mode==="template"&&contentMode==="speaker_photo"?speakerPhoto:null,
     status:$("#kajianStatus").value
   };
 
@@ -1465,19 +1748,26 @@ $("#kajianForm").onsubmit=async e=>{e.preventDefault();const form=e.currentTarge
     :await db.from("kajian").insert(payload);
 
   if(error){
-    if(uploadedPoster)await removeFile("poster-kajian",uploadedPoster).catch(()=>null);
     throw error;
   }
+  saved=true;
   if(uploadedPoster&&oldPoster&&oldPoster!==uploadedPoster){
     await removeFile("poster-kajian",oldPoster).catch(()=>null);
+  }
+  if(oldSpeakerPhoto&&oldSpeakerPhoto!==speakerPhoto){
+    await removeFile("poster-kajian",oldSpeakerPhoto).catch(()=>null);
   }
 
   closeF("kajian");
   toast(id?"Agenda dan poster berhasil diperbarui.":"Agenda dan poster berhasil ditambahkan.","success");
   await loadAll();
 }catch(err){
+  if(!saved){
+    if(uploadedPoster)await removeFile("poster-kajian",uploadedPoster).catch(()=>null);
+    if(uploadedSpeakerPhoto)await removeFile("poster-kajian",uploadedSpeakerPhoto).catch(()=>null);
+  }
   const message=String(err?.message||err);
-  if(message.toLowerCase().includes("poster_mode")||message.toLowerCase().includes("template_preset")){
+  if(message.toLowerCase().includes("poster_mode")||message.toLowerCase().includes("template_preset")||message.toLowerCase().includes("template_content_mode")||message.toLowerCase().includes("speaker_photo_url")){
     toast("Kolom template agenda belum tersedia. Jalankan SQL migrasi Agenda Poster Template terlebih dahulu.","error");
   }else{
     toast(message,"error");
@@ -1572,9 +1862,16 @@ window.editK=id=>{
   $("#kajianStatus").value=x.status||"publish";
   $("#posterMode").value=x.poster_mode||"legacy";
   $("#templatePreset").value=x.template_preset||"quran";
+  $("#templateContentMode").value=x.template_content_mode||"default";
   $("#kutipan").value=x.kutipan||"";
   $("#sumberKutipan").value=x.sumber_kutipan||"";
   $("#posterLama").value=x.poster_url||"";
+  $("#speakerPhotoLama").value=x.speaker_photo_url||"";
+  speakerPhotoRemoved=false;
+  setSpeakerPhotoPreview(
+    x.speaker_photo_url||null,
+    x.speaker_photo_url?`Foto tersimpan: ${storageFileName(x.speaker_photo_url)}`:""
+  ).catch(err=>toast(err.message,"error"));
   showStoredPreview(x.poster_url,"#posterPreviewWrap","#posterPreview","#posterPreviewMeta");
   toggleAgendaPosterMode();
   renderAgendaPosterPreview();
@@ -1596,7 +1893,7 @@ window.editF=async id=>{const x=keuanganData.find(x=>x.id===id);openF("keuangan"
 function askDelete(message){return new Promise(resolve=>{pendingDelete=resolve;$("#confirmMessage").textContent=message;$("#confirmModal").classList.remove("hidden")})}
 function finishDelete(answer){$("#confirmModal").classList.add("hidden");if(pendingDelete){pendingDelete(answer);pendingDelete=null}}
 $("#cancelDelete").onclick=()=>finishDelete(false);$("#confirmDelete").onclick=()=>finishDelete(true);
-async function deleteRecord(kind,id,button){if(!await askDelete("Data ini akan dihapus dan tidak dapat dikembalikan."))return;try{if(button)button.disabled=true;let x,error;if(kind==="kajian"){x=kajianData.find(x=>x.id===id);({error}=await db.from("kajian").delete().eq("id",id))}else if(kind==="media"){({error}=await db.from("media").delete().eq("id",id))}else{x=keuanganData.find(x=>x.id===id);({error}=await db.from("keuangan").delete().eq("id",id))}if(error)throw error;if(kind==="kajian"&&x&&x.poster_url)await removeFile("poster-kajian",x.poster_url);if(kind==="keuangan"&&x&&x.image_url)await removeFile("laporan-keuangan",x.image_url);if(kind==="keuangan"&&x&&x.image_url_page_2)await removeFile("laporan-keuangan",x.image_url_page_2);toast("Data berhasil dihapus.","success");await loadAll()}catch(err){toast(err.message,"error")}finally{if(button)button.disabled=false}}
+async function deleteRecord(kind,id,button){if(!await askDelete("Data ini akan dihapus dan tidak dapat dikembalikan."))return;try{if(button)button.disabled=true;let x,error;if(kind==="kajian"){x=kajianData.find(x=>x.id===id);({error}=await db.from("kajian").delete().eq("id",id))}else if(kind==="media"){({error}=await db.from("media").delete().eq("id",id))}else{x=keuanganData.find(x=>x.id===id);({error}=await db.from("keuangan").delete().eq("id",id))}if(error)throw error;if(kind==="kajian"&&x&&x.poster_url)await removeFile("poster-kajian",x.poster_url);if(kind==="kajian"&&x&&x.speaker_photo_url)await removeFile("poster-kajian",x.speaker_photo_url);if(kind==="keuangan"&&x&&x.image_url)await removeFile("laporan-keuangan",x.image_url);if(kind==="keuangan"&&x&&x.image_url_page_2)await removeFile("laporan-keuangan",x.image_url_page_2);toast("Data berhasil dihapus.","success");await loadAll()}catch(err){toast(err.message,"error")}finally{if(button)button.disabled=false}}
 window.deleteKajian=(id,button)=>deleteRecord("kajian",id,button);window.deleteMedia=(id,button)=>deleteRecord("media",id,button);window.deleteFinance=(id,button)=>deleteRecord("keuangan",id,button);
 
 (async()=>{try{if(await requireAuth()){toggleFinanceMode();resetFinanceForm();updateFinanceTotals();renderFinancePreview();await loadAll()}}catch(err){toast(err.message,"error")}})();

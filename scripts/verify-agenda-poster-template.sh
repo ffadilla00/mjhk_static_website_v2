@@ -28,10 +28,10 @@ for file in \
   require_file "$file"
 done
 
-if [ -f README-AGENDA-POSTER-TEMPLATE-CR.md ]; then
+if [ -f README-AGENDA-POSTER-TEMPLATE-CR.md ] || [ -f README-AGENDA-SPEAKER-PHOTO-CR.md ] || [ -f README-AGENDA-PHOTO-CROPPER-CR.md ] || [ -f README-AGENDA-DAY-NAME-HOTFIX.md ]; then
   pass "Panduan implementasi tersedia"
 else
-  warn "README-AGENDA-POSTER-TEMPLATE-CR.md tidak ditemukan. Fitur tetap dapat dijalankan."
+  warn "Panduan implementasi tidak ditemukan. Fitur tetap dapat dijalankan."
 fi
 
 if node --check admin/admin.js >/dev/null; then
@@ -42,18 +42,28 @@ fi
 
 if grep -q 'id="posterMode"' admin/index.html \
   && grep -q 'id="templatePreset"' admin/index.html \
+  && grep -q 'id="templateContentMode"' admin/index.html \
+  && grep -q 'id="speakerPhotoFile"' admin/index.html \
+  && grep -q 'id="speakerPhotoZoom"' admin/index.html \
+  && grep -q 'id="resetSpeakerCrop"' admin/index.html \
+  && grep -q 'id="agendaSpeakerPhotoCard"' admin/index.html \
   && grep -q 'id="agendaPosterPreview"' admin/index.html \
   && grep -q 'qris-mjhk.jpg' admin/index.html; then
-  pass "Form mode poster, preset, preview, dan QRIS tersedia"
+  pass "Form mode poster, preset, foto pemateri, preview, dan QRIS tersedia"
 else
   fail "Struktur form poster template belum lengkap"
 fi
 
 if grep -q 'buildAgendaPosterBlob' admin/admin.js \
   && grep -q 'uploadBlob("poster-kajian"' admin/admin.js \
+  && grep -q 'buildSpeakerPhotoBlob' admin/admin.js \
+  && grep -q 'makeSpeakerPhotoName()' admin/admin.js \
+  && grep -q 'croppedSpeakerBlob' admin/admin.js \
   && grep -q 'poster_mode:mode' admin/admin.js \
+  && grep -q 'template_content_mode:contentMode' admin/admin.js \
+  && grep -q 'speaker_photo_url:' admin/admin.js \
   && grep -q 'x.poster_mode||"legacy"' admin/admin.js; then
-  pass "Alur generate, upload, dan kompatibilitas agenda lama terhubung"
+  pass "Alur generate, upload foto, cleanup, dan kompatibilitas agenda lama terhubung"
 else
   fail "Alur lifecycle poster agenda belum lengkap"
 fi
@@ -61,23 +71,43 @@ fi
 if grep -q 'Agenda Poster Template CR START' admin/admin.css \
   && grep -q '.preset-quran' admin/admin.css \
   && grep -q '.preset-kitab' admin/admin.css \
-  && grep -q '.preset-kegiatan' admin/admin.css; then
-  pass "Tiga preset poster bawaan tersedia"
+  && grep -q '.preset-kegiatan' admin/admin.css \
+  && grep -q '.agenda-speaker-photo-card' admin/admin.css \
+  && grep -q '.speaker-crop-grid' admin/admin.css; then
+  pass "Tiga preset dan frame portrait foto pemateri tersedia"
 else
   fail "Style preset poster belum lengkap"
 fi
 
+if grep -q 'speakerCropGeometry' admin/admin.js \
+  && grep -q 'onpointermove' admin/admin.js \
+  && grep -q 'setSpeakerCropZoom' admin/admin.js \
+  && grep -q 'SPEAKER_CROP_WIDTH=594' admin/admin.js \
+  && grep -q 'SPEAKER_CROP_HEIGHT=1104' admin/admin.js \
+  && grep -q 'touch-action:none' admin/admin.css; then
+  pass "Crop, drag, zoom, reset, dan output portrait resolusi tinggi tersedia"
+else
+  fail "Editor crop foto pemateri belum lengkap"
+fi
+
 if grep -q 'fitAgendaText($("#agendaPreviewTanggal"),21,15)' admin/admin.js \
+  && grep -q 'function fmtAgendaDate' admin/admin.js \
+  && grep -q '"Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"' admin/admin.js \
+  && grep -q 'fmtAgendaDate($("#tanggal").value)' admin/admin.js \
   && grep -q 'fitAgendaText($("#agendaPreviewKutipan"),18,12.5)' admin/admin.js \
-  && grep -q 'font-size:17px' admin/admin.css; then
-  pass "Hotfix keterbacaan tanggal, waktu, lokasi, kutipan, dan footer tersedia"
+  && grep -q '.agenda-footer-lead' admin/admin.css \
+  && grep -q 'font-size:20px' admin/admin.css \
+  && grep -q 'id="agendaFooterQris"' admin/index.html; then
+  pass "Nama hari, keterbacaan poster, dan footer adaptif terhadap mode foto tersedia"
 else
   fail "Hotfix keterbacaan poster agenda belum lengkap"
 fi
 
 if grep -q "add column if not exists poster_mode" supabase/agenda-poster-template/01_add_agenda_poster_template_fields.sql \
+  && grep -q "add column if not exists template_content_mode" supabase/agenda-poster-template/01_add_agenda_poster_template_fields.sql \
+  && grep -q "add column if not exists speaker_photo_url" supabase/agenda-poster-template/01_add_agenda_poster_template_fields.sql \
   && grep -q "default 'legacy'" supabase/agenda-poster-template/01_add_agenda_poster_template_fields.sql \
-  && grep -q "kajian_template_preset_check" supabase/agenda-poster-template/02_verify.sql; then
+  && grep -q "kajian_template_content_mode_check" supabase/agenda-poster-template/02_verify.sql; then
   pass "Migrasi database additive dan memiliki verifier"
 else
   fail "Migrasi atau verifier database belum sesuai"

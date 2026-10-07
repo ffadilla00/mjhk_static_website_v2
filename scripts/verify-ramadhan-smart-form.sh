@@ -34,6 +34,8 @@ check_file admin/ramadhan-admin.js
 check_file supabase/ramadhan-smart-form/01_create_aspirasi_ramadhan.sql
 check_file supabase/ramadhan-smart-form/03_create_public_dashboard_rpc.sql
 check_file supabase/ramadhan-smart-form/04_verify_public_dashboard.sql
+check_file supabase/ramadhan-smart-form/05_apply_secretariat_questionnaire_revision.sql
+check_file supabase/ramadhan-smart-form/06_verify_secretariat_questionnaire_revision.sql
 check_file supabase/ramadhan-smart-form/98_rollback_public_dashboard.sql
 
 check_text index.html 'href="ramadhan/"'
@@ -44,8 +46,19 @@ check_text admin/index.html 'src="ramadhan-admin.js"'
 check_text sitemap.xml 'https://www.mj-harapankita.or.id/ramadhan/'
 check_text sitemap.xml 'https://www.mj-harapankita.or.id/ramadhan/dashboard/'
 check_text ramadhan/index.html 'href="dashboard/"'
+check_text ramadhan/index.html 'name="program_prioritas" value="zakat_infaq_fidyah"'
+check_text ramadhan/index.html 'name="program_prioritas" value="santunan_yatim_dhuafa"'
+check_text ramadhan/index.html 'name="area_peningkatan" value="kualitas_imam_khatib_tarawih"'
+check_text ramadhan/index.html 'name="area_peningkatan" value="kualitas_mc_tarawih"'
+check_text ramadhan/index.html 'name="program_dipertahankan_pilihan"'
+check_text assets/js/ramadhan-form.js 'form_version: "1448h-v2"'
+check_text assets/js/ramadhan-form.js 'bindLimitedGroup(retainedProgramChecks, 5, "dipertahankanCounter")'
 check_text ramadhan/dashboard/index.html 'id="refreshDashboard"'
+check_text ramadhan/dashboard/index.html 'id="retainedProgramRanking"'
 check_text assets/js/ramadhan-dashboard.js 'get_ramadhan_public_dashboard'
+check_text admin/ramadhan-admin.js 'program_dipertahankan_pilihan'
+check_text supabase/ramadhan-smart-form/05_apply_secretariat_questionnaire_revision.sql 'add column if not exists program_dipertahankan_pilihan text[]'
+check_text supabase/ramadhan-smart-form/03_create_public_dashboard_rpc.sql "'program_dipertahankan'"
 check_text supabase/ramadhan-smart-form/03_create_public_dashboard_rpc.sql 'revoke all on function public.get_ramadhan_public_dashboard() from public'
 check_text supabase/ramadhan-smart-form/03_create_public_dashboard_rpc.sql 'grant execute on function public.get_ramadhan_public_dashboard() to anon, authenticated'
 

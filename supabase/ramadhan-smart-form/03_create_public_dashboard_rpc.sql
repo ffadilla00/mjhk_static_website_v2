@@ -11,6 +11,7 @@ as $$
     select
       created_at,
       program_prioritas,
+      coalesce(program_dipertahankan_pilihan, '{}'::text[]) as program_dipertahankan_pilihan,
       area_peningkatan,
       partisipasi,
       usulan_baru
@@ -28,6 +29,12 @@ as $$
     cross join lateral unnest(area_peningkatan) as expanded(item)
     group by expanded.item
   ),
+  retained_program_counts as (
+    select expanded.item as key, count(*)::integer as total
+    from base
+    cross join lateral unnest(program_dipertahankan_pilihan) as expanded(item)
+    group by expanded.item
+  ),
   participation_counts as (
     select partisipasi as key, count(*)::integer as total
     from base
@@ -37,6 +44,7 @@ as $$
     select
       created_at,
       program_prioritas,
+      program_dipertahankan_pilihan,
       area_peningkatan,
       partisipasi,
       regexp_replace(
@@ -87,6 +95,13 @@ as $$
       )
       from improvement_counts
     ), '[]'::jsonb),
+    'program_dipertahankan', coalesce((
+      select jsonb_agg(
+        jsonb_build_object('key', key, 'count', total)
+        order by total desc, key
+      )
+      from retained_program_counts
+    ), '[]'::jsonb),
     'partisipasi', coalesce((
       select jsonb_agg(
         jsonb_build_object('key', key, 'count', total)
@@ -100,6 +115,7 @@ as $$
           'created_at', created_at,
           'pengirim', 'Anonim',
           'program_prioritas', program_prioritas,
+          'program_dipertahankan_pilihan', program_dipertahankan_pilihan,
           'area_peningkatan', area_peningkatan,
           'partisipasi', partisipasi,
           'usulan', usulan
